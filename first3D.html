@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>第一个three.js文件_WebGL三维场景</title>
+    <!-- 引用CSS文件 -->
+    <!-- <linkrel="stylesheet"type="text/css"href="./3D-WEB.css"/> -->
+    <link type="text/css" rel="styleSheet" href="./css_file/3D-WEB.css" />
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            /* 隐藏body窗口区域滚动条 */
+        }
+    </style>
+    <!--引入three.js三维引擎-->
+    <!-- <script src="http://www.yanhuangxueyuan.com/versions/threejsR92/build/three.js"></script> -->
+    <!-- <script src="./threeSrc/Three.js"></script> -->
+    <script
+        src="https://6d61-math-training-9g90u35i7d2b235b-1304747630.tcb.qcloud.la/html5_Pages/threeSrc/three.js"></script>
+
+    <!--引入OrbitControls.js旋转缩放代码-->
+    <!-- <script
+        src="https://6d61-math-training-9g90u35i7d2b235b-1304747630.tcb.qcloud.la/html5_Pages/threeSrc/OrbitControls.js"></script> -->
+
+    <!--引入data.gui.js图形用户界面-->
+    <script
+        src="https://6d61-math-training-9g90u35i7d2b235b-1304747630.tcb.qcloud.la/html5_Pages/threeSrc/dat.gui.min.js"></script>
+
+    <!--引入State.js状态监视代码-->
+    <script src="./threeSrc/stats.min.js"></script>
+
+    <!--引入tweenjs.min.js缓动动画代码-->
+    <script src="./threeSrc/Tween.js"></script>
+</head>
+
+<body onresize="onWindowResize()">
+    <!-- Import maps polyfill -->
+    <!-- Remove this when import maps will be widely supported -->
+    <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./threeSrc/three.module.js"
+            }
+        }
+    </script>
+    <!--这里做一个gui的测试区域-->
+    <script>
+        var material;
+        var judgeClipInter = true;
+        var testObj = {
+            x: 10,
+            y: "20",
+            z: 30,
+            color: '#66ccff',
+            judgeClipInter: true,
+        };
+        var gui = new dat.GUI();
+        gui.domElement.id = "gui";
+        var f1 = gui.addFolder('入门');
+        f1.domElement.id = "title";
+        f1.add(testObj, "x", 5, 175, 1);
+        f1.add(testObj, "y");
+        f1.add(testObj, "z");
+        f1.add(testObj, "judgeClipInter").onChange(function (value) {
+            material.clipIntersection = value;
+        });
+        f1.addColor(testObj, "color");
+        f1.open();
+        var f2 = gui.addFolder('菜鸟');
+        f2.add(testObj, "x", 5, 175, 1).name('今天');
+        f2.add(testObj, "y").name('晚上');
+        f2.add(testObj, "z").name('打老虎');
+        f2.addColor(testObj, "color").name('今晚打老虎');
+        f2.open();
+    </script>
+
+    <!-- <button style="position: absolute;top: 150px;left: 150px;">高大上</button> -->
+    <script type="module">
+        import { OrbitControls } from "./threeSrc/OrbitControls.js";
+        // import { Interaction } from './threeSrc/three.interaction';
+        /**
+         * 创建场景对象Scene
+         */
+        var scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xacacac);
+
+        /**
+         * 曲线测试
+         */
+        const curve = new THREE.EllipseCurve(
+            0, 0,            // ax, aY
+            100, 100,           // xRadius, yRadius
+            2 * Math.PI - 1 / 12 * Math.PI, 2 * Math.PI - 11 / 12 * Math.PI,  // aStartAngle, aEndAngle
+            false,            // aClockwise
+            0                 // aRotation
+        );
+
+        const pointss = curve.getPoints(80);
+        const tGroup = new THREE.Group();
+        // const geometry = new THREE.BufferGeometry().setFromPoints(pointss);
+        const shaped = new THREE.Shape(pointss);
+        const geometry = new THREE.ShapeGeometry(shaped, 25);
+        let planes = [
+            new THREE.Plane(new THREE.Vector3(1, 1, 0), 0),
+            // new THREE.Plane(new THREE.Vector3(0, 1, 0),0),
+        ];
+
+        material = new THREE.MeshBasicMaterial({
+            color: 0xffff00,
+            wireframe: false,
+            transparent: true,
+            // clippingPlanes:this.planes,
+            // clipIntersection:judgeClipInter
+        });
+        // Create the final object to add to the scene
+        const ellipse = new THREE.Mesh(geometry, material);
+        scene.add(ellipse);
+
+        let tShaped = new THREE.Shape([new THREE.Vector2().fromArray([-50, -50, 0]), new THREE.Vector2().fromArray([50, -50, 0]), new THREE.Vector2().fromArray([50, 50, 0]), new THREE.Vector2().fromArray([-50, 50, 0])])
+        const tGeometry = new THREE.ShapeGeometry(tShaped, 25);
+        const triShape = new THREE.Mesh(tGeometry, material);
+        triShape.position.set(0, 0, 0);
+        tGroup.add(triShape);
+        tGroup.position.set(50, 50, 0)
+        // triShape.rotation.z = Math.PI / 4
+        // scene.add(tGroup);
+
+        // const line1 = new THREE.LineCurve(new THREE.Vector2( 0, 0 ),new THREE.Vector2( 100, 100 ))
+        const path = new THREE.Path();
+        path.moveTo(0, 10);
+        path.lineTo(500, 10);
+        // path.quadraticCurveTo(50, 50, 0, 200);
+        // path.lineTo(100, 100);
+
+        var linePoints = path.getPoints(100);
+        const geometryLine = new THREE.BufferGeometry().setFromPoints(linePoints);
+        var lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
+        var line11 = new THREE.Line(geometryLine, lineMaterial);
+        scene.add(line11)
+
+        var linePoints2 = new Float32Array([10, 20, 30, 40, 50, 60, 70, 80, 90]);
+        const geometryLine2 = new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(linePoints2, 3));
+
+        var line22 = new THREE.Line(geometryLine2, lineMaterial);
+        scene.add(line22)
+
+
+        /**
+         * 创建点模型
+         */
+        function createShapePoints() {
+            //创建一个圆形的材质，记得一定要加上texture.needsUpdate = true;
+            let canvas = document.createElement("canvas");
+            canvas.width = 100;
+            canvas.height = 100;
+
+            let context = canvas.getContext("2d");
+            context.fillStyle = "#aaaaaa";
+
+            context.arc(50, 50, 45, 0, 2 * Math.PI);
+            context.fill();
+
+            // 创建材质
+            let texture = new THREE.Texture(canvas);
+            texture.needsUpdate = true;
+
+            //创建点，是用PointsMaterial的map属性来设置材质
+            let geometry = new THREE.BufferGeometry();
+            // 点位置
+            const p1 = new Array(0, 0, 0);
+            const p2 = new Array(100, 100, 0);
+            const p3 = new Array(-100, -200, 0);
+            var vertices = new Array();
+            vertices = vertices.concat(p1);
+            vertices = vertices.concat(p2);
+            vertices = vertices.concat(p3);
+
+            var pp = new Float32Array(vertices);
+
+            // vertices 表示顶点
+            geometry.setAttribute('position', new THREE.BufferAttribute(pp, 3));
+
+            // 如果这边的颜色没有设置，那么就默认取canvas中的颜色
+            let material = new THREE.PointsMaterial({
+                size: 5 * 1,
+                map: texture,
+                transparent: true
+            });
+
+            let points = new THREE.Points(geometry, material);
+
+            return points;
+        }
+        var points = createShapePoints();
+        scene.add(points);
+
+        // geometry.addGroup(0, +Infinity, 0)
+        // geometry.addGroup(0, +Infinity, 1)
+        // var material1 = new THREE.MeshLambertMaterial({
+        //     color: 0x0000ff,
+        //     opacity: 0.5,
+        //     transparent: false,
+        //     // wireframe:true
+        // }); //材质对象Material1
+        // var material2 = new THREE.MeshBasicMaterial({
+        //     color: 0x000000,
+        //     wireframe: true
+        // }); //材质对象Material2
+        // var mesh = new THREE.Mesh(geometry, [material1, material2]); //网格模型对象Mesh
+
+        // var material = new THREE.LineBasicMaterial({
+        //     color: 0x0000ff
+        // });
+        // var mesh = new THREE.Line(geometry, material); //网格模型对象Mesh
+
+        // var material = new THREE.PointsMaterial({
+        //     color: 0x0000ff, //颜色
+        //     size: 5, //点渲染尺寸
+        // });
+        // //点模型对象  参数：几何体  点材质
+        // var point = new THREE.Points(geometry, material);
+        // scene.add(point); //网格模型添加到场景中
+
+        /**
+         * 光源设置
+         */
+        //点光源
+        var point = new THREE.PointLight(0xffffff);
+        point.position.set(400, 200, 300); //点光源位置
+        scene.add(point); //点光源添加到场景中
+        //环境光
+        var ambient = new THREE.AmbientLight(0x444444);
+        scene.add(ambient);
+        var axes = new THREE.AxesHelper(500);
+        scene.add(axes);
+        // console.log(scene)
+        // console.log(scene.children)
+
+        // import { UIPanel } from './threeSrc/libs/ui.js';
+        // const container = new UIPanel();
+        // container.setId('viewport');
+        // container.setPosition('absolute');
+        // container.setHeight('200px');
+        // container.setWidth('200px');
+        // container.setLeft( '500px' );
+        // container.setTop( '500px' );
+        // container.setBackgroundColor('red');
+
+        /**
+         * 相机设置
+         */
+        var width = window.innerWidth; //窗口宽度
+        var height = window.innerHeight; //窗口高度
+        var k = width / height; //窗口宽高比
+        var s = 200; //三维场景显示范围控制系数，系数越大，显示的范围越大
+
+        //创建正投影相机对象
+        // var camera = new THREE.OrthographicCamera(-s * k, s * k, s, -s, 1, 1000);
+        //创建透视投影相机对象
+        var camera = new THREE.PerspectiveCamera(60, k, 1, 1000);
+        // camera.up.set(0, 0, 1);
+
+        camera.position.set(200, 200, 200); //设置相机位置
+
+        // camera.lookAt(scene.position); //设置相机方向(指向的场景对象)
+        /**
+         * 创建渲染器对象
+         */
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(width, height);//设置渲染区域尺寸
+        renderer.setClearColor(0xb9d3ff, 1); //设置背景颜色
+        renderer.localClippingEnabled = true;
+        document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
+
+        let stats = new Stats();
+        stats.showPanel(1);
+        document.body.appendChild(stats.dom);
+
+        let dummy = new THREE.Object3D();
+        var controls = new OrbitControls(camera, renderer.domElement);//创建控件对象
+        console.log(renderer.domElement);
+        // controls.addEventListener('change', function(event){
+        //     console.log(event);
+        // });
+        controls.enablePan = false;//禁止右键拖拽
+        // controls.enableZoom = false;//禁止缩放
+        // controls.enableRotate = false; //禁止旋转
+        // // 缩放范围
+        // controls.minZoom = 0.5;
+        // controls.maxZoom = 2;
+        // 上下旋转范围
+        controls.minPolarAngle = 0;
+        controls.maxPolarAngle = Math.PI / 2;
+        // // 左右旋转范围
+        // controls.minAzimuthAngle = -Math.PI * (100 / 180);
+        // controls.maxAzimuthAngle = Math.PI * (100 / 180);
+        // controls.addEventListener('change', render);//监听鼠标、键盘事件
+
+
+        import { ViewHelper } from './threeSrc/viewPort/Viewport.ViewHelper.js';
+        const viewHelper = new ViewHelper(camera, document.body);
+        viewHelper.controls = controls;
+        // document.body.appendChild(container.dom);
+
+        /**
+         * 创建网格模型
+         */
+        // var geometry = new THREE.SphereGeometry(60, 40, 40); //创建一个球体几何对象
+        var geometry1 = new THREE.BoxGeometry(10, 10, 10); //创建一个立方体几何对象Geometry
+        var geometry2 = new THREE.BoxGeometry(10, 10, 10);
+        var geometry3 = new THREE.BoxGeometry(10, 10, 10);
+        var geometry4 = new THREE.BoxGeometry(10, 10, 10);
+        var geometry5 = new THREE.BoxGeometry(10, 10, 10);
+        var geometry6 = new THREE.BoxGeometry(10, 10, 10);
+
+        var materil1 = new THREE.MeshBasicMaterial({
+            color: 0x0000ff
+        })
+        var materil2 = new THREE.MeshBasicMaterial({
+            color: 0x0000ff
+        })
+        var materil3 = new THREE.MeshBasicMaterial({
+            color: 0x0000ff
+        })
+        var materil4 = new THREE.MeshBasicMaterial({
+            color: 0x0000ff
+        })
+        var materil5 = new THREE.MeshBasicMaterial({
+            color: 0x0000ff
+        })
+        var materil6 = new THREE.MeshBasicMaterial({
+            color: 0x0000ff
+        })
+        var mesh1 = new THREE.Mesh(geometry1, materil1)
+        var mesh2 = new THREE.Mesh(geometry2, materil2)
+        var mesh3 = new THREE.Mesh(geometry3, materil3)
+        var mesh4 = new THREE.Mesh(geometry4, materil4)
+        var mesh5 = new THREE.Mesh(geometry5, materil5)
+        var mesh6 = new THREE.Mesh(geometry6, materil6)
+
+        mesh1.position.set(10, 0, 0);
+        mesh2.position.set(10, 0, 10)
+        mesh3.position.set(10, 0, 20)
+        mesh4.position.set(0, 0, 0)
+        mesh5.position.set(0, 0, 10)
+        mesh6.position.set(0, 0, 20)
+
+        mesh6.matrixAutoUpdate = true;
+        mesh6.matrixWorldNeedsUpdate = true;
+        mesh4.matrixAutoUpdate = true;
+        mesh4.matrixWorldNeedsUpdate = true;
+
+        // var invisible = new Event('invisible');
+        // var invisible = new CustomEvent('invisible')
+        // Object.assign(THREE.Mesh.prototype, THREE.EventDispatcher.prototype); 
+
+        mesh1.addEventListener("invisible", function (event) { console.log(this); console.log(event.obj) })
+        // mesh2.addEventListener("invisible", function (event) { console.log(this); console.log(event.obj) })
+        // mesh3.addEventListener("invisible", function (event) { console.log(this); console.log(event.obj) })
+        // mesh4.addEventListener("invisible", function (event) { console.log(this); console.log(event.obj) })
+        // mesh5.addEventListener("invisible", function (event) { console.log(this); console.log(event.obj) })
+        // mesh6.addEventListener("invisible", function (event) { console.log(this); console.log(event.obj) })
+
+        // mesh6.applyMatrix4(mesh5.matrix);
+
+        scene.add(mesh1, mesh2, mesh3, mesh4, mesh5, mesh6);
+
+        f2.add(mesh4.position, "y", 0, 200, 1).name('mesh4的位置').onChange(render);
+
+        //下面的代码是做3D物体对象的拾取操作
+        const raycaster = new THREE.Raycaster();
+        const pointer = new THREE.Vector2();
+        let mColor = 0x111111;
+
+        let matForTranslate = new THREE.Matrix4();
+        matForTranslate.makeTranslation(0, 20, 0);
+
+        import { TextIn3D } from '/threeSrc/textProcessing/textIn3D.js'
+        import { EditorOperate } from "./threeSrc/editor/EditorOperate.js"
+        import { DimensionType } from "./threeSrc/editor/DimensionType.js"
+        import { EditorState } from "./threeSrc/editor/EditorState.js"
+        let eState = EditorState.OBSERVER;
+        let editorOperate = new EditorOperate(DimensionType._3D, eState, controls, scene, camera, renderer);
+        let textIn3D = new TextIn3D(undefined, renderer, editorOperate);
+        let text3D_obj = textIn3D.createText("Hello world!", 20);
+        text3D_obj.position.z = 10;
+        scene.add(text3D_obj);
+
+        function render() {
+            stats.update();
+            TWEEN.update();
+            renderer.autoClear = false;
+            renderer.setViewport(0, 0, width, height);
+            renderer.render(scene, camera);//执行渲染操作
+            viewHelper.render(renderer);
+            renderer.autoClear = true;
+
+            // console.log(mesh4.position);
+            // console.log(mesh4.matrix);
+
+            // mesh6.applyMatrix4(mesh4.matrix);
+            // mesh6.matrix.copyPosition(mesh4.matrix);
+            // mesh6.matrix.premultiply(matForTranslate);
+            // mesh6.matrix.decompose(mesh6.position, mesh6.quaternion, mesh6.scale);
+
+            // mesh6.updateMatrix();
+            // mesh4.updateMatrix();
+        }
+        render();
+
+        // 执行渲染操作   指定场景、相机作为参数
+        // renderer.render(scene, camera);
+        // 执行动画操作
+        let startTime = new Date();
+        let T0 = new Date();//上次时间
+
+        let prevActionsInUse = 0;
+        const clock = new THREE.Clock(); // only used for animations
+
+        function animate() {
+            let T1 = new Date();//本次时间
+            let t = T1 - T0;//时间差
+            T0 = T1;//把本次时间赋值给上次时间
+
+            // const mixer = editor.mixer;
+            const delta = clock.getDelta();
+
+            // if (mesh1.position.y < 110)
+            // if (T1 - startTime > 1000) return;
+            if (viewHelper.animating === true) {
+                viewHelper.update(delta);
+            }
+
+            // mesh6.setRotationFromQuaternion(camera.quaternion);
+
+            render();
+            // renderer.render(scene, camera);//执行渲染操作
+            // mesh1.rotateY(0.001 * t);//旋转角速度0.001弧度每毫秒
+            // mesh1.translateY(0.001);
+            // console.log(t);
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // window.addEventListener('click', selObject);
+        function selObject(event) {
+
+            pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+            pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(pointer, camera);
+
+            let intersects = raycaster.intersectObjects(scene.children);
+            // console.log(scene.children);
+
+            if (intersects.length > 0) {
+                for (let ele in scene.children) {
+                    // console.log(ele)
+                    if (scene.children[ele] instanceof THREE.Mesh) {
+                        scene.children[ele].material.color.set(0x1111ff);
+                    }
+                }
+                mColor += 0x111111;
+                intersects[0].object.material.color.set(mColor);
+                intersects[0].object.dispatchEvent({ type: 'invisible', obj: intersects[0].object });
+            }
+
+            // for (let i = 0; i < intersects.length; i++) {
+            //     intersects[i].object.material.color.set(mColor);
+            // }
+
+            render();
+        }
+
+        // mesh1.position.y = 0;
+        // createjs.Tween.get(mesh1.position).to({ y: 100 }, 2000, createjs.Ease.getPowIn(2.2)).call(getOver)
+        // function getOver() {
+        //     quitAnima = true;
+        // }
+
+        /* 窗口变动触发 */
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            render();
+        }
+
+        let testArray = new Array(1.0, 2.0, 3.0)
+        let to32Array = new Float32Array(testArray)
+
+        // var drag_Btn = { 拖动GUI:function(){document.getElementById('gui')}};
+        // var drag_Btn = { 拖动GUI:function(){}};
+        // var dragButton = gui.add(drag_Btn,"拖动GUI")
+        var dragButton = gui.addFolder("点这里拖动GUI")
+        dragButton.domElement.id = "drag_Btn"
+        dragElement(dragButton);
+
+        function dragElement(elmnt) {
+            var pos1 = 0,
+                pos2 = 0,
+                pos3 = 0,
+                pos4 = 0;
+            if (document.getElementById(elmnt.domElement.id + "header")) {
+                // if present, the header is where you move the DIV from:
+                document.getElementById(elmnt.domElement.id + "header").onmousedown = dragMouseDown;
+            } else {
+                // otherwise, move the DIV from anywhere inside the DIV:
+                elmnt.domElement.onmousedown = dragMouseDown;
+            }
+
+            function dragMouseDown(e) {
+                console.log(e)
+                e = e || window.event;
+                //e.preventDefault();
+                // get the mouse cursor position at startup:
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                // call a function whenever the cursor moves:
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                // calculate the new cursor position:
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                // set the element's new position:
+                elmnt.parent.domElement.style.top = (elmnt.parent.domElement.offsetTop - pos2) + "px";
+                elmnt.parent.domElement.style.left = (elmnt.parent.domElement.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                // stop moving when mouse button is released:
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+    </script>
+
+    <!-- 补间动画测试 -->
+    <script>
+        (function () {
+            let position = { y: 1 };
+
+            let tween = new TWEEN.Tween(position).to({ y: 0 }, 5000);
+            tween.easing(TWEEN.Easing.Sinusoidal.InOut);
+
+            let tweenBcak = new TWEEN.Tween(position).to({ y: 2 }, 5000);
+            tweenBcak.easing(TWEEN.Easing.Sinusoidal.InOut);
+
+            tween.chain(tweenBcak);
+            tweenBcak.chain(tween);
+
+            // // 获取顶点个数
+            // let count = geometry.getAttribute('position').count;
+
+            let onUpdate = function () {
+
+                //     let y = this.y;
+
+                //     let vertexs = [];
+
+                //     for (let i = 0; i < count; i++) {
+
+                //         vertexs.push(geometry.localPosition[i * 3]);
+                //         vertexs.push(((geometry.localPosition[i * 3 + 1] + 3.22544) * y) - 3.22544);
+                //         vertexs.push(geometry.localPosition[i * 3 + 2]);
+
+                //     }
+
+                //     geometry.getAttribute('position').array = new Float32Array(vertexs);
+                //     geometry.getAttribute('position').needsUpdate = true;
+                // console.log(position['y']);
+
+            };
+
+            tween.onUpdate(onUpdate);
+            tweenBcak.onUpdate(onUpdate);
+
+            tween.start();
+
+            // function animate(time) {
+            //     requestAnimationFrame(animate)
+            //     TWEEN.update(time)
+            // }
+            // requestAnimationFrame(animate)
+        })()
+    </script>
+</body>
+
+</html>

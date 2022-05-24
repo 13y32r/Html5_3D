@@ -1,0 +1,105 @@
+<!--
+ * @Author: your name
+ * @Date: 2022-04-01 18:15:10
+ * @LastEditTime: 2022-05-17 17:20:28
+ * @LastEditors: your name
+ * @Description: 
+ * @FilePath: \Html5_3D\testWeb\MediaAPITest.html
+ * 可以输入预定的版权声明、个性签名、空行等
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediaApiTest</title>
+</head>
+
+<body>
+    <script>
+        var canvas = document.createElement("canvas");
+        canvas.width = 300;
+        canvas.height = 300;
+
+        context = canvas.getContext("2d");
+        context.fillStyle = "#ff0000";
+        context.font = "normal 40px 微软雅黑";
+        context.fillText("Hello World!", 10, 50);
+        document.body.append(canvas);
+    </script>
+
+    <!--recoder-->
+    <button type="button" id="btn-start-recording" style="display: inline" onclick="begin()">begin</button>
+    <button type="button" id="btn-stop-recording" style="display: inline" onclick="stop()">stop</button>
+    <audio controls="" style="visibility: hidden"></audio>
+
+    <script src="http://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../assist/recorder.js"></script>
+
+    <script>
+        alert("创建recoder");
+        let recorder = new Recorder({
+            sampleBits: 16,         // 采样位数，支持 8 或 16，默认是16
+            sampleRate: 16000,      // 采样率，支持 11025、16000、22050、24000、44100、48000，根据浏览器默认值，我的chrome是48000
+            numChannels: 1,         // 声道，支持 1 或 2， 默认是1
+            compiling: true       // 是否边录边转换，默认是false
+        });
+        alert("创建recoder完毕");
+
+        // javascript function that uploads a blob to upload.php
+        function uploadBlob(blob, filename) {
+            // create a blob here for testing
+            var fd = new FormData();
+            fd.append('name', filename);
+            fd.append('audio_file', blob);
+            fd.set('filename', filename);
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:5000/api/upload',
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                console.log(data);
+            });
+
+        }
+
+        function begin() {
+            alert('开始录音');
+            recorder.start().then(() => {
+                // 开始录音
+                console.log("recording...")
+            }, (error) => {
+                // 出错了
+                console.log(`${error.name} : ${error.message}`);
+            });
+        }
+
+        function stop() {
+            alert('停止录音');
+            //recorder.stop();
+            recorder.stop();
+            recorder.play();
+            var blob = recorder.getPCMBlob();
+            // console.log(blob);
+            // alert(blob);
+            // recorder.downloadWAV("123");
+            // var url = URL.createObjectURL(blob);
+            // alert(url);
+            // alert(blob.size);
+            // if (blob.size < 3 * 1024 * 1024) {
+            //     uploadBlob(blob, "adsfas.pcm");
+            // }
+            // 销毁录音实例，置为null释放资源，fn为回调函数，
+            // recorder.destroy().then(function () {
+            //     recorder = null;
+            // });
+            // history.go(0);
+        }
+    </script>
+</body>
+
+</html>

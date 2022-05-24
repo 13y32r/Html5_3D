@@ -1,0 +1,77 @@
+<!--
+ * @Author: your name
+ * @Date: 2022-05-12 10:29:57
+ * @LastEditTime: 2022-05-21 09:05:40
+ * @LastEditors: your name
+ * @Description: 
+ * @FilePath: \Html5_3D\testWeb\textProcessingTest.html
+ * 可以输入预定的版权声明、个性签名、空行等
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Processing Test</title>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            /* 隐藏body窗口区域滚动条 */
+        }
+    </style>
+</head>
+
+<body>
+    <div id="d1" style="position:absolute;left:100px;top:100px;background-color:red;font-size: 50px;line-height: 50px;">
+        div新文本！
+    </div>
+    <script>
+        class listenTest {
+            constructor() {
+                this.name = "Ba ga yalu!";
+                this.showMessage = this.showTheClassMessage.bind(this);
+                window.addEventListener('pointerdown', this.showMessage);
+            }
+
+            addEvent() {
+            }
+
+            showTheClassMessage() {
+                console.log("This message come from innner of class.");
+                window.removeEventListener('pointerdown', this.showMessage);
+            }
+
+            clearTheClassMessage() {
+                window.removeEventListener('pointerdown', this.showMessage);
+            }
+        }
+
+        var ltObj = new listenTest();
+
+        // ltObj.clearTheClassMessage();
+
+
+        // ltObj.showTheClassMessage();
+
+        // window.addEventListener("pointerdown", ltObj.showTheClassMessage.bind(ltObj));
+        // window.removeEventListener("pointerdown", ltObj.showTheClassMessage);
+
+        let myNumber = 0;
+        function animate() {
+            myNumber++;
+            console.log(myNumber);
+            requestAnimationFrame(animate);
+        }
+        // animate();
+        // localStorage.gaodashang_Font="gaodashang";
+        localStorage.removeItem("gaodashang_Font");
+        console.log(localStorage.gaodashang_Font);
+        // console.log(document.body);
+    </script>
+</body>
+
+</html>

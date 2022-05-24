@@ -1,0 +1,96 @@
+<!--
+ * @Author: your name
+ * @Date: 2022-03-21 08:04:24
+ * @LastEditTime: 2022-05-17 17:18:27
+ * @LastEditors: your name
+ * @Description: 
+ * @FilePath: \Html5_3D\testWeb\datGUITest.html
+ * 可以输入预定的版权声明、个性签名、空行等
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>datGUITest</title>
+    <script src="../threeSrc/dat.gui.min.js"></script>
+    <link type="text/css" rel="styleSheet" href="../css_file/3D-WEB.css" />
+</head>
+
+<body>
+    <script>
+        window.onload = function () {
+            var gui = new dat.GUI();
+            gui.domElement.id = "gui"
+
+            var para = document.createElement("li");
+            para.style.textAlign = "center";
+            para.id = "dragGUI_btn"
+            var node = document.createTextNode("点击这里拖动GUI");
+            para.appendChild(node)
+
+            gui.domElement.getElementsByTagName("ul")[0].appendChild(para);
+
+            const options2 = {
+                color5: 'xxxx',
+                speed: 40,
+                types: 'two'
+            };
+            gui.add(options2, 'color5');
+            gui.add(options2, 'types', ['one', 'two', 'three']) // 第一种
+            var tt = gui.add(options2, 'speed', { slow: 1, fast: 40 }) // 第二种
+            var yy = gui.addFolder('高大上');
+
+            // console.log(tt.parent)
+            // console.log(yy.parent)
+
+            dragElement();
+        };
+    </script>
+
+    <!-- dat.gui的拖拽函数 -->
+    <script>
+        function dragElement() {
+            var pos1 = 0,
+                pos2 = 0,
+                pos3 = 0,
+                pos4 = 0;
+            
+                document.getElementById("dragGUI_btn").onmousedown = dragMouseDown;
+
+            function dragMouseDown(e) {
+                e = e || window.event;
+                //e.preventDefault();
+                // get the mouse cursor position at startup:
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                // call a function whenever the cursor moves:
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                // calculate the new cursor position:
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                // set the element's new position:
+                document.getElementById("gui").style.top = (document.getElementById("gui").offsetTop - pos2) + "px";
+                document.getElementById("gui").style.left = (document.getElementById("gui").offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                // stop moving when mouse button is released:
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+    </script>
+</body>
+
+</html>

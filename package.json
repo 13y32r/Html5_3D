@@ -1,0 +1,12 @@
+{
+  "name": "html5_3d",
+  "version": "1.0.0",
+  "description": "",
+  "main": "testInConsole.js",
+  "type": "module",
+  "scripts": {
+    "test": "takeIt"
+  },
+  "author": "",
+  "license": "ISC"
+}
