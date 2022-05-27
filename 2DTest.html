@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2022-03-05 10:58:27
- * @LastEditTime: 2022-05-21 16:11:37
+ * @LastEditTime: 2022-05-25 10:53:57
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\2DTest.html
@@ -245,6 +245,9 @@
 
         import { Ruler } from './threeSrc/tools/ruler.js';
         const ruler = new Ruler(1, editorOperate, textIn3D);
+        editorOperate.changeEditorState(EditorState.Edit);
+
+        // editorOperate.changeEditorState(EditorState.HALT);
         // ruler.measure(new THREE.Vector3(-200, 0, 0), new THREE.Vector3(0, 50, 0))
         // ruler.measure(new THREE.Vector3(0, 50, 0), new THREE.Vector3(200, 0, 0))
         // render();

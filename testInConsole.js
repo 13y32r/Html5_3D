@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-04-12 20:55:07
- * @LastEditTime: 2022-05-20 11:04:27
+ * @LastEditTime: 2022-05-25 09:37:47
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\testInConsole.js
@@ -145,17 +145,16 @@ cc["Name"].push(101);
 // console.log("I am in the Out!")
 
 class getTheFunctionValue {
-    constructor() {
-    }
 
     excectFun() {
-        return ["I am a function value.", 123456];
+        return ["I am a function value.", 123456, this.value];
     }
 
     getFunctionValue() {
+        this.value = "I come from the getFunctionValue.";
         console.log(this.excectFun());
     }
 }
 
-let tt = new getTheFunctionValue();
-tt.getFunctionValue();
+// let tt = new getTheFunctionValue();
+// tt.getFunctionValue();

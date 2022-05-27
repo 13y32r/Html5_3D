@@ -385,6 +385,7 @@
         let eState = EditorState.OBSERVER;
         let editorOperate = new EditorOperate(DimensionType._3D, eState, controls, scene, camera, renderer);
         let textIn3D = new TextIn3D(undefined, renderer, editorOperate);
+        editorOperate.changeEditorState(EditorState.Edit);
         let text3D_obj = textIn3D.createText("Hello world!", 20);
         text3D_obj.position.z = 10;
         scene.add(text3D_obj);
@@ -426,13 +427,13 @@
             T0 = T1;//把本次时间赋值给上次时间
 
             // const mixer = editor.mixer;
-            const delta = clock.getDelta();
+            // const delta = clock.getDelta();
 
             // if (mesh1.position.y < 110)
             // if (T1 - startTime > 1000) return;
-            if (viewHelper.animating === true) {
-                viewHelper.update(delta);
-            }
+            // if (viewHelper.animating === true) {
+            //     viewHelper.update(delta);
+            // }
 
             // mesh6.setRotationFromQuaternion(camera.quaternion);
 
@@ -443,10 +444,12 @@
             // console.log(t);
             requestAnimationFrame(animate);
         }
-        animate();
+        // animate();
 
-        // window.addEventListener('click', selObject);
+        window.addEventListener('click', selObject);
         function selObject(event) {
+
+            console.log(clock.getDelta());
 
             pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
             pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;

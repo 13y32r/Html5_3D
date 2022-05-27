@@ -1,13 +1,13 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-05-15 10:30:42
- * @LastEditTime: 2022-05-21 09:50:44
+ * @LastEditTime: 2022-05-25 08:52:22
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\threeSrc\tools\ruler.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
-import { LineBasicMaterial, BufferGeometry, Line, Path, Vector3, Group } from 'three';
+import { LineBasicMaterial, BufferGeometry, Line, Vector3, Group } from 'three';
 import { EditorState } from '../editor/EditorState.js';
 
 class Ruler {
