@@ -103,6 +103,7 @@
         // const geometry = new THREE.BufferGeometry().setFromPoints(pointss);
         const shaped = new THREE.Shape(pointss);
         const geometry = new THREE.ShapeGeometry(shaped, 25);
+        console.log(geometry);
         let planes = [
             new THREE.Plane(new THREE.Vector3(1, 1, 0), 0),
             // new THREE.Plane(new THREE.Vector3(0, 1, 0),0),

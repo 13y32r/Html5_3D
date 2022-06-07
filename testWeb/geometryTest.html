@@ -1,0 +1,111 @@
+<!--
+ * @Author: your name
+ * @Date: 2022-06-02 20:48:23
+ * @LastEditTime: 2022-06-07 13:09:44
+ * @LastEditors: your name
+ * @Description: 
+ * @FilePath: \Html5_3D\testWeb\geometryTest.html
+ * 可以输入预定的版权声明、个性签名、空行等
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geometry Test</title>
+    <script src="../threeSrc/three.js"></script>
+    <script src="./defultTemplate.js"></script>
+</head>
+
+<body>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "../threeSrc/three.module.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import { SliceBufferGeometry } from "./slice2BG.js";
+        document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
+
+        const texture = new THREE.TextureLoader().load("mapping2.jpg", function () {
+            render();
+        });
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set(1, 1);
+
+        const geometry = new THREE.BufferGeometry();
+        // 创建一个简单的矩形. 在这里我们左上和右下顶点被复制了两次。
+        // 因为在两个三角面片里，这两个顶点都需要被用到。
+        const vertices = new Float32Array([
+            -1.0, -1.0, 0,
+            1.0, -1.0, 0,
+            1.0, 1.0, 0,
+            -1.0, 1.0, 0,
+            -1.0, 3.0, 0,
+            3.0, -1.0, 0
+        ]);
+
+        // // itemSize = 3 因为每个顶点都是一个三元组。
+        geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+        console.log(geometry.attributes);
+
+        // Uint16Array类型数组创建顶点索引数据
+        var indexes = new Uint16Array([
+            0, 1, 2,
+            0, 2, 3,
+            4, 3, 2,
+            2, 1, 5
+        ])
+        geometry.index = new THREE.BufferAttribute(indexes, 1); //1个为一组
+
+        /**纹理坐标*/
+        var uvs = new Float32Array([
+            0, 0, //图片左下角
+            1, 0, //图片右下角
+            1, 1, //图片右上角
+            0, 1, //图片左上角
+        ]);
+
+        geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+        // for (let i = 0; i < geometry.index.array.length; i++) {
+        //     let vertexId = geometry.index.array[i];
+        //     let vertexPosition = new THREE.Vector3();
+        //     vertexPosition.setX(geometry.attributes.position.array[vertexId * 3]);
+        //     vertexPosition.setY(geometry.attributes.position.array[vertexId * 3 + 1]);
+        //     vertexPosition.setZ(geometry.attributes.position.array[vertexId * 3 + 2]);
+        //     console.log("顶点“" + vertexId + "”的坐标是:");
+        //     console.log(vertexPosition);
+        // }
+
+        const material = new THREE.MeshBasicMaterial({ color: 0xffffff, map: texture });
+        const mesh = new THREE.Mesh(geometry, material);
+        // scene.add(mesh);
+
+        let boxGemo = new THREE.BoxGeometry(1, 1, 1);
+        let sliceObj = new SliceBufferGeometry(boxGemo);
+        const cube = new THREE.Mesh(boxGemo, material);
+        // scene.add(cube);
+
+        let plane = new THREE.Plane();
+        let point = new THREE.Vector3();
+        let testLine = new THREE.Line3(new THREE.Vector3(12, 5, 13), new THREE.Vector3(0.1, 5000, 13000));
+        plane.intersectLine(testLine, point);
+        let returnOBJ = sliceObj.sliceGeometry(plane);
+        // console.log(returnOBJ[0]);
+        // console.log(returnOBJ[1]);
+        const cube1 = new THREE.Mesh(returnOBJ[0], material);
+        const cube2 = new THREE.Mesh(returnOBJ[1], material);
+        // cube1.translateZ(3);
+        // cube2.translateZ(-3);
+        scene.add(cube1, cube2);
+        render();
+    </script>
+</body>
+
+</html>

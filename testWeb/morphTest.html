@@ -1,0 +1,99 @@
+<!--
+ * @Author: your name
+ * @Date: 2022-05-31 10:24:58
+ * @LastEditTime: 2022-05-31 18:22:31
+ * @LastEditors: your name
+ * @Description: 
+ * @FilePath: \Html5_3D\testWeb\morphTest.html
+ * 可以输入预定的版权声明、个性签名、空行等
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>morph test</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+        import * as THREE from "../threeSrc/three.module.js";
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xacacac);
+
+        var ambient = new THREE.AmbientLight(0xffffff);
+        scene.add(ambient);
+
+        var width = window.innerWidth; //窗口宽度
+        var height = window.innerHeight; //窗口高度
+        var k = width / height; //窗口宽高比
+        var s = 200; //三维场景显示范围控制系数，系数越大，显示的范围越大
+
+        var camera = new THREE.PerspectiveCamera(60, k, 1, 1000);
+        camera.position.set(0, 0, 1000);
+
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(width, height);//设置渲染区域尺寸
+        renderer.setClearColor(0xb9d3ff, 1); //设置背景颜色
+        renderer.localClippingEnabled = true;
+        document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
+
+        var shapeArray = new Array();
+        toVector2(-100, -100);
+        toVector2(-100, 100);
+        toVector2(100, 100);
+        toVector2(100, -100);
+        const vShape = new THREE.Shape(shapeArray);
+        const geometry = new THREE.ShapeGeometry(vShape, 12);
+
+        geometry.morphAttributes.position = [];
+        const positionAttribute = geometry.attributes.position;
+        geometry.morphAttributes.position[0] = new THREE.Float32BufferAttribute([-100, -100, 0, -100, 100, 0, 200, 200, 0, 100, -100, 0], 3);
+        geometry.morphAttributes.position[1] = new THREE.Float32BufferAttribute([-100, -100, 0, -100, 100, 0, 100, 100, 0, 200, -200, 0], 3);
+        geometry.morphAttributes.position[2] = new THREE.Float32BufferAttribute([-200, -200, 0, -100, 100, 0, 100, 100, 0, 100, -100, 0], 3);
+        geometry.morphAttributes.position[3] = new THREE.Float32BufferAttribute([-100, -100, 0, -200, 200, 0, 100, 100, 0, 100, -100, 0], 3);
+        console.log(positionAttribute);
+
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
+
+        function toVector2(_x, _y) {
+            let v = new THREE.Vector2(_x, _y);
+            shapeArray.push(v);
+        }
+
+        let i = 0;
+        let j = 0;
+
+        function render() {
+            if (j <= 1) {
+                j += 0.01;
+            } else {
+                j = 0;
+                mesh.morphTargetInfluences[i] = j;
+                if (i < 3) {
+                    i++;
+                } else {
+                    i = 0;
+                }
+            }
+            mesh.morphTargetInfluences[i] = j;
+            renderer.render(scene, camera);
+        }
+
+        renderer.setAnimationLoop(function () {
+            render();
+        });
+    </script>
+</body>
+
+</html>

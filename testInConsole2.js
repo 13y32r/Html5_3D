@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-05-08 15:55:52
- * @LastEditTime: 2022-05-11 11:23:46
+ * @LastEditTime: 2022-06-07 12:29:59
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\testInConsole2.js
@@ -56,10 +56,26 @@ obj1.up.set(1, 0, 0);
 // console.log(obj2.rotation);
 // obj1.lookAt(vector4);
 // obj2.lookAt(vector4);
-console.log(obj1.quaternion);
-console.log(obj2.quaternion);
 
 // targetQuaternion2.copy(obj1.quaternion);
 // vector3.applyQuaternion(obj1.Quaternion)
 // vector5.applyQuaternion(targetQuaternion2);
 // console.log(vector5);
+
+// let testArray = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+// let bArray = [123, 456, 789];
+// testArray.unshift.apply(testArray, bArray);
+// console.log(testArray);
+
+let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
+// arr.sort((a, b) => a - b);
+// console.log(arr);
+// console.log(arr.indexOf(456));
+
+// let vertex = new Float32Array();
+// vertex(0).push(123);
+// vertex().push(321);
+// console.log(vertex);
+
+let f32Array = new Float32Array(arr);
+console.log(f32Array);
