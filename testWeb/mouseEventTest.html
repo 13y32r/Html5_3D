@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouse Event Test</title>
+</head>
+
+<body>
+    <div id="pstion" style="position: absolute;top:200px;left:200px;width: 50px;height: 50px;background-color: red;">
+    </div>
+    <script type="module">
+        let psObj = document.getElementById("pstion");
+        let event = document.createEvent('MouseEvent');
+        event.initMouseEvent("click", true, true, window, 0, 210, 210, 210, 210, false, false, false, false, 0, null);
+        document.addEventListener('click', function (e) {
+            console.log(typeof e.path[0]);
+        });
+        document.dispatchEvent(event);
+        psObj.addEventListener("click", function (e) {
+            console.log("Hello World!");
+        })
+        psObj.dispatchEvent(event);
+    </script>
+</body>
+
+</html>

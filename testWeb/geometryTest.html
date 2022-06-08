@@ -83,26 +83,27 @@
         //     console.log(vertexPosition);
         // }
 
-        const material = new THREE.MeshBasicMaterial({ color: 0xffffff, map: texture });
+        const material = new THREE.MeshPhongMaterial({  map: texture });
         const mesh = new THREE.Mesh(geometry, material);
         // scene.add(mesh);
 
-        let boxGemo = new THREE.BoxGeometry(1, 1, 1);
+        let boxGemo = new THREE.BoxGeometry(1, 0.2, 1);
+        // console.log(boxGemo);
         let sliceObj = new SliceBufferGeometry(boxGemo);
         const cube = new THREE.Mesh(boxGemo, material);
-        // scene.add(cube);
+        scene.add(cube);
 
         let plane = new THREE.Plane();
         let point = new THREE.Vector3();
         let testLine = new THREE.Line3(new THREE.Vector3(12, 5, 13), new THREE.Vector3(0.1, 5000, 13000));
         plane.intersectLine(testLine, point);
         let returnOBJ = sliceObj.sliceGeometry(plane);
-        // console.log(returnOBJ[0]);
-        // console.log(returnOBJ[1]);
+        console.log(returnOBJ[0]);
+        console.log(returnOBJ[1]);
         const cube1 = new THREE.Mesh(returnOBJ[0], material);
         const cube2 = new THREE.Mesh(returnOBJ[1], material);
-        // cube1.translateZ(3);
-        // cube2.translateZ(-3);
+        cube1.translateX(1);
+        cube2.translateX(-1);
         scene.add(cube1, cube2);
         render();
     </script>
