@@ -53,7 +53,6 @@
 
         // // itemSize = 3 因为每个顶点都是一个三元组。
         geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-        console.log(geometry.attributes);
 
         // Uint16Array类型数组创建顶点索引数据
         var indexes = new Uint16Array([
@@ -83,12 +82,12 @@
         //     console.log(vertexPosition);
         // }
 
-        const material = new THREE.MeshPhongMaterial({  map: texture });
+        const material = new THREE.MeshLambertMaterial({ map: texture });
         const mesh = new THREE.Mesh(geometry, material);
         // scene.add(mesh);
 
-        let boxGemo = new THREE.BoxGeometry(1, 0.2, 1);
-        // console.log(boxGemo);
+        let boxGemo = new THREE.BoxGeometry(1, 1, 1);
+        console.log(boxGemo);
         let sliceObj = new SliceBufferGeometry(boxGemo);
         const cube = new THREE.Mesh(boxGemo, material);
         scene.add(cube);
@@ -105,6 +104,44 @@
         cube1.translateX(1);
         cube2.translateX(-1);
         scene.add(cube1, cube2);
+
+        const colors = [
+            0, 1, 1,
+            0, 1, 1,
+            0, 1, 1,
+            0, 1, 1,
+            0, 1, 1,
+            0, 1, 1,
+            0, 1, 1,
+            0, 1, 1,
+            0, 1, 1,
+            0, 1, 1,
+            0, 1, 1,
+            0, 1, 1,
+            0, 1, 1,
+            0, 1, 1,
+            0, 1, 1,
+            0, 1, 1,
+            0, 1, 1,
+            0, 1, 1,
+            0, 1, 1,
+            1, 0, 0,
+            1, 0, 0,
+            1, 0, 0,
+            1, 0, 0,
+            1, 0, 0,
+        ];
+
+
+        boxGemo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+        const pMmaterial = new THREE.PointsMaterial({
+            size: 0.5,
+            // color: 0xffffff,
+            vertexColors: true,
+        });
+        let points = new THREE.Points(boxGemo, pMmaterial);
+        scene.add(points);
         render();
     </script>
 </body>

@@ -103,7 +103,7 @@ class SliceBufferGeometry {
         for (let i = 0; i < that.negativeVertexId.length; i++) {
             that.negativeVertexPosition.push(that.vertexs[that.negativeVertexId[i]].x, that.vertexs[that.negativeVertexId[i]].y, that.vertexs[that.negativeVertexId[i]].z);
             that.negativeUVs.push(that.uvs[that.negativeVertexId[i] * 2], that.uvs[that.negativeVertexId[i] * 2 + 1]);
-            that.negativeNormal.push(that.normals[that.positiveVertexId[i] * 3], that.normals[that.positiveVertexId[i] * 3 + 1], that.normals[that.positiveVertexId[i] * 3 + 2]);
+            that.negativeNormal.push(that.normals[that.negativeVertexId[i] * 3], that.normals[that.negativeVertexId[i] * 3 + 1], that.normals[that.negativeVertexId[i] * 3 + 2]);
         }
     }
 
