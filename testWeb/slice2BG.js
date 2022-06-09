@@ -1,7 +1,7 @@
 /*******
- * @Author: your name
+ * @Author: 邹岱志
  * @Date: 2022-06-04 17:28:11
- * @LastEditTime: 2022-06-07 13:00:43
+ * @LastEditTime: 2022-06-09 20:11:44
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\testWeb\slice2BG.js

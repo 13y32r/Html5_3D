@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-05-08 15:55:52
- * @LastEditTime: 2022-06-07 12:29:59
+ * @LastEditTime: 2022-06-09 21:42:09
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\testInConsole2.js
@@ -77,5 +77,5 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 // vertex().push(321);
 // console.log(vertex);
 
-let f32Array = new Float32Array(arr);
-console.log(f32Array);
+let arr1 = new Array();
+console.log(arr1.length != 1);
