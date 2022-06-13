@@ -1,17 +1,20 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-05-15 10:30:42
- * @LastEditTime: 2022-05-25 08:52:22
+ * @LastEditTime: 2022-06-10 17:54:48
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\threeSrc\tools\ruler.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
+import { Tool } from './tool.js';
 import { LineBasicMaterial, BufferGeometry, Line, Vector3, Group } from 'three';
 import { EditorState } from '../editor/EditorState.js';
 
-class Ruler {
+class Ruler extends Tool {
     constructor(unit = 10, editorOP, textIn3D) {
+        super("Ruler");
+
         this.startPoint;
         this.endPoint;
 
@@ -34,7 +37,7 @@ class Ruler {
     }
 
     measure() {
-        window.addEventListener('pointerdown', this.gsPoint);
+        this.addListener('pointerdown', this.gsPoint);
     }
 
     getStartPoint(event) {
@@ -46,8 +49,8 @@ class Ruler {
 
         this.startPoint = pointer.unproject(this.editorOP.camera);
 
-        window.addEventListener('pointermove', this.gePoint);
-        window.removeEventListener('pointerdown', this.gsPoint);
+        this.addListener('pointermove', this.gePoint);
+        this.removeListerner('pointerdown', this.gsPoint);
     }
 
     getEndPoint(event) {
@@ -59,7 +62,7 @@ class Ruler {
 
         this.endPoint = pointer.unproject(this.editorOP.camera);
 
-        window.addEventListener('pointerdown', this.spMeasure);
+        this.addListener('pointerdown', this.spMeasure);
         this.multipleOperation(this.startPoint, this.endPoint);
     }
 
@@ -126,11 +129,11 @@ class Ruler {
     }
 
     stopMeasure() {
-        window.removeEventListener('pointermove', this.gePoint);
+        this.removeListerner('pointermove', this.gePoint);
         this.lineGroup.children.length = 0;
-        window.removeEventListener('pointerdown', this.spMeasure);
+        this.removeListerner('pointerdown', this.spMeasure);
         this.editorOP.state = this.editorState;
-        this.editorOP.render();        
+        this.editorOP.render();
     }
 }
 

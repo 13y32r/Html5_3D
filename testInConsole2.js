@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-05-08 15:55:52
- * @LastEditTime: 2022-06-09 21:42:09
+ * @LastEditTime: 2022-06-10 18:14:32
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\testInConsole2.js
@@ -76,6 +76,8 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 // vertex(0).push(123);
 // vertex().push(321);
 // console.log(vertex);
+// test.dispose();
+// console.log(test.proto);
 
-let arr1 = new Array();
-console.log(arr1.length != 1);
+let a = Math.floor(2);
+console.log(a);

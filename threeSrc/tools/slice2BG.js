@@ -1,10 +1,10 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-04 17:28:11
- * @LastEditTime: 2022-06-09 20:11:44
+ * @LastEditTime: 2022-06-12 16:27:01
  * @LastEditors: your name
  * @Description: 
- * @FilePath: \Html5_3D\testWeb\slice2BG.js
+ * @FilePath: \Html5_3D\threeSrc\tools\slice2BG.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
 
@@ -17,7 +17,10 @@ import {
 } from 'three';
 
 class SliceBufferGeometry {
-    constructor(geometry) {
+    constructor(mesh) {
+        this.mesh = mesh;
+        this.geometry = mesh.geometry;
+
         this.vertexs = new Array();
         this.faces = new Array();
         this.uvs = new Array();
@@ -37,10 +40,10 @@ class SliceBufferGeometry {
         this.negativeUVs = new Array();
         this.negativeNormal = new Array();
 
-        this.getVertex(geometry);
-        this.getFace(geometry);
-        this.getUV(geometry);
-        this.getNormal(geometry);
+        this.getVertex(this.geometry);
+        this.getFace(this.geometry);
+        this.getUV(this.geometry);
+        this.getNormal(this.geometry);
     }
 
     getVertex(geometry) {
@@ -81,7 +84,9 @@ class SliceBufferGeometry {
     getPosAndNegVertex(plane) {
         let that = this;
         for (let i = 0; i < that.vertexs.length; i++) {
-            let v2p_distance = plane.distanceToPoint(that.vertexs[i]);
+            const w_vertexs = new Vector3().copy(that.vertexs[i]);
+            that.mesh.localToWorld(w_vertexs);
+            let v2p_distance = plane.distanceToPoint(w_vertexs);
             if (v2p_distance > 0) {
                 that.positiveVertexId.push(i);
             } else if (v2p_distance < 0) {
@@ -128,8 +133,8 @@ class SliceBufferGeometry {
                 that.positiveVertexPosition.push(point2.x, point2.y, point2.z);
                 that.negativeVertexPosition.push(point2.x, point2.y, point2.z);
 
-                that.addNewUVandNewNormal(that.faces[i][0],that.faces[i][1],point1);
-                that.addNewUVandNewNormal(that.faces[i][2],that.faces[i][0],point2);
+                that.addNewUVandNewNormal(that.faces[i][0], that.faces[i][1], point1);
+                that.addNewUVandNewNormal(that.faces[i][2], that.faces[i][0], point2);
 
                 p_SectionIndex.push(that.positiveVertexPosition.length / 3 - 2);
                 p_SectionIndex.push(that.positiveVertexPosition.length / 3 - 1);
@@ -158,8 +163,8 @@ class SliceBufferGeometry {
                 that.positiveVertexPosition.push(point2.x, point2.y, point2.z);
                 that.negativeVertexPosition.push(point2.x, point2.y, point2.z);
 
-                that.addNewUVandNewNormal(that.faces[i][1],that.faces[i][2],point1);
-                that.addNewUVandNewNormal(that.faces[i][2],that.faces[i][0],point2);
+                that.addNewUVandNewNormal(that.faces[i][1], that.faces[i][2], point1);
+                that.addNewUVandNewNormal(that.faces[i][2], that.faces[i][0], point2);
 
                 p_SectionIndex.push(that.positiveVertexPosition.length / 3 - 2);
                 p_SectionIndex.push(that.positiveVertexPosition.length / 3 - 1);
@@ -187,9 +192,9 @@ class SliceBufferGeometry {
                 let point2 = that.getPointInPlane(that.vertexs[that.faces[i][1]], that.vertexs[that.faces[i][2]], plane);
                 that.positiveVertexPosition.push(point2.x, point2.y, point2.z);
                 that.negativeVertexPosition.push(point2.x, point2.y, point2.z);
-                
-                that.addNewUVandNewNormal(that.faces[i][0],that.faces[i][1],point1);
-                that.addNewUVandNewNormal(that.faces[i][1],that.faces[i][2],point2);
+
+                that.addNewUVandNewNormal(that.faces[i][0], that.faces[i][1], point1);
+                that.addNewUVandNewNormal(that.faces[i][1], that.faces[i][2], point2);
 
                 p_SectionIndex.push(that.positiveVertexPosition.length / 3 - 2);
                 p_SectionIndex.push(that.positiveVertexPosition.length / 3 - 1);
@@ -217,9 +222,9 @@ class SliceBufferGeometry {
                 let point2 = that.getPointInPlane(that.vertexs[that.faces[i][2]], that.vertexs[that.faces[i][0]], plane);
                 that.positiveVertexPosition.push(point2.x, point2.y, point2.z);
                 that.negativeVertexPosition.push(point2.x, point2.y, point2.z);
-                
-                that.addNewUVandNewNormal(that.faces[i][1],that.faces[i][2],point1);
-                that.addNewUVandNewNormal(that.faces[i][2],that.faces[i][0],point2);
+
+                that.addNewUVandNewNormal(that.faces[i][1], that.faces[i][2], point1);
+                that.addNewUVandNewNormal(that.faces[i][2], that.faces[i][0], point2);
 
                 p_SectionIndex.push(that.positiveVertexPosition.length / 3 - 2);
                 p_SectionIndex.push(that.positiveVertexPosition.length / 3 - 1);
@@ -247,9 +252,9 @@ class SliceBufferGeometry {
                 let point2 = that.getPointInPlane(that.vertexs[that.faces[i][1]], that.vertexs[that.faces[i][2]], plane);
                 that.positiveVertexPosition.push(point2.x, point2.y, point2.z);
                 that.negativeVertexPosition.push(point2.x, point2.y, point2.z);
-                
-                that.addNewUVandNewNormal(that.faces[i][0],that.faces[i][1],point1);
-                that.addNewUVandNewNormal(that.faces[i][1],that.faces[i][2],point2);
+
+                that.addNewUVandNewNormal(that.faces[i][0], that.faces[i][1], point1);
+                that.addNewUVandNewNormal(that.faces[i][1], that.faces[i][2], point2);
 
                 p_SectionIndex.push(that.positiveVertexPosition.length / 3 - 2);
                 p_SectionIndex.push(that.positiveVertexPosition.length / 3 - 1);
@@ -277,9 +282,9 @@ class SliceBufferGeometry {
                 let point2 = that.getPointInPlane(that.vertexs[that.faces[i][2]], that.vertexs[that.faces[i][0]], plane);
                 that.positiveVertexPosition.push(point2.x, point2.y, point2.z);
                 that.negativeVertexPosition.push(point2.x, point2.y, point2.z);
-                
-                that.addNewUVandNewNormal(that.faces[i][0],that.faces[i][1],point1);
-                that.addNewUVandNewNormal(that.faces[i][2],that.faces[i][0],point2);
+
+                that.addNewUVandNewNormal(that.faces[i][0], that.faces[i][1], point1);
+                that.addNewUVandNewNormal(that.faces[i][2], that.faces[i][0], point2);
 
                 p_SectionIndex.push(that.positiveVertexPosition.length / 3 - 2);
                 p_SectionIndex.push(that.positiveVertexPosition.length / 3 - 1);
@@ -314,45 +319,53 @@ class SliceBufferGeometry {
         }
     }
 
-    addNewUVandNewNormal(index_1,index_2,midpoint){
+    addNewUVandNewNormal(index_1, index_2, midpoint) {
         let that = this;
 
         const p0_distance = midpoint.distanceTo(that.vertexs[index_1]);
         const p1_distance = midpoint.distanceTo(that.vertexs[index_2]);
-        const all_distance = p0_distance+p1_distance;
-        const uv1_diff = Math.abs(that.uvs[index_1*2]-that.uvs[index_2*2]);
-        const uv2_diff = Math.abs(that.uvs[index_1*2+1]-that.uvs[index_2*2+1]);
-        const p0_scale = p0_distance/all_distance;
-        const p1_scale = p1_distance/all_distance;
-        const p0_normal = new Vector3(that.normals[index_1*3],that.normals[index_1*3+1],that.normals[index_1*3+2]);
-        const p1_normal = new Vector3(that.normals[index_2*3],that.normals[index_2*3+1],that.normals[index_2*3+2]);
+        const all_distance = p0_distance + p1_distance;
+        const uv1_diff = Math.abs(that.uvs[index_1 * 2] - that.uvs[index_2 * 2]);
+        const uv2_diff = Math.abs(that.uvs[index_1 * 2 + 1] - that.uvs[index_2 * 2 + 1]);
+        const p0_scale = p0_distance / all_distance;
+        const p1_scale = p1_distance / all_distance;
+        const p0_normal = new Vector3(that.normals[index_1 * 3], that.normals[index_1 * 3 + 1], that.normals[index_1 * 3 + 2]);
+        const p1_normal = new Vector3(that.normals[index_2 * 3], that.normals[index_2 * 3 + 1], that.normals[index_2 * 3 + 2]);
 
         let midNormal = p0_normal.multiplyScalar(p1_scale).add(p1_normal.multiplyScalar(p0_scale));
         midNormal.normalize();
-        that.positiveNormal.push(midNormal.x,midNormal.y,midNormal.z);
-        that.negativeNormal.push(midNormal.x,midNormal.y,midNormal.z);
+        that.positiveNormal.push(midNormal.x, midNormal.y, midNormal.z);
+        that.negativeNormal.push(midNormal.x, midNormal.y, midNormal.z);
 
-        if(that.uvs[index_1*2]>that.uvs[index_2*2]){
-            that.positiveUVs.push(that.uvs[index_1*2]-uv1_diff*p0_scale);
-            that.negativeUVs.push(that.uvs[index_1*2]-uv1_diff*p0_scale);
-        }else{                    
-            that.positiveUVs.push(that.uvs[index_1*2]+uv1_diff*p0_scale);
-            that.negativeUVs.push(that.uvs[index_1*2]+uv1_diff*p0_scale);
+        if (that.uvs[index_1 * 2] > that.uvs[index_2 * 2]) {
+            that.positiveUVs.push(that.uvs[index_1 * 2] - uv1_diff * p0_scale);
+            that.negativeUVs.push(that.uvs[index_1 * 2] - uv1_diff * p0_scale);
+        } else {
+            that.positiveUVs.push(that.uvs[index_1 * 2] + uv1_diff * p0_scale);
+            that.negativeUVs.push(that.uvs[index_1 * 2] + uv1_diff * p0_scale);
         }
 
-        if(that.uvs[index_1*2+1]>that.uvs[index_2*2+1]){
-            that.positiveUVs.push(that.uvs[index_1*2+1]-uv2_diff*p0_scale);
-            that.negativeUVs.push(that.uvs[index_1*2+1]-uv2_diff*p0_scale);
-        }else{
-            that.positiveUVs.push(that.uvs[index_1*2+1]+uv2_diff*p0_scale);
-            that.negativeUVs.push(that.uvs[index_1*2+1]+uv2_diff*p0_scale);
+        if (that.uvs[index_1 * 2 + 1] > that.uvs[index_2 * 2 + 1]) {
+            that.positiveUVs.push(that.uvs[index_1 * 2 + 1] - uv2_diff * p0_scale);
+            that.negativeUVs.push(that.uvs[index_1 * 2 + 1] - uv2_diff * p0_scale);
+        } else {
+            that.positiveUVs.push(that.uvs[index_1 * 2 + 1] + uv2_diff * p0_scale);
+            that.negativeUVs.push(that.uvs[index_1 * 2 + 1] + uv2_diff * p0_scale);
         }
     }
 
     getPointInPlane(v_1, v_2, plane) {
-        let line = new Line3(v_1, v_2);
+        let w_v1 = new Vector3().copy(v_1);
+        let w_v2 = new Vector3().copy(v_2);
+
+        this.mesh.localToWorld(w_v1);
+        this.mesh.localToWorld(w_v2);
+
+        let line = new Line3(w_v1, w_v2);
         let point = new Vector3();
+
         plane.intersectLine(line, point);
+        this.mesh.worldToLocal(point);
         return point;
     }
 
@@ -388,6 +401,10 @@ class SliceBufferGeometry {
         negative_Geometry.setAttribute('position', new THREE.BufferAttribute(n_Vertices, 3));
         negative_Geometry.setAttribute('normal', new THREE.BufferAttribute(n_Normals, 3));
         negative_Geometry.setAttribute('uv', new THREE.BufferAttribute(n_UVs, 2));
+
+        for (let i in that) {
+            delete that[i];
+        }
 
         return [positive_Geometry, negative_Geometry];
     }

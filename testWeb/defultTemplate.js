@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-06-02 20:44:54
- * @LastEditTime: 2022-06-07 13:09:11
+ * @LastEditTime: 2022-06-11 20:56:14
  * @LastEditors: your name
  * @Description:
  * @FilePath: \Html5_3D\testWeb\defultTemplate.js
@@ -22,11 +22,12 @@ scene.add(directionalLight);
 var width = window.innerWidth; //窗口宽度
 var height = window.innerHeight; //窗口高度
 var k = width / height; //窗口宽高比
-var s = 200; //三维场景显示范围控制系数，系数越大，显示的范围越大
+var s = 2; //三维场景显示范围控制系数，系数越大，显示的范围越大
 
-var camera = new THREE.PerspectiveCamera(60, k, 1, 1000);
-camera.position.set(0, 3, 3);
-camera.lookAt(scene.position);
+// var camera = new THREE.PerspectiveCamera(60, k, 1, 1000);
+var camera = new THREE.OrthographicCamera(-s * k, s * k, s, -s, 1, 1000);
+camera.position.set(0, 0, 5);
+// camera.lookAt(scene.position);
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(width, height); //设置渲染区域尺寸

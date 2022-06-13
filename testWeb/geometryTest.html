@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2022-06-02 20:48:23
- * @LastEditTime: 2022-06-09 21:49:21
+ * @LastEditTime: 2022-06-13 08:21:47
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\testWeb\geometryTest.html
@@ -31,7 +31,13 @@
     <script type="module">
         document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
 
-        import { SliceBufferGeometry } from "./slice2BG.js";
+        import { SliceBufferGeometry } from "../threeSrc/tools/slice2BG.js";
+        import { CutOffMesh } from "../threeSrc/tools/cutOffMesh.js";
+        import { OrbitControls } from "../threeSrc/OrbitControls.js";
+
+        var controls = new OrbitControls(camera, renderer.domElement);//创建控件对象
+        controls.addEventListener("change", render);
+
         const texture = new THREE.TextureLoader().load("mapping2.jpg", function () {
             render();
         });
@@ -82,29 +88,77 @@
         //     console.log(vertexPosition);
         // }
 
-        const material = new THREE.MeshLambertMaterial({ map: texture });
+        // const material = new THREE.MeshLambertMaterial({ map: texture, wireframe: true, });
+        const material = new THREE.MeshLambertMaterial({ map: texture, });
         const mesh = new THREE.Mesh(geometry, material);
         // scene.add(mesh);
 
         let boxGemo = new THREE.BoxGeometry(1, 1, 1);
-        console.log(boxGemo);
-        let sliceObj = new SliceBufferGeometry(boxGemo);
         const cube = new THREE.Mesh(boxGemo, material);
-        console.log(cube);
-        scene.add(cube);
+        let sliceObj = new SliceBufferGeometry(cube);
+        // cube.position.set(2, 2, 2);
+        // scene.add(cube);
 
         let plane = new THREE.Plane();
         let point = new THREE.Vector3();
         let testLine = new THREE.Line3(new THREE.Vector3(12, 5, 13), new THREE.Vector3(0.1, 5000, 13000));
         plane.intersectLine(testLine, point);
         let returnOBJ = sliceObj.sliceGeometry(plane);
-        console.log(returnOBJ[0]);
-        console.log(returnOBJ[1]);
         const cube1 = new THREE.Mesh(returnOBJ[0], material);
         const cube2 = new THREE.Mesh(returnOBJ[1], material);
-        cube1.translateX(1);
-        cube2.translateX(-1);
+        cube1.translateX(0.2);
+        cube2.translateX(-0.2);
+        // console.log(cube1.position, cube2.position);
         scene.add(cube1, cube2);
+
+        let meshArray = new Array();
+        meshArray.push(cube1, cube2);
+
+        let planeAgain = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.3);
+
+        // let sliceObj1 = new SliceBufferGeometry(cube1);
+        // let returnOBJ1 = sliceObj1.sliceGeometry(planeAgain);
+        // const cube3 = new THREE.Mesh(returnOBJ1[0], material);
+        // const cube4 = new THREE.Mesh(returnOBJ1[1], material);
+        // cube3.translateX(0.2);
+        // cube4.translateX(0.2);
+        // cube3.translateY(0.2);
+        // cube4.translateY(-0.2);
+        // scene.add(cube3, cube4);
+        // scene.remove(cube1);
+
+        // let sliceObj2 = new SliceBufferGeometry(cube2);
+        // let returnOBJ2 = sliceObj2.sliceGeometry(planeAgain);
+        // const cube5 = new THREE.Mesh(returnOBJ2[0], material);
+        // const cube6 = new THREE.Mesh(returnOBJ2[1], material);
+        // cube5.translateX(-0.2);
+        // cube6.translateX(-0.2);
+        // cube5.translateY(0.2);
+        // cube6.translateY(-0.2);
+        // scene.add(cube5, cube6);        
+        // scene.remove(cube2);
+
+        // let newMeshs = new Array();
+
+        // for (let ele in meshArray) {
+        //     let sliceObj1 = new SliceBufferGeometry(meshArray[ele]);
+        //     let returnOBJ1 = sliceObj1.sliceGeometry(planeAgain);
+        //     const cube3 = new THREE.Mesh(returnOBJ1[0], material);
+        //     const cube4 = new THREE.Mesh(returnOBJ1[1], material);
+        //     newMeshs.push(cube3, cube4);
+        //     scene.add(cube4);
+        //     scene.remove(meshArray[ele]);
+        // }
+
+        // console.log(newMeshs);
+
+        // newMeshs[0].translateY(0.5);
+        // newMeshs[0].translateX(0.5);
+        // newMeshs[1].translateX(0.5);
+        // newMeshs[2].translateX(-0.5);
+        // newMeshs[2].translateY(0.5);
+        // newMeshs[3].translateX(-0.5);
+        // scene.add(newMeshs[3],newMeshs[2],newMeshs[1],newMeshs[0]);
 
         const colors = [
             0, 1, 1,
@@ -141,11 +195,21 @@
             // color: 0xffffff,
             vertexColors: true,
         });
-        let points = new THREE.Points(boxGemo, pMmaterial);
-        scene.add(points);
+        // let points = new THREE.Points(boxGemo, pMmaterial);
+        // scene.add(points);
         render();
-        sliceObj = null;
-        console.log(sliceObj);
+
+        let cut = new CutOffMesh(camera, scene);
+        cut.crackSize = 0.3;
+        cut.addEventListener('change', function () {
+            render();
+        });
+
+        // function animate() {
+        //     render();
+        //     requestAnimationFrame(animate);
+        // }
+        // animate();
     </script>
 </body>
 
