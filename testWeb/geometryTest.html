@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2022-06-02 20:48:23
- * @LastEditTime: 2022-06-13 08:21:47
+ * @LastEditTime: 2022-06-13 16:03:28
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\testWeb\geometryTest.html
@@ -33,10 +33,18 @@
 
         import { SliceBufferGeometry } from "../threeSrc/tools/slice2BG.js";
         import { CutOffMesh } from "../threeSrc/tools/cutOffMesh.js";
-        import { OrbitControls } from "../threeSrc/OrbitControls.js";
+        // import { OrbitControls } from "../threeSrc/OrbitControls.js";
+        // console.log(typeof new OrbitControls(camera, renderer.domElement));
 
-        var controls = new OrbitControls(camera, renderer.domElement);//创建控件对象
-        controls.addEventListener("change", render);
+        var controls;
+        import("../threeSrc/OrbitControls.js").then(module => {
+            window["OrbitControls"] = module["OrbitControls"];
+            controls = new window["OrbitControls"](camera, renderer.domElement);
+            controls.addEventListener("change", render);
+        });
+
+        // var controls = new OrbitControls(camera, renderer.domElement);//创建控件对象
+        // controls.addEventListener("change", render);
 
         const texture = new THREE.TextureLoader().load("mapping2.jpg", function () {
             render();

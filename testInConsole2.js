@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-05-08 15:55:52
- * @LastEditTime: 2022-06-10 18:14:32
+ * @LastEditTime: 2022-06-14 14:17:28
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\testInConsole2.js
@@ -68,6 +68,7 @@ obj1.up.set(1, 0, 0);
 // console.log(testArray);
 
 let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
+
 // arr.sort((a, b) => a - b);
 // console.log(arr);
 // console.log(arr.indexOf(456));
@@ -79,5 +80,37 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 // test.dispose();
 // console.log(test.proto);
 
-let a = Math.floor(2);
-console.log(a);
+// let timeOutFn = new Promise((resolve) => {
+//     setTimeout(() => {
+//         console.log("Hello world!");
+//         resolve();
+//     }, 3000);
+// });
+
+// let timeOutFn2 = new Promise((resolve) => {
+//     setTimeout(() => {
+//         console.log("hi world!");
+//         resolve();
+//     }, 1000);
+// });
+
+// let timeOutFn3 = new Promise((resolve) => {
+//     setTimeout(() => {
+//         console.log("hi universe!");
+//         resolve();
+//     }, 5000);
+// });
+
+// (async () => {
+//     await Promise.all([timeOutFn, timeOutFn2, timeOutFn3]);
+//     console.log("我在这儿等着你。");
+// })();
+
+// let testArray = [1, 2, 3, 4, 5, 6, 8, 9];
+// let testObject = { "one": 1, "two": 2, "three": 3 };
+// testArray.map(item => {
+//     console.log(item);
+// });
+
+let test = { "a": 1, "b": 2, "c": 3 };
+console.log(test["a"]);

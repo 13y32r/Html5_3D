@@ -1,0 +1,36 @@
+<!--
+ * @Author: 邹岱志
+ * @Date: 2022-06-13 19:58:23
+ * @LastEditTime: 2022-06-15 12:01:39
+ * @LastEditors: your name
+ * @Description: 
+ * @FilePath: \Html5_3D\initTest.html
+ * 可以输入预定的版权声明、个性签名、空行等
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" rel="styleSheet" href="../css_file/3D-WEB.css">
+    <title>init Test</title>
+</head>
+
+<body>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./threeSrc/three.module.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import { init } from "../main/init.js";
+        init();
+    </script>
+</body>
+
+</html>

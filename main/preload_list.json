@@ -1,0 +1,34 @@
+{
+    "OrbitControls": {
+        "url": "../threeSrc/libs/OrbitControls.js",
+        "inModule": true
+    },
+    "THREE": {
+        "url": "../threeSrc/three.module.js",
+        "inModule": false
+    },
+    "TextIn3D": {
+        "url": "../threeSrc/textProcessing/textIn3D.js",
+        "inModule": true
+    },
+    "EditorOperate": {
+        "url": "../threeSrc/editor/EditorOperate.js",
+        "inModule": true
+    },
+    "EditorState": {
+        "url": "../threeSrc/editor/EditorState.js",
+        "inModule": true
+    },
+    "DimensionType": {
+        "url": "../threeSrc/editor/DimensionType.js",
+        "inModule": true
+    },
+    "ViewHelper": {
+        "url": "../threeSrc/viewPort/Viewport.ViewHelper.js",
+        "inModule": true
+    },
+    "GetRequest": {
+        "url": "../assist/getRequest.js",
+        "inModule": true
+    }
+}

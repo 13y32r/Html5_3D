@@ -29,10 +29,10 @@
         src="https://6d61-math-training-9g90u35i7d2b235b-1304747630.tcb.qcloud.la/html5_Pages/threeSrc/dat.gui.min.js"></script>
 
     <!--引入State.js状态监视代码-->
-    <script src="./threeSrc/stats.min.js"></script>
+    <script src="./threeSrc/libs/stats.min.js"></script>
 
     <!--引入tweenjs.min.js缓动动画代码-->
-    <script src="./threeSrc/Tween.js"></script>
+    <script src="./threeSrc/libs/Tween.js"></script>
 </head>
 
 <body onresize="onWindowResize()">
@@ -79,7 +79,7 @@
 
     <!-- <button style="position: absolute;top: 150px;left: 150px;">高大上</button> -->
     <script type="module">
-        import { OrbitControls } from "./threeSrc/OrbitControls.js";
+        import { OrbitControls } from "./threeSrc/libs/OrbitControls.js";
         // import { Interaction } from './threeSrc/three.interaction';
         /**
          * 创建场景对象Scene
@@ -282,11 +282,11 @@
 
         let dummy = new THREE.Object3D();
         var controls = new OrbitControls(camera, renderer.domElement);//创建控件对象
-        console.log(renderer.domElement);
-        // controls.addEventListener('change', function(event){
-        //     console.log(event);
-        // });
-        controls.enablePan = false;//禁止右键拖拽
+        controls.addEventListener('change', function(event){
+            render();
+            // console.log(event);
+        });
+        // controls.enablePan = false;//禁止右键拖拽
         // controls.enableZoom = false;//禁止缩放
         // controls.enableRotate = false; //禁止旋转
         // // 缩放范围
@@ -380,16 +380,16 @@
         matForTranslate.makeTranslation(0, 20, 0);
 
         import { TextIn3D } from '/threeSrc/textProcessing/textIn3D.js'
-        import { EditorOperate } from "./threeSrc/editor/EditorOperate.js"
+        // import { EditorOperate } from "./threeSrc/editor/EditorOperate.js"
         import { DimensionType } from "./threeSrc/editor/DimensionType.js"
         import { EditorState } from "./threeSrc/editor/EditorState.js"
         let eState = EditorState.OBSERVER;
-        let editorOperate = new EditorOperate(DimensionType._3D, eState, controls, scene, camera, renderer);
-        let textIn3D = new TextIn3D(undefined, renderer, editorOperate);
-        editorOperate.changeEditorState(EditorState.Edit);
-        let text3D_obj = textIn3D.createText("Hello world!", 20);
-        text3D_obj.position.z = 10;
-        scene.add(text3D_obj);
+        // let editorOperate = new EditorOperate(DimensionType._3D, eState, controls, scene, camera, renderer);
+        // let textIn3D = new TextIn3D(undefined, renderer, editorOperate);
+        // editorOperate.changeEditorState(EditorState.Edit);
+        // let text3D_obj = textIn3D.createText("Hello world!", 20);
+        // text3D_obj.position.z = 10;
+        // scene.add(text3D_obj);
 
         function render() {
             stats.update();
@@ -476,7 +476,7 @@
             //     intersects[i].object.material.color.set(mColor);
             // }
 
-            render();
+            // render();
         }
 
         // mesh1.position.y = 0;

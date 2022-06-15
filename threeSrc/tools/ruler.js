@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-05-15 10:30:42
- * @LastEditTime: 2022-06-10 17:54:48
+ * @LastEditTime: 2022-06-13 18:22:48
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\threeSrc\tools\ruler.js
@@ -41,6 +41,8 @@ class Ruler extends Tool {
     }
 
     getStartPoint(event) {
+        if (event.button != 0) return;
+
         const pointer = new THREE.Vector3();
         var rect = this.editorOP.renderer.domElement.getBoundingClientRect();
         pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -51,6 +53,7 @@ class Ruler extends Tool {
 
         this.addListener('pointermove', this.gePoint);
         this.removeListerner('pointerdown', this.gsPoint);
+        this.addListener('pointerdown', this.spMeasure);
     }
 
     getEndPoint(event) {
@@ -62,7 +65,6 @@ class Ruler extends Tool {
 
         this.endPoint = pointer.unproject(this.editorOP.camera);
 
-        this.addListener('pointerdown', this.spMeasure);
         this.multipleOperation(this.startPoint, this.endPoint);
     }
 
@@ -128,7 +130,8 @@ class Ruler extends Tool {
         return lineObj;
     }
 
-    stopMeasure() {
+    stopMeasure(event) {
+        if (event.button != 0) return;
         this.removeListerner('pointermove', this.gePoint);
         this.lineGroup.children.length = 0;
         this.removeListerner('pointerdown', this.spMeasure);
