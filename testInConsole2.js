@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-05-08 15:55:52
- * @LastEditTime: 2022-06-14 14:17:28
+ * @LastEditTime: 2022-06-19 13:02:38
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\testInConsole2.js
@@ -112,5 +112,16 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 //     console.log(item);
 // });
 
-let test = { "a": 1, "b": 2, "c": 3 };
-console.log(test["a"]);
+// let testFn = function (a, b) {
+//     console.log(a);
+//     console.log(b);
+//     console.log(a + b);
+// }
+
+// testFn.apply(testFn, [10]);
+
+function test(param1, param2) {
+    console.log(param1 + param2);
+}
+
+test.apply(null, [123, 321]);

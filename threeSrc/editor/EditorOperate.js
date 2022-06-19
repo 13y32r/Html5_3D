@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-04-27 10:13:00
- * @LastEditTime: 2022-06-15 21:00:20
+ * @LastEditTime: 2022-06-19 13:37:24
  * @LastEditors: your name
  * @Description: 这是一个用于编辑器根据传来的“状态”指令，来具体操作的代码
  * @FilePath: \Html5_3D\threeSrc\editor\EditorOperate.js
@@ -15,13 +15,14 @@ import { DimensionType } from './DimensionType.js';
 const _changeEvent = { type: 'change' };
 
 class EditorOperate extends EventDispatcher {
-    constructor(dimType, eState, scene, ort_Camera, per_Camera, renderer) {
+    constructor(dimType, eState, scene, ort_Camera, per_Camera, renderer, glManager) {
 
         super();
 
         let that = this;
         that.keyevent = "";
 
+        this.glManager = glManager;
         this.clock = new window["THREE"].Clock(); // only used for animations
 
         this.width = window.innerWidth; //窗口宽度
@@ -66,6 +67,8 @@ class EditorOperate extends EventDispatcher {
 
         this.animateState = false;
         this.anima = this.animate.bind(this);
+
+        this.selectedObject = [];
     }
 
     render() {

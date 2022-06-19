@@ -1,0 +1,85 @@
+{
+    "Plug-ins": {
+        "CutOffMesh": {
+            "url": "../threeSrc/tools/cutOffMesh.js",
+            "inModule": true
+        },
+        "Ruler": {
+            "url": "../threeSrc/tools/ruler.js",
+            "inModule": true
+        }
+    },
+    "Main-Menu": {
+        "Title": "主菜单",
+        "Grids": {
+            "name": "网格",
+            "type": "Folder",
+            "image_url": ""
+        },
+        "Tools": {
+            "name": "工具箱",
+            "type": "Folder",
+            "image_url": ""
+        },
+        "AxisScale": {
+            "name": "坐标轴",
+            "type": "Folder",
+            "image_url": ""
+        },
+        "SelectTool": {
+            "name": "选择工具",
+            "type": "Executor",
+            "class": "",
+            "param": [],
+            "image_url": ""
+        },
+        "MoveTool": {
+            "name": "移动工具",
+            "type": "Executor",
+            "class": "",
+            "image_url": ""
+        },
+        "RotateTool": {
+            "name": "旋转工具",
+            "type": "Executor",
+            "class": "",
+            "image_url": ""
+        },
+        "ScaleTool": {
+            "name": "缩放工具",
+            "type": "Executor",
+            "class": "",
+            "image_url": ""
+        }
+    },
+    "Grids": {
+        "Title": "网格",
+        "X": {
+            "name": "选择工具",
+            "type": "Executor",
+            "class": "",
+            "param": [
+                "X"
+            ],
+            "image_url": ""
+        },
+        "Y": {
+            "name": "选择工具",
+            "type": "Executor",
+            "class": "",
+            "param": [
+                "Y"
+            ],
+            "image_url": ""
+        },
+        "Z": {
+            "name": "选择工具",
+            "type": "Executor",
+            "class": "",
+            "param": [
+                "Z"
+            ],
+            "image_url": ""
+        }
+    }
+}

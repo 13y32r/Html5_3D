@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2022-03-05 10:58:27
- * @LastEditTime: 2022-06-13 20:07:01
+ * @LastEditTime: 2022-06-18 13:57:44
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\2DTest.html
@@ -23,8 +23,8 @@
     </style>
     <title>2D Test</title>
     <script src="./threeSrc/Three.js"></script>
-    <script src='./threeSrc/libs/signals.min.js'></script>
-    <script src="http://localhost/Html5_3D/threeSrc/tweenjs.min.js"></script>
+    <!-- <script src='./threeSrc/libs/signals.min.js'></script> -->
+    <!-- <script src="http://localhost/Html5_3D/threeSrc/tweenjs.min.js"></script> -->
 </head>
 
 <body>
@@ -41,12 +41,12 @@
 	</script>
 
     <script type="module">
-        var Signal = signals.Signal;
-        var mySignal = new Signal();
-        var myObject = {
-            started: new Signal(),
-            stopped: new Signal()
-        };
+        // var Signal = signals.Signal;
+        // var mySignal = new Signal();
+        // var myObject = {
+        //     started: new Signal(),
+        //     stopped: new Signal()
+        // };
 
         // function onStarted(param1, param2) {
         //     alert(param1 + param2);
@@ -178,7 +178,7 @@
 
         import { DimensionType } from "./threeSrc/editor/DimensionType.js"
         let controls = new OrbitControls(camera, renderer.domElement);//创建控件对象
-        let editorOperate = new EditorOperate(DimensionType._2D, eState, controls, scene, camera, renderer);
+        // let editorOperate = new EditorOperate(DimensionType._2D, eState, controls, scene, camera, renderer);
 
         const path = new THREE.Path();
         path.lineTo(10, 0);
@@ -215,25 +215,25 @@
         const pLine = new THREE.Line(lGeometry, lMaterial);
         scene.add(pLine);
 
-        let textIn3D = new TextIn3D(undefined, renderer, editorOperate);
-        textIn3D.updateFont("threeSrc/fonts/droid/droid_sans_regular.typeface.json");
-        let text3D_obj = textIn3D.createText("123°456′7890″αβγ!@#$%", 5);
+        // let textIn3D = new TextIn3D(undefined, renderer, editorOperate);
+        // textIn3D.updateFont("threeSrc/fonts/droid/droid_sans_regular.typeface.json");
+        // let text3D_obj = textIn3D.createText("123°456′7890″αβγ!@#$%", 5);
         // text3D_obj.rotateX(Math.PI / 2);
         // text3D_obj.rotateY(Math.PI / 2);
         // text3D_obj.rotateZ(Math.PI / 2);
         // text3D_obj.position.y = -10
         // text3D_obj.position.z = - 150;
-        text3D_obj.position.set(-100, 0, -15);
+        // text3D_obj.position.set(-100, 0, -15);
 
-        let theGroup = new THREE.Group();
-        scene.add(theGroup);
+        // let theGroup = new THREE.Group();
+        // scene.add(theGroup);
 
-        theGroup.add(text3D_obj);
-        let text3D_obj2 = textIn3D.createText("{x^2+y^2=16}", 20);
-        theGroup.add(text3D_obj2);
+        // theGroup.add(text3D_obj);
+        // let text3D_obj2 = textIn3D.createText("{x^2+y^2=16}", 20);
+        // theGroup.add(text3D_obj2);
         // theGroup.children.shift();
-        theGroup.children.pop();
-        render();
+        // theGroup.children.pop();
+        // render();
 
         import { SelectionBox } from './threeSrc/selectionControl/SelectionBox.js';
         import { SelectionHelper } from './threeSrc/selectionControl/SelectionHelper.js';

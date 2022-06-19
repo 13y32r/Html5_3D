@@ -1,17 +1,15 @@
 /*******
- * @Author: your name
- * @Date: 2022-06-13 15:15:58
- * @LastEditTime: 2022-06-18 17:39:41
+ * @Author: 邹岱志
+ * @Date: 2022-06-18 14:28:01
+ * @LastEditTime: 2022-06-18 17:58:05
  * @LastEditors: your name
  * @Description: 
- * @FilePath: \Html5_3D\main\preload_item.js
+ * @FilePath: \Html5_3D\testWeb\menuGUI.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
 
-import { plugInLoadingTips } from "../assist/plug-inLoadingTips.js"
-
-async function preloadItem() {
-    return new Promise(async (resolve, reject) => {
+class MenuGUI {
+    constructor() {
         var pArray = new Array();
         var url = "./main/preload_list.json";
         var request = new XMLHttpRequest();
@@ -31,7 +29,7 @@ async function preloadItem() {
                 reject();
             }
         }
-    });
+    }
 }
 
-export { preloadItem };
+export { MenuGUI }

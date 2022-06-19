@@ -1,0 +1,99 @@
+<!--
+ * @Author: your name
+ * @Date: 2022-06-16 16:46:06
+ * @LastEditTime: 2022-06-18 13:42:05
+ * @LastEditors: your name
+ * @Description: 
+ * @FilePath: \Html5_3D\testWeb\myGUI.html
+ * 可以输入预定的版权声明、个性签名、空行等
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>my gui</title>
+    <style>
+        /* input[type="radio"] {
+            appearance: none;
+            -moz-appearance: none; */
+        /* Firefox */
+        /* -webkit-appearance: none; */
+        /* Safari and Chrome */
+        /* } */
+    </style>
+</head>
+
+<body>
+    <div name="main" style="width: 90px;height: 300px;display:flex;flex-direction:column;background-color:#66ccff;">
+        <div style="height: 25px;cursor:ew-resize;box-shadow: 5px 5px 5px black inset;" onmousedown="dd(this)"></div>
+        <div style="display:flex-line;justify-content:center;width: auto;height:auto;flex-direction:row;">
+            <label style="margin: 0px;padding: 0px;"><input name="Fruit" type="radio" value="" style="margin: 0px;"/>苹果</label>
+            <label style="margin: 0px;padding: 0px;"><input name="Fruit" type="radio" value="" style="margin: 0px;"/>桃子</label>
+            <label style="margin: 0px;padding: 0px;"><input name="Fruit" type="radio" value="" style="margin: 0px;"/>香蕉</label>
+            <label style="margin: 0px;padding: 0px;"><input name="Fruit" type="radio" value="" style="margin: 0px;"/>梨</label>
+            <label style="margin: 0px;padding: 0px;"><input name="Fruit" type="radio" value="" style="margin: 0px;"/>其它</label>
+            <!-- <label style="margin: 0px;padding: 0px;background-color:#222222;">苹果</label>
+            <label style="margin: 0px;padding: 0px;background-color:#222222;">桃子</label>
+            <label style="margin: 0px;padding: 0px;background-color:#222222;">香蕉</label>
+            <label style="margin: 0px;padding: 0px;background-color:#222222;">梨</label>
+            <label style="margin: 0px;padding: 0px;background-color:#222222;">其它</label> -->
+        </div>
+    </div>
+
+    <!-- <div>
+        <label><input name="pi" type="radio" value="" />苹果</label>
+        <label><input name="pi" type="radio" value="" />桃子</label>
+        <label><input name="pi" type="radio" value="" />香蕉</label>
+        <label><input name="pi" type="radio" value="" />梨</label>
+        <label><input name="pi" type="radio" value="" />其它</label>
+    </div>
+
+    <div>
+        <label><input name="dan" type="radio" value="" />苹果 </label>
+        <label><input name="dan" type="radio" value="" />桃子 </label>
+        <label><input name="dan" type="radio" value="" />香蕉 </label>
+        <label><input name="dan" type="radio" value="" />梨 </label>
+        <label><input name="dan" type="radio" value="" />其它 </label>
+    </div> -->
+    <script>
+        let tt = document.getElementsByTagName("input");
+        for (let i = 0; i < tt.length; i++) {
+            tt[i].style.appearance = "none";
+            tt[i].style.setProperty("-moz-appearance", "none");
+            tt[i].style.setProperty("-webkit-appearance", "none");
+            if (tt[i].checked == false) {
+                tt[i].parentNode.style.backgroundColor = "#222222";
+            } else {
+                tt[i].parentNode.style.backgroundColor = "#bbbbbb";
+            }
+            tt[i].onchange = function () {
+                let com = document.getElementsByName(tt[i].name);
+                for (let j = 0; j < com.length; j++) {
+                    if (com[j].checked == false) {
+                        com[j].parentNode.style.backgroundColor = "#222222";
+                    } else {
+                        com[j].parentNode.style.backgroundColor = "#bbbbbb";
+                    }
+                }
+            };
+        }
+        // console.log(tt);
+
+        // function ddd(me) {
+        //     if (me.checked == false) {
+        //         me.parentNode.style.backgroundColor = "#222222";
+        //     } else {
+        //         me.parentNode.style.backgroundColor = "#bbbbbb";
+        //     }
+        // }
+
+        function dd(me) {
+            console.log(me);
+        }
+    </script>
+</body>
+
+</html>
