@@ -1,5 +1,5 @@
 {
-    "Plug-ins": {
+    "Plugins": {
         "CutOffMesh": {
             "url": "../threeSrc/tools/cutOffMesh.js",
             "inModule": true
@@ -30,7 +30,7 @@
             "name": "选择工具",
             "type": "Executor",
             "class": "",
-            "param": [],
+            "param": {},
             "image_url": ""
         },
         "MoveTool": {
@@ -52,10 +52,20 @@
             "image_url": ""
         }
     },
+    "Tools":{
+        "Title": "工具箱",
+        "Rule": {
+            "name": "选择工具",
+            "type": "Executor",
+            "class": "",
+            "param":{"unit" : 10, "editorOP":"editorOP", "textIn3D":"textIn3D"},
+            "image_url": ""
+        }
+    },
     "Grids": {
         "Title": "网格",
         "X": {
-            "name": "选择工具",
+            "name": "X面网格",
             "type": "Executor",
             "class": "",
             "param": [
@@ -64,7 +74,7 @@
             "image_url": ""
         },
         "Y": {
-            "name": "选择工具",
+            "name": "Y面网格",
             "type": "Executor",
             "class": "",
             "param": [
@@ -73,7 +83,7 @@
             "image_url": ""
         },
         "Z": {
-            "name": "选择工具",
+            "name": "Z面网格",
             "type": "Executor",
             "class": "",
             "param": [

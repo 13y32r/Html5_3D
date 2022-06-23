@@ -15,7 +15,7 @@ import { DimensionType } from './DimensionType.js';
 const _changeEvent = { type: 'change' };
 
 class EditorOperate extends EventDispatcher {
-    constructor(dimType, eState, scene, ort_Camera, per_Camera, renderer, glManager) {
+    constructor(dimType, eState, scene, ort_Camera, per_Camera, renderer) {
 
         super();
 

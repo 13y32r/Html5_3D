@@ -3,12 +3,12 @@
  * @Date: 2022-05-08 15:55:52
  * @LastEditTime: 2022-06-19 13:02:38
  * @LastEditors: your name
- * @Description: 
+ * @Description:
  * @FilePath: \Html5_3D\testInConsole2.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
 
-import * as THREE from './threeSrc/three.module.js';
+import * as THREE from "./threeSrc/three.module.js";
 
 let obj1 = new THREE.Object3D();
 let obj2 = new THREE.Object3D();
@@ -24,7 +24,6 @@ const q2 = new THREE.Quaternion();
 // const a = new THREE.Euler(0, Math.PI / 4, Math.PI / 4, 'XYZ');
 // const b = new THREE.Vector3(1, 0, 0);
 // b.applyEuler(a);
-
 
 // obj2.position.set(10, 20, 30).multiplyScalar(2);
 // obj2.lookAt(new THREE.Vector3());
@@ -80,26 +79,38 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 // test.dispose();
 // console.log(test.proto);
 
-// let timeOutFn = new Promise((resolve) => {
-//     setTimeout(() => {
-//         console.log("Hello world!");
-//         resolve();
-//     }, 3000);
-// });
+let timeOutFn = new Promise((resolve) => {
+    setTimeout(() => {
+        console.log("Hello world!");
+        resolve();
+    }, 3000);
+});
 
-// let timeOutFn2 = new Promise((resolve) => {
-//     setTimeout(() => {
-//         console.log("hi world!");
-//         resolve();
-//     }, 1000);
-// });
+let timeOutFn2 = new Promise((resolve) => {
+    setTimeout(() => {
+        console.log("hi world!");
+        resolve();
+    }, 1000);
+});
 
-// let timeOutFn3 = new Promise((resolve) => {
-//     setTimeout(() => {
-//         console.log("hi universe!");
-//         resolve();
-//     }, 5000);
-// });
+let timeOutFn3 = new Promise((resolve) => {
+    setTimeout(() => {
+        console.log("hi universe!");
+        resolve();
+    }, 5000);
+});
+
+async function aaa(){
+  await timeOutFn;
+  console.log("I am in aaa.");
+}
+
+function bbb(){
+  aaa();
+  console.log("I am in bbb.");
+}
+
+bbb();
 
 // (async () => {
 //     await Promise.all([timeOutFn, timeOutFn2, timeOutFn3]);
@@ -120,8 +131,8 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 
 // testFn.apply(testFn, [10]);
 
-function test(param1, param2) {
-    console.log(param1 + param2);
-}
+// function test(param1, param2) {
+//     console.log(typeof arguments);
+// }
 
-test.apply(null, [123, 321]);
+// test.apply(null, [123, 321]);

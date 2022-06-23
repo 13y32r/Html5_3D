@@ -52,7 +52,7 @@ async function init() {
     document.body.appendChild(renderer.domElement);
 
     //开始装配编辑器
-    var editorOperate = new window["EditorOperate"](dimType, eState, scene, ort_Camera, per_Camera, renderer);
+    window["editorOperate"] = new window["EditorOperate"](dimType, eState, scene, ort_Camera, per_Camera, renderer);
     // animate();
 }
 
