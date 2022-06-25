@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-18 14:28:01
- * @LastEditTime: 2022-06-25 13:10:36
+ * @LastEditTime: 2022-06-25 18:43:53
  * @LastEditors: your name
  * @Description:
  * @FilePath: \Html5_3D\testWeb\menuGUI.js
@@ -44,6 +44,11 @@ class MenuGUI {
           that.listJson = json;
           delete that.listJson.Plugins;
           that.linkCSS();
+          // console.log(that.listJson);
+          // that.creatGUI(that.listJson['Main-Menu']);
+          for (let key in that.listJson) {
+            that.creatGUI(that.listJson[key]);
+          }
           resolve();
         } else {
           alert(url + ":" + request.status + " " + request.statusText);
@@ -111,6 +116,8 @@ class MenuGUI {
     that[menuName].menu_name.className = 'menu_name';
     that[menuName].menu_name.classList.add('menu_name_V');
     that[menuName].menu_name.setAttribute('name', 'menu_name');
+    that[menuName].menu_name.innerText = menuName;
+    dragElement(that[menuName].menu_name);
     that[menuName].title.appendChild(that[menuName].menu_name);
 
     //初始化菜单主框架/标题区域/菜单的关闭和缩放按钮区域
@@ -126,6 +133,8 @@ class MenuGUI {
       that[menuName].closeBtn.className = 'closeBtn';
       that[menuName].closeBtn.classList.add('btUpStyle1');
       that[menuName].closeBtn.setAttribute('title', '关闭菜单栏');
+      that[menuName].closeBtn.onmousedown = closeMenuDown;
+      that[menuName].closeBtn.onmouseup = closeMenuUp;
       that[menuName].close_mize.appendChild(that[menuName].closeBtn);
     }
 
@@ -140,6 +149,8 @@ class MenuGUI {
       that[menuName].mizeBtn.setAttribute('title', '最大化菜单栏');
       that[menuName].mizeBtn.classList.add('mizeBtn_Mini');
     }
+    that[menuName].mizeBtn.onmousedown = contentMaxOrMinDown;
+    that[menuName].mizeBtn.onmouseup = contentMaxOrMinUp;
     that[menuName].close_mize.appendChild(that[menuName].mizeBtn);
 
     //初始化菜单主框架/内容区域
@@ -173,7 +184,7 @@ class MenuGUI {
         // case "checkbox":
         //   break;
         default:
-          console.warn("从menu_list.json中加载了一个未知的“菜单”类型，请重新审核之后再运行。")
+          console.error("从menu_list.json中加载了一个未知的“菜单”类型，请重新审核之后再运行。")
       }
       that[menuName].content.appendChild(that[menuName][key]);
     }
@@ -192,8 +203,10 @@ class MenuGUI {
         changeToHorizontalStyle(that[menuName].menu_name, "menu_name");
         changeToHorizontalStyle(that[menuName].close_mize, "close_mize");
         changeToHorizontalStyle(that[menuName].content, "content");
-        if (!that[menuName].closeBtn.classList.contains('closeBtn_H')) {
-          that[menuName].closeBtn.classList.add('closeBtn_H');
+        if (menuName != "主菜单") {
+          if (!that[menuName].closeBtn.classList.contains('closeBtn_H')) {
+            that[menuName].closeBtn.classList.add('closeBtn_H');
+          }
         }
         if (!that[menuName].mizeBtn.classList.contains('mizeBtn_H')) {
           that[menuName].mizeBtn.classList.add('mizeBtn_H');
@@ -206,11 +219,13 @@ class MenuGUI {
         changeToVerticalStyle(that[menuName].menu_name, "menu_name");
         changeToVerticalStyle(that[menuName].close_mize, "close_mize");
         changeToVerticalStyle(that[menuName].content, "content");
-        if (that[menuName].closeBtn.classList.contains('closeBtn_H')) {
-          that[menuName].closeBtn.classList.remove('closeBtn_H');
+        if (menuName != "主菜单") {
+          if (that[menuName].closeBtn.classList.contains('closeBtn_H')) {
+            that[menuName].closeBtn.classList.remove('closeBtn_H');
+          }
         }
-        if (!that[menuName].mizeBtn.classList.contains('mizeBtn_H')) {
-          that[menuName].mizeBtn.classList.add('mizeBtn_H');
+        if (that[menuName].mizeBtn.classList.contains('mizeBtn_H')) {
+          that[menuName].mizeBtn.classList.remove('mizeBtn_H');
         }
       }
       that[menuName].isVertical = !that[menuName].isVertical;
@@ -246,6 +261,135 @@ class MenuGUI {
         target.classList.remove('btDownStyle1');
       if (!target.classList.contains('btUpStyle1'))
         target.classList.add('btUpStyle1');
+    }
+
+    function dragElement(target) {
+      var pos1 = 0,
+        pos2 = 0,
+        pos3 = 0,
+        pos4 = 0;
+
+      // 对触屏事件进行侦听
+      target.ontouchstart = dragMouseDown;
+      // 对鼠标按键进行侦听
+      target.onmousedown = dragMouseDown;
+
+
+      function eventConversion(e) {
+        //不同的浏览器，阻止浏览器默认事件方法不同
+        if (e.preventDefault) {
+          e.preventDefault();
+        } else {
+          e.returnValue = false;
+        }
+
+        // 如果是鼠标事件，就直接返回，否则将事件重新赋值成“触屏”对象0
+        if (e instanceof MouseEvent) {
+          return e;
+        } else {
+          e = e.touches[0];
+          return e;
+        }
+      }
+
+      function dragMouseDown(e) {
+        e = e || window.event;
+
+        // 这里根据触发事件不同，对事件重新进行转换处理
+        e = eventConversion(e);
+
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+
+        if (e instanceof MouseEvent) {
+          document.onmouseup = closeDragElement;
+          document.onmousemove = elementDrag;
+        }
+        else {
+          document.ontouchend = closeDragElement;
+          document.ontouchmove = elementDrag;
+        }
+      }
+
+      function elementDragProcessingFn(e) {
+        // calculate the new cursor position:
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+
+        // set the element's new position:
+        if (that[menuName].menu_main.offsetTop - pos2 < 2) {
+          that[menuName].menu_main.style.top = 3 + "px";
+        } else if (that[menuName].menu_main.offsetTop - pos2 > (window.innerHeight - 20)) {
+          that[menuName].menu_main.style.top = (window.innerHeight - 21) + "px";
+        } else if (that[menuName].menu_main.offsetLeft - pos1 > (window.innerWidth - 30)) {
+          that[menuName].menu_main.style.left = (window.innerWidth - 31) + "px";
+        }
+        else if (that[menuName].menu_main.offsetLeft - pos1 < -21) {
+          that[menuName].menu_main.style.left = -20 + "px";
+        } else {
+          that[menuName].menu_main.style.top = (that[menuName].menu_main.offsetTop - pos2) + "px";
+          that[menuName].menu_main.style.left = (that[menuName].menu_main.offsetLeft - pos1) + "px";
+        }
+      }
+
+      function elementDrag(e) {
+        e = e || window.event;
+
+        e = eventConversion(e);
+
+        //根据处理事件不同，执行不同处理函数。
+        elementDragProcessingFn(e);
+      }
+
+      function closeDragElement(e) {
+        // stop moving when mouse button is released:
+        if (e instanceof MouseEvent) {
+          document.onmouseup = null;
+          document.onmousemove = null;
+        }
+        else {
+          document.ontouchend = null;
+          document.ontouchmove = null;
+        }
+      }
+    }
+
+    function contentMaxOrMinDown() {
+      smallBtnDown(that[menuName].mizeBtn);
+    }
+
+    function contentMaxOrMinUp() {
+      smallBtnUp(that[menuName].mizeBtn);
+
+      that[menuName].mizeState = !that[menuName].mizeState;
+      if (that[menuName].mizeState == true) {
+        that[menuName].mizeBtn.setAttribute('title', '最小化菜单栏');
+        if (that[menuName].mizeBtn.classList.contains('mizeBtn_Mini')) {
+          that[menuName].mizeBtn.classList.remove('mizeBtn_Mini');
+        }
+        that[menuName].mizeBtn.classList.add('mizeBtn_Maxi');
+        that[menuName].content.style.display = "flex";
+      } else {
+        that[menuName].mizeBtn.setAttribute('title', '最大化菜单栏');
+        if (that[menuName].mizeBtn.classList.contains('mizeBtn_Maxi')) {
+          that[menuName].mizeBtn.classList.remove('mizeBtn_Maxi');
+        }
+        that[menuName].mizeBtn.classList.add('mizeBtn_Mini');
+        that[menuName].content.style.display = "none";
+      }
+    }
+
+    function closeMenuDown() {
+      smallBtnDown(that[menuName].closeBtn);
+    }
+
+    function closeMenuUp() {
+      smallBtnUp(that[menuName].closeBtn);
+      document.body.removeChild(that[menuName].menu_main);
+      that[menuName] = null;
+      menuName = null;
     }
   }
 }
