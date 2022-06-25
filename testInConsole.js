@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-04-12 20:55:07
- * @LastEditTime: 2022-05-25 09:37:47
+ * @LastEditTime: 2022-06-24 20:55:24
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\testInConsole.js
@@ -154,7 +154,28 @@ class getTheFunctionValue {
         this.value = "I come from the getFunctionValue.";
         console.log(this.excectFun());
     }
+
+    addPropertyTest() {
+        this['abc'] = {};
+        this['abc'].bbq = {};
+        this['abc'].bbq.cac = "狗蛋去！";
+        this['abc'].cad = "Hello world!";
+
+        function innerFn(message) {
+            console.log("I am inner,outside doesn't look me.");
+            console.log("The message come from inner function." + message);
+        }
+        innerFn('hi,backhuman.');
+    }
 }
 
-// let tt = new getTheFunctionValue();
+let tt = new getTheFunctionValue();
+// tt.addPropertyTest();
+// console.log(tt['abc'].bbq.cac);
 // tt.getFunctionValue();
+
+let test = { "one": 1, "two": 2, "three": 3 };
+for (let key in test) {
+    if (key == "one") continue;
+    console.log(test[key]);
+}

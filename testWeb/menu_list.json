@@ -13,41 +13,41 @@
         "Title": "主菜单",
         "Grids": {
             "name": "网格",
-            "type": "Folder",
+            "type": "folder",
             "image_url": ""
         },
         "Tools": {
             "name": "工具箱",
-            "type": "Folder",
+            "type": "folder",
             "image_url": ""
         },
         "AxisScale": {
             "name": "坐标轴",
-            "type": "Folder",
+            "type": "folder",
             "image_url": ""
         },
         "SelectTool": {
             "name": "选择工具",
-            "type": "Executor",
+            "type": "radio",
             "class": "",
             "param": {},
             "image_url": ""
         },
         "MoveTool": {
             "name": "移动工具",
-            "type": "Executor",
+            "type": "radio",
             "class": "",
             "image_url": ""
         },
         "RotateTool": {
             "name": "旋转工具",
-            "type": "Executor",
+            "type": "radio",
             "class": "",
             "image_url": ""
         },
         "ScaleTool": {
             "name": "缩放工具",
-            "type": "Executor",
+            "type": "radio",
             "class": "",
             "image_url": ""
         }
@@ -55,8 +55,8 @@
     "Tools":{
         "Title": "工具箱",
         "Rule": {
-            "name": "选择工具",
-            "type": "Executor",
+            "name": "标尺工具",
+            "type": "button",
             "class": "",
             "param":{"unit" : 10, "editorOP":"editorOP", "textIn3D":"textIn3D"},
             "image_url": ""
@@ -66,7 +66,7 @@
         "Title": "网格",
         "X": {
             "name": "X面网格",
-            "type": "Executor",
+            "type": "checkbox",
             "class": "",
             "param": [
                 "X"
@@ -75,7 +75,7 @@
         },
         "Y": {
             "name": "Y面网格",
-            "type": "Executor",
+            "type": "checkbox",
             "class": "",
             "param": [
                 "Y"
@@ -84,7 +84,7 @@
         },
         "Z": {
             "name": "Z面网格",
-            "type": "Executor",
+            "type": "checkbox",
             "class": "",
             "param": [
                 "Z"
