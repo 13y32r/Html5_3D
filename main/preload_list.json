@@ -30,9 +30,5 @@
     "GetRequest": {
         "url": "../assist/getRequest.js",
         "inModule": true
-    },
-    "GlobalListenerManager": {
-        "url": "../threeSrc/globalListenerManager.js",
-        "inModule": true
     }
 }

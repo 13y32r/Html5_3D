@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-04-12 20:55:07
- * @LastEditTime: 2022-06-24 20:55:24
+ * @LastEditTime: 2022-07-02 11:12:39
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\testInConsole.js
@@ -169,13 +169,16 @@ class getTheFunctionValue {
     }
 }
 
-let tt = new getTheFunctionValue();
+// let tt = new getTheFunctionValue();
 // tt.addPropertyTest();
 // console.log(tt['abc'].bbq.cac);
 // tt.getFunctionValue();
 
-let test = { "one": 1, "two": 2, "three": 3 };
-for (let key in test) {
-    if (key == "one") continue;
-    console.log(test[key]);
-}
+// let test = { "one": 1, "two": 2, "three": 3 };
+// for (let key in test) {
+//     if (key == "one") continue;
+//     console.log(test[key]);
+// }
+
+let ttt = [];
+console.log(ttt[0]);

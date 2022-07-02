@@ -1,4 +1,13 @@
 /*******
+ * @Author: your name
+ * @Date: 2022-06-27 09:55:00
+ * @LastEditTime: 2022-07-02 18:27:59
+ * @LastEditors: your name
+ * @Description: 
+ * @FilePath: \Html5_3D\menuGUI\menuGUI.js
+ * @可以输入预定的版权声明、个性签名、空行等
+ */
+/*******
  * @Author: 邹岱志
  * @Date: 2022-06-18 14:28:01
  * @LastEditTime: 2022-06-26 17:39:59
@@ -17,10 +26,10 @@ class MenuGUI {
 
   //实例化GUI
   async init() {
-    await this.guiLoadingTips("./menu_list.json");
+    await this.guiLoadingTips("./menuGUI/menu_list.json");
   }
 
-  async guiLoadingTips(list_url = "./main/menu_list.json") {
+  async guiLoadingTips(list_url = "./menuGUI/menu_list.json") {
     let that = this;
     return new Promise(async (resolve, reject) => {
       //加载GUI的配置列表
@@ -62,7 +71,7 @@ class MenuGUI {
     var link = document.createElement("link");
     link.rel = "stylesheet";
     link.type = "text/css";
-    link.href = './menuGUI.css';
+    link.href = './menuGUI/menuGUI.css';
     document.getElementsByTagName("head")[0].appendChild(link);
   }
 
@@ -75,9 +84,36 @@ class MenuGUI {
     let menuName = menuObj.Title;
 
     if (that[menuName] != null) {
+
       that[menuName].menu_main.style.display = "flex";
+
+      for (let key in menuObj) {
+
+        if (key == "Title") continue;
+
+        if (menuObj[key].class != undefined && menuObj[key].class != "") {
+          if (!that[menuName]["classArray"].includes(window[menuObj.Title + "_" + menuObj[key].class])) {
+            if (menuObj[key].param != undefined && menuObj[key].param != {}) {
+              window[menuObj.Title + "_" + menuObj[key].class] = new window[menuObj[key].class](menuObj[key].param);
+            } else {
+              window[menuObj.Title + "_" + menuObj[key].class] = new window[menuObj[key].class]();
+            }
+            that[menuName][key][menuObj[key].class] = window[menuObj.Title + "_" + menuObj[key].class];
+            that[menuName]["classArray"].push(window[menuObj.Title + "_" + menuObj[key].class]);
+          } else {
+            that[menuName][key][menuObj[key].class] = window[menuObj.Title + "_" + menuObj[key].class];
+          }
+        }
+
+        if (that[menuName][key].btnPress) {
+          that[menuName][key].btnDown();
+        } else {
+          that[menuName][key].btnUp();
+        }
+      }
       return that[menuName];
     }
+
     //初始化菜单对象    
     that[menuName] = {};
     that[menuName].fatherBtn = fatherBtn;
@@ -95,8 +131,6 @@ class MenuGUI {
     that[menuName].menu_main.className = 'menu_main';
     that[menuName].menu_main.classList.add('menu_main_V');
     that[menuName].menu_main.setAttribute('style', "top:" + that[menuName].initY + "px;left:" + that[menuName].initX + "px;");
-    // that[menuName].menu_main.style.top = that[menuName].initY;
-    // that[menuName].menu_main.style.left = that[menuName].initX;
     document.body.appendChild(that[menuName].menu_main);
 
     //初始化菜单主框架/呈现方向
@@ -171,27 +205,56 @@ class MenuGUI {
     that[menuName].content.classList.add('content_V');
     that[menuName].menu_main.appendChild(that[menuName].content);
 
+    //初始化菜单类列表
+    that[menuName]["classArray"] = new Array();
+
+    //初始化菜单快捷键对象列表
+    that[menuName]["shortcutArray"] = new Array();
+
     for (let key in menuObj) {
       if (key == "Title") continue;
 
       function cellInit() {
+
         that[menuName][key] = document.createElement('button');
         that[menuName][key].className = 'cellBtn';
         that[menuName][key].classList.add('btUpStyle2');
-        that[menuName][key].setAttribute('title', menuObj[key].name);
+        if (menuObj[key].shortcut != undefined) {
+          that[menuName][key].setAttribute('title', menuObj[key].name + " (" + menuObj[key].shortcut[0] + ")");
+        } else {
+          that[menuName][key].setAttribute('title', menuObj[key].name);
+        }
         that[menuName][key].style.backgroundImage = "url(" + menuObj[key]['image_url'] + ")";
+
+        if (menuObj[key].class != undefined && menuObj[key].class != "") {
+          if (!that[menuName]["classArray"].includes(window[menuObj.Title + "_" + menuObj[key].class])) {
+            if (menuObj[key].param != undefined && menuObj[key].param != {}) {
+              window[menuObj.Title + "_" + menuObj[key].class] = new window[menuObj[key].class](menuObj[key].param);
+            } else {
+              window[menuObj.Title + "_" + menuObj[key].class] = new window[menuObj[key].class]();
+            }
+            that[menuName][key][menuObj[key].class] = window[menuObj.Title + "_" + menuObj[key].class];
+            that[menuName]["classArray"].push(window[menuObj.Title + "_" + menuObj[key].class]);
+          } else {
+            that[menuName][key][menuObj[key].class] = window[menuObj.Title + "_" + menuObj[key].class];
+          }
+        }
 
         that[menuName][key].btnDown = function () {
           if (that[menuName][key].classList.contains('btUpStyle2'))
             that[menuName][key].classList.remove('btUpStyle2');
           if (!that[menuName][key].classList.contains('btDownStyle2'))
             that[menuName][key].classList.add('btDownStyle2');
+          if (menuObj[key].btnDown != undefined)
+            that[menuName][key][menuObj[key].class][menuObj[key].btnDown]();
         }
         that[menuName][key].btnUp = function () {
           if (that[menuName][key].classList.contains('btDownStyle2'))
             that[menuName][key].classList.remove('btDownStyle2');
           if (!that[menuName][key].classList.contains('btUpStyle2'))
             that[menuName][key].classList.add('btUpStyle2');
+          if (menuObj[key].btnUp != undefined)
+            that[menuName][key][menuObj[key].class][menuObj[key].btnUp]();
         }
       }
 
@@ -212,6 +275,19 @@ class MenuGUI {
           break;
         case "button":
           cellInit();
+          if (that[menuName][key].btnPress) {
+            that[menuName][key].btnDown();
+          } else {
+            that[menuName][key].btnUp();
+          }
+          that[menuName][key].onmousedown = function () {
+            that[menuName][key].btnPress = !that[menuName][key].btnPress;
+            if (that[menuName][key].btnPress) {
+              that[menuName][key].btnDown();
+            } else {
+              that[menuName][key].btnUp();
+            }
+          }
           break;
         case "radio":
           cellInit();
@@ -222,6 +298,24 @@ class MenuGUI {
         default:
           console.error("从menu_list.json中加载了一个未知的“菜单”类型，请重新审核之后再运行。")
       }
+
+      if (menuObj[key].shortcut != undefined) {
+        that[menuName][key].shortcut = function (event) {
+          if (event.key == menuObj[key].shortcut[0] || event.key == menuObj[key].shortcut[1]) {
+            that[menuName][key].btnPress = !that[menuName][key].btnPress;
+            if (that[menuName][key].btnPress) {
+              that[menuName][key].btnDown();
+            } else {
+              that[menuName][key].btnUp();
+            }
+          }
+        };
+
+        that[menuName]["shortcutArray"].push(that[menuName][key].shortcut);
+
+        document.addEventListener('keyup', that[menuName][key].shortcut);
+      }
+
       that[menuName].content.appendChild(that[menuName][key]);
     }
 
@@ -425,10 +519,26 @@ class MenuGUI {
       smallBtnUp(that[menuName].closeBtn);
       that[menuName].fatherBtn.btnUp();
       that[menuName].fatherBtn.btnPress = false;
+
       that[menuName].hide();
     }
 
     that[menuName].hide = function () {
+
+      if (that[menuName]["classArray"].length > 0) {
+        for (let i = 0; i < that[menuName]["classArray"].length; i++) {
+          that[menuName]["classArray"][i].dispose();
+          that[menuName]["classArray"][i] = null;
+        }
+        that[menuName]["classArray"].length = 0;
+      }
+
+      if (that[menuName]["shortcutArray"].length > 0) {
+        for (let i = 0; i < that[menuName]["shortcutArray"].length; i++) {
+          document.removeEventListener("onkeyup", that[menuName]["shortcutArray"][i]);
+        }
+      }
+
       that[menuName].menu_main.style.display = "none";
       for (let key in that[menuName].subMenus) {
         that[menuName].subMenus[key].hide();

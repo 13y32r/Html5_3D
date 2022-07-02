@@ -1,0 +1,200 @@
+{
+    "Plugins": {
+        "CutOffMesh": {
+            "url": "../threeSrc/tools/cutOffMesh.js",
+            "inModule": true
+        },
+        "Ruler": {
+            "url": "../threeSrc/tools/ruler.js",
+            "inModule": true
+        },
+        "SelectionTool": {
+            "url": "../threeSrc/tools/selectionTool.js",
+            "inModule": true
+        },
+        "TransformBySelection": {
+            "url": "../threeSrc/tools/TransformBySelection.js",
+            "inModule": true
+        },
+        "TransformWhole": {
+            "url": "../threeSrc/tools/transformWhole.js",
+            "inModule": true
+        }
+    },
+    "Main-Menu": {
+        "Title": "主菜单",
+        "EditorMode": {
+            "name": "编辑模式",
+            "type": "folder",
+            "image_url": "./menuGUI/img/editorMode.png"
+        },
+        "Grids": {
+            "name": "网格",
+            "type": "folder",
+            "image_url": "./menuGUI/img/gridFolder.png"
+        },
+        "Tools": {
+            "name": "工具箱",
+            "type": "folder",
+            "image_url": "./menuGUI/img/toolsFolder.png"
+        },
+        "AxisScale": {
+            "name": "坐标轴",
+            "type": "folder",
+            "image_url": "./menuGUI/img/axisFolder.png"
+        },
+        "2D-Shape": {
+            "name": "二维形状",
+            "type": "folder",
+            "image_url": "./menuGUI/img/2D-Shape.png"
+        },
+        "3D-Shape": {
+            "name": "三维形状",
+            "type": "folder",
+            "image_url": "./menuGUI/img/3D-Shape.png"
+        }
+    },
+    "EditorMode": {
+        "Title": "编辑模式",
+        "SelectTool": {
+            "name": "选择工具",
+            "type": "button",
+            "class": "SelectionTool",
+            "param": {},
+            "btnUp": "selectionUp",
+            "btnDown": "selectionDown",
+            "image_url": "./menuGUI/img/selectTool.png",
+            "shortcut": [
+                "Q",
+                "q"
+            ]
+        },
+        "MoveTool": {
+            "name": "移动工具",
+            "type": "radio",
+            "class": "TransformBySelection",
+            "image_url": "./menuGUI/img/moveTool.png",
+            "shortcut": [
+                "W",
+                "w"
+            ]
+        },
+        "RotateTool": {
+            "name": "旋转工具",
+            "type": "radio",
+            "class": "TransformBySelection",
+            "image_url": "./menuGUI/img/rotateTool.png",
+            "shortcut": [
+                "E",
+                "e"
+            ]
+        },
+        "ScaleTool": {
+            "name": "缩放工具",
+            "type": "radio",
+            "class": "TransformBySelection",
+            "image_url": "./menuGUI/img/scaleTool.png",
+            "shortcut": [
+                "R",
+                "r"
+            ]
+        },
+        "WholeTool": {
+            "name": "整体或单独工具",
+            "type": "button",
+            "class": "TransformWhole",
+            "btnUp": "independent",
+            "btnDown": "whole",
+            "image_url": "./menuGUI/img/selectionWhole.png",
+            "shortcut": [
+                "A",
+                "a"
+            ]
+        }
+    },
+    "AxisScale": {
+        "Title": "坐标轴",
+        "X-Axis": {
+            "name": "X坐标轴",
+            "type": "button",
+            "class": "",
+            "param": [
+                "X"
+            ],
+            "image_url": "./menuGUI/img/xAxis.png"
+        },
+        "Y-Axis": {
+            "name": "Y坐标轴",
+            "type": "button",
+            "class": "",
+            "param": [
+                "Y"
+            ],
+            "image_url": "./menuGUI/img/yAxis.png"
+        },
+        "Z-Axis": {
+            "name": "Z坐标轴",
+            "type": "button",
+            "class": "",
+            "param": [
+                "Z"
+            ],
+            "image_url": "./menuGUI/img/zAxis.png"
+        }
+    },
+    "Tools": {
+        "Title": "工具箱",
+        "Rule": {
+            "name": "标尺工具",
+            "type": "button",
+            "class": "",
+            "param": {
+                "unit": 10,
+                "editorOP": "editorOP",
+                "textIn3D": "textIn3D"
+            },
+            "image_url": "./menuGUI/img/ruler.png"
+        },
+        "SliceTool": {
+            "name": "切割工具",
+            "type": "button",
+            "class": "",
+            "param": {
+                "unit": 10,
+                "editorOP": "editorOP",
+                "textIn3D": "textIn3D"
+            },
+            "image_url": "./menuGUI/img/cuttingTool.png"
+        }
+    },
+    "Grids": {
+        "Title": "网格",
+        "X-Grid": {
+            "name": "X面网格",
+            "type": "button",
+            "class": "",
+            "param": [
+                "X"
+            ],
+            "image_url": "./menuGUI/img/xGrid.png"
+        },
+        "Y-Grid": {
+            "name": "Y面网格",
+            "type": "button",
+            "class": "",
+            "param": [
+                "Y"
+            ],
+            "image_url": "./menuGUI/img/yGrid.png"
+        },
+        "Z-Grid": {
+            "name": "Z面网格",
+            "type": "button",
+            "class": "",
+            "param": [
+                "Z"
+            ],
+            "image_url": "./menuGUI/img/zGrid.png"
+        }
+    }
+}

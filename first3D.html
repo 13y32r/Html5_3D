@@ -17,8 +17,8 @@
     <!--引入three.js三维引擎-->
     <!-- <script src="http://www.yanhuangxueyuan.com/versions/threejsR92/build/three.js"></script> -->
     <!-- <script src="./threeSrc/Three.js"></script> -->
-    <script
-        src="https://6d61-math-training-9g90u35i7d2b235b-1304747630.tcb.qcloud.la/html5_Pages/threeSrc/three.js"></script>
+    <!-- <script -->
+    <!-- src="https://6d61-math-training-9g90u35i7d2b235b-1304747630.tcb.qcloud.la/html5_Pages/threeSrc/three.js"></script> -->
 
     <!--引入OrbitControls.js旋转缩放代码-->
     <!-- <script
@@ -79,7 +79,9 @@
 
     <!-- <button style="position: absolute;top: 150px;left: 150px;">高大上</button> -->
     <script type="module">
+        import * as THREE from "./threeSrc/three.module.js";
         import { OrbitControls } from "./threeSrc/libs/OrbitControls.js";
+        import { TransformControls } from "./threeSrc/libs/TransformControls.js";
         // import { Interaction } from './threeSrc/three.interaction';
         /**
          * 创建场景对象Scene
@@ -103,7 +105,7 @@
         // const geometry = new THREE.BufferGeometry().setFromPoints(pointss);
         const shaped = new THREE.Shape(pointss);
         const geometry = new THREE.ShapeGeometry(shaped, 25);
-        console.log(geometry);
+
         let planes = [
             new THREE.Plane(new THREE.Vector3(1, 1, 0), 0),
             // new THREE.Plane(new THREE.Vector3(0, 1, 0),0),
@@ -159,7 +161,7 @@
             canvas.height = 100;
 
             let context = canvas.getContext("2d");
-            context.fillStyle = "#aaaaaa";
+            context.fillStyle = "#ff0000";
 
             context.arc(50, 50, 45, 0, 2 * Math.PI);
             context.fill();
@@ -171,15 +173,15 @@
             //创建点，是用PointsMaterial的map属性来设置材质
             let geometry = new THREE.BufferGeometry();
             // 点位置
-            const p1 = new Array(0, 0, 0);
-            const p2 = new Array(100, 100, 0);
-            const p3 = new Array(-100, -200, 0);
-            var vertices = new Array();
-            vertices = vertices.concat(p1);
-            vertices = vertices.concat(p2);
-            vertices = vertices.concat(p3);
+            // const p1 = new Array(0, 0, 0);
+            const p2 = new Array(0, 0, 0);
+            // const p3 = new Array(-100, -200, 0);
+            // var vertices = new Array();
+            // vertices = vertices.concat(p1);
+            // vertices = vertices.concat(p2);
+            // vertices = vertices.concat(p3);
 
-            var pp = new Float32Array(vertices);
+            var pp = new Float32Array(p2);
 
             // vertices 表示顶点
             geometry.setAttribute('position', new THREE.BufferAttribute(pp, 3));
@@ -196,6 +198,7 @@
             return points;
         }
         var points = createShapePoints();
+        points.position.set(100, 100, 200);
         scene.add(points);
 
         // geometry.addGroup(0, +Infinity, 0)
@@ -282,7 +285,7 @@
 
         let dummy = new THREE.Object3D();
         var controls = new OrbitControls(camera, renderer.domElement);//创建控件对象
-        controls.addEventListener('change', function(event){
+        controls.addEventListener('change', function (event) {
             render();
             // console.log(event);
         });
@@ -342,17 +345,79 @@
         var mesh5 = new THREE.Mesh(geometry5, materil5)
         var mesh6 = new THREE.Mesh(geometry6, materil6)
 
-        mesh1.position.set(10, 0, 0);
-        mesh2.position.set(10, 0, 10)
-        mesh3.position.set(10, 0, 20)
-        mesh4.position.set(0, 0, 0)
-        mesh5.position.set(0, 0, 10)
-        mesh6.position.set(0, 0, 20)
+        mesh1.position.set(10, 20, 0);
+        mesh2.position.set(10, 20, 10)
+        mesh3.position.set(10, 20, 20)
+        mesh4.position.set(0, 20, 0)
+        mesh5.position.set(0, 20, 10)
+        mesh6.position.set(0, 20, 20)
 
-        mesh6.matrixAutoUpdate = true;
-        mesh6.matrixWorldNeedsUpdate = true;
-        mesh4.matrixAutoUpdate = true;
-        mesh4.matrixWorldNeedsUpdate = true;
+        const box = new THREE.BoxHelper(mesh6, '#ffff00');
+        mesh6.attach(box);
+        // console.log(box.parent.remove(box));
+        mesh6.rotateY(Math.PI / 4);
+
+        // mesh6.matrixAutoUpdate = true;
+        // mesh6.matrixWorldNeedsUpdate = true;
+        // mesh4.matrixAutoUpdate = true;
+        // mesh4.matrixWorldNeedsUpdate = true;
+
+        let group = new THREE.Group();
+
+        group.add(mesh1, mesh2, mesh3, mesh4, mesh5, mesh6);
+        // group.toGeometryCenter();
+        // group.toCommonCenter();
+
+        scene.add(group);
+        // scene.add(mesh1, mesh2, mesh3, mesh4, mesh5, mesh6);
+
+        let tControl = new TransformControls(camera, renderer.domElement);
+        tControl.addEventListener('change', render);
+
+        tControl.addEventListener('dragging-changed', function (event) {
+
+            controls.enabled = !event.value;
+
+        });
+
+        let mat;
+
+        // let mat = new THREE.Matrix4();
+        // console.log(mesh1.matrix.elements);
+        // console.log(mat);
+        // console.log(mesh1.matrix);
+        // mesh1.matrix.multiply(mesh1.matrix.invert());
+
+        tControl.addEventListener('objectChange', function () {
+
+            let matk = mesh1.matrix.clone();
+            // console.log(matk);
+            matk.multiply(mat);
+
+            let mat6 = mesh6.matrix.clone();
+            mat6.multiply(matk);
+            mesh6.setRotationFromMatrix(mat6);
+
+            mat.copy(mesh1.matrix);
+            mat.invert();
+
+            // console.log(mesh6);
+            // mat.copy(mesh1.matrix);
+            // mat.invert();
+            // console.log(mat);
+
+            // console.log(mesh1.matrix);
+            // mesh6.matrix.copyPosition(mesh1.matrix);
+            // console.log(mesh6.matrix);
+            // mesh1.matrixWorld.decompose(mesh6.position, mesh6.quaternion, mesh6.scale);
+        });
+
+        tControl.attach(mesh1);
+        tControl.setMode('translate');
+        scene.add(tControl);
+
+        mat = mesh1.matrix.clone();
+        mat.invert();
 
         // var invisible = new Event('invisible');
         // var invisible = new CustomEvent('invisible')
@@ -367,7 +432,6 @@
 
         // mesh6.applyMatrix4(mesh5.matrix);
 
-        scene.add(mesh1, mesh2, mesh3, mesh4, mesh5, mesh6);
 
         f2.add(mesh4.position, "y", 0, 200, 1).name('mesh4的位置').onChange(render);
 
@@ -390,6 +454,15 @@
         // let text3D_obj = textIn3D.createText("Hello world!", 20);
         // text3D_obj.position.z = 10;
         // scene.add(text3D_obj);
+
+        // import { SelectionBox } from './threeSrc/tools/selectionControl/SelectionBox.js';
+        // import { SelectionHelper } from './threeSrc/tools/selectionControl/SelectionHelper.js';
+
+        // const selectionBox = new SelectionBox(camera, scene);
+        // const helper = new SelectionHelper(selectionBox);
+        // helper.addEventListener("end", function () {
+        //     console.log(selectionBox.select());
+        // });
 
         function render() {
             stats.update();
@@ -447,10 +520,10 @@
         }
         // animate();
 
-        window.addEventListener('click', selObject);
+        // window.addEventListener('click', selObject);
         function selObject(event) {
 
-            console.log(clock.getDelta());
+            // console.log(clock.getDelta());
 
             pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
             pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
@@ -461,13 +534,19 @@
             // console.log(scene.children);
 
             if (intersects.length > 0) {
-                for (let ele in scene.children) {
-                    // console.log(ele)
-                    if (scene.children[ele] instanceof THREE.Mesh) {
-                        scene.children[ele].material.color.set(0x1111ff);
-                    }
-                }
+                // for (let ele in scene.children) {
+                //     // console.log(ele)
+                //     if (scene.children[ele] instanceof THREE.Mesh) {
+                //         scene.children[ele].material.color.set(0x1111ff);
+                //     }
+                // }
                 mColor += 0x111111;
+
+                const containType = ["Mesh", "Points"];
+                const containName = ["X", "Y", "Z", "E", "XY", "XZ", "YZ", "XYZ", "XYZE"];
+
+                if (!containName.includes(intersects[0].object.name) && containType.includes(intersects[0].object.type))
+                    console.log(intersects[0].object);
                 intersects[0].object.material.color.set(mColor);
                 intersects[0].object.dispatchEvent({ type: 'invisible', obj: intersects[0].object });
             }

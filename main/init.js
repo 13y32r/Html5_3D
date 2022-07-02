@@ -1,13 +1,14 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-13 19:20:28
- * @LastEditTime: 2022-06-19 13:56:59
+ * @LastEditTime: 2022-06-30 18:43:57
  * @LastEditors: your name
  * @Description: 这是引擎的启动主函数
  * @FilePath: \Html5_3D\main\init.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
-import { preloadItem } from './preload_item.js'
+import { preloadItem } from './preload_item.js';
+import { MenuGUI } from '../menuGUI/menuGUI.js';
 
 async function init() {
 
@@ -53,6 +54,11 @@ async function init() {
 
     //开始装配编辑器
     window["editorOperate"] = new window["EditorOperate"](dimType, eState, scene, ort_Camera, per_Camera, renderer);
+
+    //初始化3D文字
+    window["textIn3D"] = new window["TextIn3D"](undefined, renderer, editorOperate);
+    //初始化菜单
+    let menuGUI = new MenuGUI();
     // animate();
 }
 

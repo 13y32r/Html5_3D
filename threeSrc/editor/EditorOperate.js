@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-04-27 10:13:00
- * @LastEditTime: 2022-06-19 13:37:24
+ * @LastEditTime: 2022-06-26 20:36:01
  * @LastEditors: your name
  * @Description: 这是一个用于编辑器根据传来的“状态”指令，来具体操作的代码
  * @FilePath: \Html5_3D\threeSrc\editor\EditorOperate.js
@@ -22,7 +22,6 @@ class EditorOperate extends EventDispatcher {
         let that = this;
         that.keyevent = "";
 
-        this.glManager = glManager;
         this.clock = new window["THREE"].Clock(); // only used for animations
 
         this.width = window.innerWidth; //窗口宽度

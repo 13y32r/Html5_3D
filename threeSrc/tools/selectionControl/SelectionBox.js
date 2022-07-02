@@ -172,7 +172,7 @@ class SelectionBox {
 
 	searchChildInFrustum( frustum, object ) {
 
-		if ( object.isMesh || object.isLine || object.isPoints ) {
+		if ( object.isMesh || object.isPoints ) {
 
 			if ( object.isInstancedMesh ) {
 

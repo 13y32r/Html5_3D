@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-06-23 10:10:16
- * @LastEditTime: 2022-06-25 12:13:55
+ * @LastEditTime: 2022-06-26 09:01:51
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\testWeb\guitest\guitest.js
@@ -28,6 +28,10 @@ function createGUI() {
     ele.appendChild(ele_child);
     ele_child.myArray = ["asd", "123", "gwu", 657];
     console.log(ele_child.myArray);
+    ele_child.testFn = function(){
+        console.log("I am a element function.");
+    };
+    ele_child.testFn();
     ele_child.addEventListener('pointerdown', function () { alert("Hello Sun!") });
 
     ele.onmousedown = mouseDownTest;
@@ -43,6 +47,10 @@ function createGUI() {
 
     function mouseDownTest(){
         console.log("mouse down success!");
+    }
+
+    function testFunction(message){
+        console.log(message);
     }
 }
 

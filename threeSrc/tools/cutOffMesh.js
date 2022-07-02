@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-09 20:49:54
- * @LastEditTime: 2022-06-19 13:55:50
+ * @LastEditTime: 2022-06-30 21:11:40
  * @LastEditors: your name
  * @Description:
  * @FilePath: \Html5_3D\threeSrc\tools\cutOffMesh.js
@@ -15,18 +15,21 @@ import { Raycaster, Vector2, Vector3, Plane } from "three";
 const _changeEvent = { type: "change" };
 
 class CutOffMesh extends Tool {
-  constructor(camera, scene, crackSize = 0.05) {
+  constructor(crackSize = 0.05, camera, scene) {
+
     super("CutOff Mesh");
-    if (arguments.length > 1) {
-      this.camera = camera;
-      this.scene = scene;
-      this.crackSize = crackSize;
-    } else if (arguments.length == 1) {
-      this.camera = arguments[0].camera;
-      this.scene = arguments[0].scene;
-      this.crackSize = arguments[0].crackSize;
+
+    this.crackSize = crackSize;
+
+    if (camera == null || camera == undefined) {
+      this.camera = window["editorOperate"].camera;
     } else {
-      console.warn("constructor of CutOffMesh correct number of parameters.");
+      this.camera = camera;
+    }
+    if (scene == null || camera == undefined) {
+      this.scene = window["editorOperate"].scene;
+    } else {
+      this.scene = scene;
     }
 
     this.cutInterval;

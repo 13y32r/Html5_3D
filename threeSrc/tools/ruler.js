@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-05-15 10:30:42
- * @LastEditTime: 2022-06-13 18:22:48
+ * @LastEditTime: 2022-06-30 21:14:36
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\threeSrc\tools\ruler.js
@@ -19,12 +19,21 @@ class Ruler extends Tool {
         this.endPoint;
 
         this.EditorState = EditorState;
-        this.textIn3D = textIn3D;
+        if (textIn3D == null || textIn3D == undefined) {
+            this.textIn3D = window["textIn3D"];
+        }
+        else {
+            this.textIn3D = textIn3D;
+        }
 
         this.unit = unit;
         this.theLastUnitCopies = 0;
 
-        this.editorOP = editorOP;
+        if (editorOP == null || editorOP == undefined) {
+            this.editorOP = window["editorOperate"];
+        } else {
+            this.editorOP = editorOP;
+        }
 
         this.lineGroup = new Group();
         this.editorOP.scene.add(this.lineGroup);
