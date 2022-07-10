@@ -1,0 +1,70 @@
+.initParam_body {
+    display: flex;
+    flex-direction: row;
+    width: auto;
+    height: auto;
+    position: absolute;
+}
+
+.initParam_drag {
+    width: 6px;
+    height: auto;
+    cursor: ew-resize;
+}
+
+.initParam_main {
+    border: 1px solid #282828;
+    display: flex;
+    background-color: #535353;
+    color: #f5f5f5;
+    font-family: 宋体;
+    font-size: 12px;
+    border-radius: 5px 5px 0px 0px;
+    flex-direction: column;
+    width: 130px;
+    height: auto;
+}
+
+.initParam_title {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    height: 22px;
+    flex-direction: row;
+    border-bottom: 1px solid #282828;
+    cursor: move;
+}
+
+.initParam_content {
+    border-top: 1px solid #6a6a6a;
+    height: auto;
+    width: 100%;
+    flex-direction: column;
+    border-bottom: 1px solid #282828;
+    line-height: 20px;
+}
+
+.initParam_cell {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.initParam_cell_text {
+    width: 60px;
+    margin: 5px;
+}
+
+.initParam_cell_input {
+    width: calc(100% - 90px);
+    height: 100%;
+    margin: 5px;
+}
+
+.initParam_confirm {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    border-top: 1px solid #6a6a6a;
+}

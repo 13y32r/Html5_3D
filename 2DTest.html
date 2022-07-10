@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2022-03-05 10:58:27
- * @LastEditTime: 2022-06-26 18:00:17
+ * @LastEditTime: 2022-07-06 11:28:04
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\2DTest.html
@@ -178,7 +178,7 @@
 
         import { DimensionType } from "./threeSrc/editor/DimensionType.js"
         let controls = new OrbitControls(camera, renderer.domElement);//创建控件对象
-        // let editorOperate = new EditorOperate(DimensionType._2D, eState, controls, scene, camera, renderer);
+        let editorOperate = new EditorOperate(DimensionType._2D, eState, controls, scene, camera, renderer);
 
         const path = new THREE.Path();
         path.lineTo(10, 0);
@@ -235,8 +235,8 @@
         // theGroup.children.pop();
         // render();
 
-        import { SelectionBox } from './threeSrc/selectionControl/SelectionBox.js';
-        import { SelectionHelper } from './threeSrc/selectionControl/SelectionHelper.js';
+        // import { SelectionBox } from './threeSrc/selectionControl/SelectionBox.js';
+        // import { SelectionHelper } from './threeSrc/selectionControl/SelectionHelper.js';
         import { plugInLoadingTips } from './assist/plug-inLoadingTips.js';
         // plugInLoadingTips("../threeSrc/OrbitControls.js", renderer, editorOperate);
 

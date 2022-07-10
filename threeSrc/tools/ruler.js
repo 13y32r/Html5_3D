@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-05-15 10:30:42
- * @LastEditTime: 2022-06-30 21:14:36
+ * @LastEditTime: 2022-07-08 10:47:29
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\threeSrc\tools\ruler.js
@@ -12,47 +12,49 @@ import { LineBasicMaterial, BufferGeometry, Line, Vector3, Group } from 'three';
 import { EditorState } from '../editor/EditorState.js';
 
 class Ruler extends Tool {
-    constructor(unit = 10, editorOP, textIn3D) {
+    constructor() {
+
         super("Ruler");
 
         this.startPoint;
         this.endPoint;
 
-        this.EditorState = EditorState;
-        if (textIn3D == null || textIn3D == undefined) {
-            this.textIn3D = window["textIn3D"];
-        }
-        else {
-            this.textIn3D = textIn3D;
-        }
+        this.textIn3D = window["textIn3D"];
 
-        this.unit = unit;
         this.theLastUnitCopies = 0;
 
-        if (editorOP == null || editorOP == undefined) {
-            this.editorOP = window["editorOperate"];
-        } else {
-            this.editorOP = editorOP;
-        }
+        this.editorOP = window["editorOperate"];
 
         this.lineGroup = new Group();
-        this.editorOP.scene.add(this.lineGroup);
 
         this.Material = new LineBasicMaterial({ color: 0x000000 });
 
         this.gsPoint = this.getStartPoint.bind(this);
         this.gePoint = this.getEndPoint.bind(this);
-        this.spMeasure = this.stopMeasure.bind(this);
+        this.measure = this.measure.bind(this);
+        this.stopMeasure = this.stopMeasure.bind(this);
     }
 
-    measure() {
+    measure(unit = 10) {
+
+        if (typeof (unit) == "object") {
+            this.unit = unit["最小刻度"];
+        } else {
+            this.unit = unit;
+        }
+
         this.addListener('pointerdown', this.gsPoint);
+
+        this.editorOP.scene.add(this.lineGroup);
+        this.editorState = this.editorOP.state;
+        this.editorOP.changeEditorState(EditorState.Edit);
+
     }
 
     getStartPoint(event) {
         if (event.button != 0) return;
 
-        const pointer = new THREE.Vector3();
+        const pointer = new Vector3();
         var rect = this.editorOP.renderer.domElement.getBoundingClientRect();
         pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         pointer.y = (-(event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -61,12 +63,12 @@ class Ruler extends Tool {
         this.startPoint = pointer.unproject(this.editorOP.camera);
 
         this.addListener('pointermove', this.gePoint);
-        this.removeListerner('pointerdown', this.gsPoint);
-        this.addListener('pointerdown', this.spMeasure);
+        // this.removeListerner('pointerdown', this.gsPoint);
+        // this.addListener('pointerdown', this.spMeasure);
     }
 
     getEndPoint(event) {
-        const pointer = new THREE.Vector3();
+        const pointer = new Vector3();
         var rect = this.editorOP.renderer.domElement.getBoundingClientRect();
         pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         pointer.y = (-(event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -78,9 +80,6 @@ class Ruler extends Tool {
     }
 
     multipleOperation(startPoint, endPoint) {
-
-        this.editorState = this.editorOP.state;
-        this.editorOP.state = this.EditorState.DRAW;
 
         let camUp_z_orientation = new Vector3(0, 0, -1);
         camUp_z_orientation.applyQuaternion(this.editorOP.camera.quaternion);
@@ -132,20 +131,30 @@ class Ruler extends Tool {
 
     drwaLine(startPoint, endPoint) {
         let points = new Array();
-        points.push(startPoint, endPoint)
+        points.push(startPoint, endPoint);
         let lineGeometry = new BufferGeometry().setFromPoints(points);
         let lineObj = new Line(lineGeometry, this.Material);
 
         return lineObj;
     }
 
-    stopMeasure(event) {
-        if (event.button != 0) return;
-        this.removeListerner('pointermove', this.gePoint);
+    stopMeasure() {
+
+        this.removeListener('pointerdown', this.gsPoint);
+        this.removeListener('pointermove', this.gePoint);
+        this.removeListener('pointerdown', this.spMeasure);
+
         this.lineGroup.children.length = 0;
-        this.removeListerner('pointerdown', this.spMeasure);
-        this.editorOP.state = this.editorState;
+
+        if (this.editorState != undefined) {
+            this.editorOP.scene.remove(this.lineGroup);
+            this.editorOP.changeEditorState(this.editorState);
+        }
         this.editorOP.render();
+    }
+
+    dispose() {
+        this.stopMeasure();
     }
 }
 

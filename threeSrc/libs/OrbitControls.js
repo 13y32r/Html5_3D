@@ -5,7 +5,9 @@ import {
 	Spherical,
 	TOUCH,
 	Vector2,
-	Vector3
+	Vector3,
+	Box3,
+	Sphere
 } from 'three';
 
 // This set of controls performs orbiting, dollying (zooming), and panning.
@@ -1218,7 +1220,6 @@ class OrbitControls extends EventDispatcher {
 		this.update();
 
 	}
-
 }
 
 

@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-13 19:20:28
- * @LastEditTime: 2022-06-30 18:43:57
+ * @LastEditTime: 2022-07-08 11:04:03
  * @LastEditors: your name
  * @Description: 这是引擎的启动主函数
  * @FilePath: \Html5_3D\main\init.js
@@ -26,7 +26,7 @@ async function init() {
         geoData = JSON.parse(geoData);
         eState = window["EditorState"].OBSERVER;
     } else {
-        eState = window["EditorState"].Edit;
+        eState = window["EditorState"].EDIT;
     }
 
     //初始化场景

@@ -1,22 +1,13 @@
 /*******
- * @Author: your name
- * @Date: 2022-06-27 09:55:00
- * @LastEditTime: 2022-07-02 18:27:59
+ * @Author: 邹岱志
+ * @Date: 2022-06-18 14:28:01
+ * @LastEditTime: 2022-07-10 11:42:43
  * @LastEditors: your name
- * @Description: 
+ * @Description:这时新版本的菜单类，已经将类的初始化放在了init.js文件中。
  * @FilePath: \Html5_3D\menuGUI\menuGUI.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
-/*******
- * @Author: 邹岱志
- * @Date: 2022-06-18 14:28:01
- * @LastEditTime: 2022-06-26 17:39:59
- * @LastEditors: your name
- * @Description:
- * @FilePath: \Html5_3D\testWeb\menuGUI.js
- * @可以输入预定的版权声明、个性签名、空行等
- */
-import { plugInLoadingTips } from '../assist/plug-inLoadingTips.js';
+import { EditorState } from "../threeSrc/editor/EditorState.js";
 
 class MenuGUI {
   constructor() {
@@ -33,7 +24,6 @@ class MenuGUI {
     let that = this;
     return new Promise(async (resolve, reject) => {
       //加载GUI的配置列表
-      var pArray = new Array();
       var url = list_url;
       var request = new XMLHttpRequest();
       request.open("get", url);
@@ -41,23 +31,9 @@ class MenuGUI {
       request.onload = async function () {
         if (request.status == 200) {
           var json = JSON.parse(request.responseText);
-          for (let key in json.Plugins) {
-            let pResolve = plugInLoadingTips(
-              json.Plugins[key].url,
-              key,
-              json.Plugins[key].inModule
-            );
-            pArray.push(pResolve);
-          }
-          await Promise.all(pArray);
           that.listJson = json;
-          delete that.listJson.Plugins;
           that.linkCSS();
-          // console.log(that.listJson);
           that.creatGUI(that.listJson['Main-Menu'], null);
-          // for (let key in that.listJson) {
-          //   that.creatGUI(that.listJson[key]);
-          // }
           resolve();
         } else {
           alert(url + ":" + request.status + " " + request.statusText);
@@ -86,31 +62,6 @@ class MenuGUI {
     if (that[menuName] != null) {
 
       that[menuName].menu_main.style.display = "flex";
-
-      for (let key in menuObj) {
-
-        if (key == "Title") continue;
-
-        if (menuObj[key].class != undefined && menuObj[key].class != "") {
-          if (!that[menuName]["classArray"].includes(window[menuObj.Title + "_" + menuObj[key].class])) {
-            if (menuObj[key].param != undefined && menuObj[key].param != {}) {
-              window[menuObj.Title + "_" + menuObj[key].class] = new window[menuObj[key].class](menuObj[key].param);
-            } else {
-              window[menuObj.Title + "_" + menuObj[key].class] = new window[menuObj[key].class]();
-            }
-            that[menuName][key][menuObj[key].class] = window[menuObj.Title + "_" + menuObj[key].class];
-            that[menuName]["classArray"].push(window[menuObj.Title + "_" + menuObj[key].class]);
-          } else {
-            that[menuName][key][menuObj[key].class] = window[menuObj.Title + "_" + menuObj[key].class];
-          }
-        }
-
-        if (that[menuName][key].btnPress) {
-          that[menuName][key].btnDown();
-        } else {
-          that[menuName][key].btnUp();
-        }
-      }
       return that[menuName];
     }
 
@@ -163,7 +114,7 @@ class MenuGUI {
     that[menuName].menu_name.classList.add('menu_name_V');
     that[menuName].menu_name.setAttribute('name', 'menu_name');
     that[menuName].menu_name.innerText = menuName;
-    dragElement(that[menuName].menu_name);
+    dragElement(that[menuName].menu_name, that[menuName].menu_main);
     that[menuName].title.appendChild(that[menuName].menu_name);
 
     //初始化菜单主框架/标题区域/菜单的关闭和缩放按钮区域
@@ -214,8 +165,8 @@ class MenuGUI {
     for (let key in menuObj) {
       if (key == "Title") continue;
 
+      //初始化菜单列表中的按钮元素
       function cellInit() {
-
         that[menuName][key] = document.createElement('button');
         that[menuName][key].className = 'cellBtn';
         that[menuName][key].classList.add('btUpStyle2');
@@ -228,11 +179,7 @@ class MenuGUI {
 
         if (menuObj[key].class != undefined && menuObj[key].class != "") {
           if (!that[menuName]["classArray"].includes(window[menuObj.Title + "_" + menuObj[key].class])) {
-            if (menuObj[key].param != undefined && menuObj[key].param != {}) {
-              window[menuObj.Title + "_" + menuObj[key].class] = new window[menuObj[key].class](menuObj[key].param);
-            } else {
-              window[menuObj.Title + "_" + menuObj[key].class] = new window[menuObj[key].class]();
-            }
+            window[menuObj.Title + "_" + menuObj[key].class] = new window[menuObj[key].class]();
             that[menuName][key][menuObj[key].class] = window[menuObj.Title + "_" + menuObj[key].class];
             that[menuName]["classArray"].push(window[menuObj.Title + "_" + menuObj[key].class]);
           } else {
@@ -245,8 +192,13 @@ class MenuGUI {
             that[menuName][key].classList.remove('btUpStyle2');
           if (!that[menuName][key].classList.contains('btDownStyle2'))
             that[menuName][key].classList.add('btDownStyle2');
-          if (menuObj[key].btnDown != undefined)
-            that[menuName][key][menuObj[key].class][menuObj[key].btnDown]();
+          if (menuObj[key].btnDown != undefined) {
+            if (menuObj[key].param != undefined && Object.keys(menuObj[key].param).length != 0) {
+              initParamWindow(menuObj[key].param, that[menuName][key]);
+            } else {
+              that[menuName][key][menuObj[key].class][menuObj[key].btnDown]();
+            }
+          }
         }
         that[menuName][key].btnUp = function () {
           if (that[menuName][key].classList.contains('btDownStyle2'))
@@ -256,12 +208,128 @@ class MenuGUI {
           if (menuObj[key].btnUp != undefined)
             that[menuName][key][menuObj[key].class][menuObj[key].btnUp]();
         }
+
+        function initParamWindow(paramObj) {
+
+          let tempEditorState = window["editorOperate"].state;
+          window["editorOperate"].changeEditorState(EditorState.INPUT);
+
+          let initParam_body = document.createElement('div');
+          initParam_body.className = "initParam_body";
+          let initX = document.body.clientWidth - 50;
+          initX = Math.floor(Math.random() * initX);
+          let initY = Math.floor(Math.random() * 100);
+          initParam_body.setAttribute('style', "top:" + initY + "px;left:" + initX + "px;");
+          document.body.appendChild(initParam_body);
+
+          let initParam_main = document.createElement('div');
+          initParam_main.className = "initParam_main";
+          initParam_body.appendChild(initParam_main);
+
+          let initParam_drag = document.createElement('div');
+          initParam_drag.className = "initParam_drag";
+          initParam_body.appendChild(initParam_drag);
+          initParam_drag.addEventListener("mousedown", changeWidth);
+
+          let initParam_title = document.createElement('div');
+          initParam_title.className = "initParam_title";
+          initParam_main.appendChild(initParam_title);
+          initParam_title.innerHTML = "初始化参数";
+          dragElement(initParam_title, initParam_body);
+
+          let initParam_content = document.createElement('div');
+          initParam_content.className = "initParam_content";
+          initParam_main.appendChild(initParam_content);
+
+          for (let key in paramObj) {
+            let initParam_cell = document.createElement('div');
+            initParam_cell.className = "initParam_cell";
+            initParam_content.appendChild(initParam_cell);
+
+            let initParam_cell_text = document.createElement('text');
+            initParam_cell_text.className = "initParam_cell_text";
+            initParam_cell_text.innerHTML = key;
+            initParam_cell.appendChild(initParam_cell_text);
+
+            let initParam_cell_input = document.createElement("input");
+            initParam_cell_input.className = "initParam_cell_input";
+            if (typeof (paramObj[key]) == 'number') {
+              initParam_cell_input.setAttribute("type", "number");
+            } else if (typeof (paramObj[key]) == "string") {
+              if (paramObj[key].indexOf("#") == 0) {
+                initParam_cell_input.setAttribute("type", "color");
+              } else {
+                initParam_cell_input.setAttribute("type", "text");
+              }
+            }
+
+            initParam_cell_input.setAttribute("value", paramObj[key]);
+            initParam_cell.appendChild(initParam_cell_input);
+            initParam_cell_input.onchange = function () {
+              paramObj[key] = initParam_cell_input.value;
+            }
+          }
+
+          let initParam_confirm = document.createElement("div");
+          initParam_confirm.className = "initParam_confirm";
+          initParam_main.appendChild(initParam_confirm);
+
+          let confirm = document.createElement("button");
+          confirm.innerHTML = "确认";
+          initParam_confirm.appendChild(confirm);
+
+          confirm.onclick = endConfirm;
+
+          document.onmousedown = endConfirm;
+
+          function endConfirm(event) {
+
+            if (event.pointerType == undefined) {
+              if (event.button != 2) {
+                return;
+              }
+            }
+
+            window["editorOperate"].changeEditorState(tempEditorState);
+            that[menuName][key][menuObj[key].class][menuObj[key].btnDown](paramObj);
+            document.body.removeChild(initParam_body);
+            confirm.onclick = null;
+            document.onmousedown = null;
+            initParam_body, initParam_main, initParam_drag, initParam_title, initParam_content, initParam_confirm, confirm = null;
+          }
+
+          function changeWidth(event) {
+
+            let posS = event.clientX;
+            let posE = 0;
+            dragStart();
+
+            function dragStart() {
+              document.addEventListener("mousemove", dragMove);
+              document.addEventListener("mouseup", dragEnd);
+            }
+
+            function dragMove(event) {
+              posE = posS - event.clientX;
+              posS = event.clientX;
+
+              initParam_main.style.width = (initParam_main.offsetWidth - 2 - posE) + "px";
+            }
+
+            function dragEnd() {
+              document.removeEventListener("mousemove", dragMove);
+              document.removeEventListener("mouseup", dragEnd);
+            }
+
+          }
+        }
       }
 
       switch (menuObj[key].type) {
         case "folder":
           cellInit();
           that[menuName][key].onmousedown = function () {
+            if (window["editorOperate"].state == EditorState.INPUT) return;
             that[menuName][key].btnPress = !that[menuName][key].btnPress;
             if (that[menuName][key].btnPress) {
               that[menuName][key].btnDown();
@@ -281,6 +349,7 @@ class MenuGUI {
             that[menuName][key].btnUp();
           }
           that[menuName][key].onmousedown = function () {
+            if (window["editorOperate"].state == EditorState.INPUT) return;
             that[menuName][key].btnPress = !that[menuName][key].btnPress;
             if (that[menuName][key].btnPress) {
               that[menuName][key].btnDown();
@@ -292,6 +361,23 @@ class MenuGUI {
         case "radio":
           cellInit();
           that[menuName].radioArray.push(that[menuName][key]);
+          if (that[menuName][key].btnPress) {
+            that[menuName][key].btnDown();
+          } else {
+            that[menuName][key].btnUp();
+          }
+          that[menuName][key].onmousedown = function () {
+            if (window["editorOperate"].state == EditorState.INPUT) return;
+            for (let i = 0; i < that[menuName].radioArray.length; i++) {
+              if (that[menuName].radioArray[i] != that[menuName][key]) {
+                that[menuName].radioArray[i].btnPress = false;
+                that[menuName].radioArray[i].btnUp();
+              } else {
+                that[menuName].radioArray[i].btnPress = true;
+                that[menuName].radioArray[i].btnDown();
+              }
+            }
+          }
           break;
         // case "checkbox":
         //   break;
@@ -301,19 +387,62 @@ class MenuGUI {
 
       if (menuObj[key].shortcut != undefined) {
         that[menuName][key].shortcut = function (event) {
+
+          event.preventDefault();
+
+          if (menuObj[key].combkey != undefined) {
+            if (menuObj[key].combkey[0] != undefined)
+              if (!event[menuObj[key].combkey[0]])
+                return;
+
+            if (menuObj[key].combkey[1] != undefined)
+              if (!event[menuObj[key].combkey[1]])
+                return;
+          } else {
+            if (event.altKey || event.ctrlKey || event.shiftKey)
+              return;
+          }
+
           if (event.key == menuObj[key].shortcut[0] || event.key == menuObj[key].shortcut[1]) {
-            that[menuName][key].btnPress = !that[menuName][key].btnPress;
-            if (that[menuName][key].btnPress) {
-              that[menuName][key].btnDown();
+            if (menuObj[key].type == "radio") {
+              for (let i = 0; i < that[menuName].radioArray.length; i++) {
+                if (that[menuName].radioArray[i] != that[menuName][key]) {
+                  that[menuName].radioArray[i].btnPress = false;
+                  that[menuName].radioArray[i].btnUp();
+                } else {
+                  that[menuName].radioArray[i].btnPress = true;
+                  that[menuName].radioArray[i].btnDown();
+                }
+              }
             } else {
-              that[menuName][key].btnUp();
+              that[menuName][key].btnPress = !that[menuName][key].btnPress;
+              if (that[menuName][key].btnPress) {
+                that[menuName][key].btnDown();
+              } else {
+                that[menuName][key].btnUp();
+              }
             }
           }
         };
 
         that[menuName]["shortcutArray"].push(that[menuName][key].shortcut);
 
-        document.addEventListener('keyup', that[menuName][key].shortcut);
+        document.addEventListener('keydown', that[menuName][key].shortcut);
+        that[menuName][key].shortcutSwitch = true;
+
+        window["editorOperate"].addEventListener("changeState", function (event) {
+          if (event.state == "INPUT") {
+            if (that[menuName][key].shortcutSwitch) {
+              that[menuName][key].shortcutSwitch = false;
+              document.removeEventListener('keydown', that[menuName][key].shortcut);
+            }
+          } else {
+            if (!that[menuName][key].shortcutSwitch) {
+              that[menuName][key].shortcutSwitch = true;
+              document.addEventListener('keydown', that[menuName][key].shortcut);
+            }
+          }
+        });
       }
 
       that[menuName].content.appendChild(that[menuName][key]);
@@ -393,7 +522,7 @@ class MenuGUI {
         target.classList.add('btUpStyle1');
     }
 
-    function dragElement(target) {
+    function dragElement(target, moveObj) {
       var pos1 = 0,
         pos2 = 0,
         pos3 = 0,
@@ -449,18 +578,18 @@ class MenuGUI {
         pos4 = e.clientY;
 
         // set the element's new position:
-        if (that[menuName].menu_main.offsetTop - pos2 < 2) {
-          that[menuName].menu_main.style.top = 3 + "px";
-        } else if (that[menuName].menu_main.offsetTop - pos2 > (window.innerHeight - 20)) {
-          that[menuName].menu_main.style.top = (window.innerHeight - 21) + "px";
-        } else if (that[menuName].menu_main.offsetLeft - pos1 > (window.innerWidth - 30)) {
-          that[menuName].menu_main.style.left = (window.innerWidth - 31) + "px";
+        if (moveObj.offsetTop - pos2 < 2) {
+          moveObj.style.top = 3 + "px";
+        } else if (moveObj.offsetTop - pos2 > (window.innerHeight - 20)) {
+          moveObj.style.top = (window.innerHeight - 21) + "px";
+        } else if (moveObj.offsetLeft - pos1 > (window.innerWidth - 30)) {
+          moveObj.style.left = (window.innerWidth - 31) + "px";
         }
-        else if (that[menuName].menu_main.offsetLeft - pos1 < -21) {
-          that[menuName].menu_main.style.left = -20 + "px";
+        else if (moveObj.offsetLeft - pos1 < -21) {
+          moveObj.style.left = -20 + "px";
         } else {
-          that[menuName].menu_main.style.top = (that[menuName].menu_main.offsetTop - pos2) + "px";
-          that[menuName].menu_main.style.left = (that[menuName].menu_main.offsetLeft - pos1) + "px";
+          moveObj.style.top = (moveObj.offsetTop - pos2) + "px";
+          moveObj.style.left = (moveObj.offsetLeft - pos1) + "px";
         }
       }
 
@@ -524,29 +653,9 @@ class MenuGUI {
     }
 
     that[menuName].hide = function () {
-
-      if (that[menuName]["classArray"].length > 0) {
-        for (let i = 0; i < that[menuName]["classArray"].length; i++) {
-          that[menuName]["classArray"][i].dispose();
-          that[menuName]["classArray"][i] = null;
-        }
-        that[menuName]["classArray"].length = 0;
-      }
-
-      if (that[menuName]["shortcutArray"].length > 0) {
-        for (let i = 0; i < that[menuName]["shortcutArray"].length; i++) {
-          document.removeEventListener("onkeyup", that[menuName]["shortcutArray"][i]);
-        }
-      }
-
       that[menuName].menu_main.style.display = "none";
       for (let key in that[menuName].subMenus) {
         that[menuName].subMenus[key].hide();
-        if (that[menuName].subMenus[key].subMenus != {}) {
-          for (let key_c in that[menuName].subMenus[key].subMenus) {
-            that[menuName].subMenus[key].subMenus[key_c].btnUp();
-          }
-        }
       }
     }
 

@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-30 09:57:55
- * @LastEditTime: 2022-07-02 15:44:18
+ * @LastEditTime: 2022-07-10 00:12:56
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\threeSrc\tools\selectionTool.js
@@ -11,7 +11,14 @@
 import { Tool } from './tool.js';
 import { SelectionBox } from './selectionControl/SelectionBox.js';
 import { SelectionHelper } from './selectionControl/SelectionHelper.js';
-import { Vector2 } from 'three';
+import {
+    Vector2,
+    Vector3,
+    Box3,
+    Sphere,
+    BoxHelper,
+    Raycaster
+} from 'three';
 
 class SelectionTool extends Tool {
     constructor(camera, scene) {
@@ -21,9 +28,9 @@ class SelectionTool extends Tool {
         this.containType = ["Mesh", "Points"];
         this.notContainName = ["X", "Y", "Z", "E", "XY", "XZ", "YZ", "XYZ", "XYZE"];
 
-        let camArray = Object.getOwnPropertyNames(camera);
+        // let camArray = Object.getOwnPropertyNames(camera);
 
-        if (camera == null || camera == undefined || camArray.length == 0) {
+        if (camera == null || camera == undefined) {
             this.camera = window["editorOperate"].camera;
         } else {
             this.camera = camera;
@@ -44,24 +51,45 @@ class SelectionTool extends Tool {
         this.subSelection = false;
         this.tempOperateEnabled = window["editorOperate"].orbitControls.enableRotate;
 
-        document.onkeydown = function (event) {
-            if (event.key == "Shift") {
-                this.addSelection = true;
-            }
+        this.combKeyDown = this.combinationKeyDown.bind(this);
+        this.combKeyUp = this.combinationKeyUp.bind(this);
+
+        window.addEventListener("keydown", this.combKeyDown);
+        window.addEventListener("keyup", this.combKeyUp);
+
+        this.keyDown = false;
+    }
+
+    combinationKeyDown(event) {
+
+        if (this.keyDown) return;
+
+        let that = this;
+
+        if (event.key == "Shift") {
+            this.addSelection = true;
         }
 
-        document.onkeyup = function (event) {
-            if (event.key == "Shift") {
-                this.addSelection = false;
-            }
+        if (event.key == "F" || event.key == "f") {
+            if (that.selectedObject.length > 0)
+                that.focus(that.selectedObject[0]);
         }
+
+        this.keyDown = true;
+    }
+
+    combinationKeyUp(event) {
+
+        if (event.key == "Shift") {
+            this.addSelection = false;
+        }
+
+        this.keyDown = false;
     }
 
     selectionUp() {
 
         if (!this.enabled) return;
-
-        window["editorOperate"].orbitControls.enableRotate = this.tempOperateEnabled;
 
         let that = this;
 
@@ -82,7 +110,7 @@ class SelectionTool extends Tool {
         let that = this;
 
         this.pointer = new Vector2();
-        this.raycaster = new THREE.Raycaster();
+        this.raycaster = new Raycaster();
 
         this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
@@ -102,7 +130,7 @@ class SelectionTool extends Tool {
             }
         }
 
-        that.mergeSend(this.selectedObject);
+        that.mergeSend(that.selectedObject);
     }
 
     selectionDown() {
@@ -134,7 +162,7 @@ class SelectionTool extends Tool {
             }
 
             for (let obj of selObject) {
-                if (this.containType.includes(intersects[0].object.type) && !this.notContainName(intersects[0].object.name)) {
+                if (this.containType.includes(obj.type) && !this.notContainName(obj.name)) {
                     that.selectedObject.push(obj);
                 }
             }
@@ -148,12 +176,51 @@ class SelectionTool extends Tool {
         let that = this;
 
         for (let obj of selObject) {
-            const box = new THREE.BoxHelper(obj, '#ffff00');
+            const box = new BoxHelper(obj, '#ffff00');
             that.outLineObject.push(box);
             obj.attach(box);
         }
         that.dispatchEvent({ type: 'selected', selObj: selObject });
     }
+
+
+    focus(target) {
+
+        let scope = this;
+
+        let box = new Box3();
+        let sphere = new Sphere();
+        let center = new Vector3();
+        let delta = new Vector3();
+
+        let object = window["editorOperate"].camera;
+
+        let distance;
+
+        box.setFromObject(target);
+
+        if (box.isEmpty() === false) {
+
+            box.getCenter(center);
+            distance = box.getBoundingSphere(sphere).radius;
+
+        } else {
+
+            // Focusing on an Group, AmbientLight, etc
+            center.setFromMatrixPosition(target.matrixWorld);
+            distance = 0.1;
+
+        }
+
+        delta.set(0, 0, 1);
+        delta.applyQuaternion(object.quaternion);
+        delta.multiplyScalar(distance * 4);
+
+        object.position.copy(center).add(delta);
+
+        window["editorOperate"].orbitControls.dispatchEvent("change");
+
+    };
 
     upDispose() {
         let that = this;
@@ -165,6 +232,7 @@ class SelectionTool extends Tool {
 
     downDispose() {
         if (this.helper == undefined || this.helper == null) return;
+        window["editorOperate"].orbitControls.enableRotate = this.tempOperateEnabled;
         this.helper.dispose();
         this.helper = null;
         this.selectionBox = null;
@@ -176,6 +244,9 @@ class SelectionTool extends Tool {
         } else {
             this.downDispose();
         }
+
+        window.removeEventListener("keydown", this.combKeyDown);
+        window.removeEventListener("keyup", this.combKeyUp);
     }
 }
 

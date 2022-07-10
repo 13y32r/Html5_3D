@@ -1,4 +1,30 @@
 {
+    "Plugins": {
+        "CutOffMesh": {
+            "url": "../threeSrc/tools/cutOffMesh.js",
+            "inModule": true
+        },
+        "Ruler": {
+            "url": "../threeSrc/tools/ruler.js",
+            "inModule": true
+        },
+        "SelectionTool": {
+            "url": "../threeSrc/tools/selectionTool.js",
+            "inModule": true
+        },
+        "TransformBySelection": {
+            "url": "../threeSrc/tools/TransformBySelection.js",
+            "inModule": true
+        },
+        "TransformWhole": {
+            "url": "../threeSrc/tools/transformWhole.js",
+            "inModule": true
+        },
+        "Grids": {
+            "url": "../threeSrc/viewPort/AIDS/grids.js",
+            "inModule": true
+        }
+    },
     "Main-Menu": {
         "Title": "主菜单",
         "EditorMode": {

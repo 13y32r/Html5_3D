@@ -35,7 +35,7 @@
     <script src="./threeSrc/libs/Tween.js"></script>
 </head>
 
-<body onresize="onWindowResize()">
+<body>
     <!-- Import maps polyfill -->
     <!-- Remove this when import maps will be widely supported -->
     <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
@@ -364,23 +364,23 @@
 
         let group = new THREE.Group();
 
-        group.add(mesh1, mesh2, mesh3, mesh4, mesh5, mesh6);
+        // group.add(mesh1, mesh2, mesh3, mesh4, mesh5, mesh6);
         // group.toGeometryCenter();
         // group.toCommonCenter();
 
-        scene.add(group);
-        // scene.add(mesh1, mesh2, mesh3, mesh4, mesh5, mesh6);
+        // scene.add(group);
+        scene.add(mesh1, mesh2, mesh3, mesh4, mesh5, mesh6);
 
-        let tControl = new TransformControls(camera, renderer.domElement);
-        tControl.addEventListener('change', render);
+        // let tControl = new TransformControls(camera, renderer.domElement);
+        // tControl.addEventListener('change', render);
 
-        tControl.addEventListener('dragging-changed', function (event) {
+        // tControl.addEventListener('dragging-changed', function (event) {
 
-            controls.enabled = !event.value;
+        //     controls.enabled = !event.value;
 
-        });
+        // });
 
-        let mat;
+        // let mat;
 
         // let mat = new THREE.Matrix4();
         // console.log(mesh1.matrix.elements);
@@ -388,36 +388,38 @@
         // console.log(mesh1.matrix);
         // mesh1.matrix.multiply(mesh1.matrix.invert());
 
-        tControl.addEventListener('objectChange', function () {
+        // tControl.addEventListener('objectChange', function () {
 
-            let matk = mesh1.matrix.clone();
-            // console.log(matk);
-            matk.multiply(mat);
+        //     let matk = mesh1.matrix.clone();
+        //     // console.log(matk);
+        //     matk.multiply(mat);
 
-            let mat6 = mesh6.matrix.clone();
-            mat6.multiply(matk);
-            mesh6.setRotationFromMatrix(mat6);
+        //     let mat6 = mesh6.matrix.clone();
+        //     mat6.multiply(matk);
+        //     mat6.decompose(mesh6.position, mesh6.quaternion, mesh6.scale);
+        //     // mesh6.setRotationFromMatrix(mat6);
+        //     // mesh6.scale.copy(mesh1.scale);
 
-            mat.copy(mesh1.matrix);
-            mat.invert();
+        //     mat.copy(mesh1.matrix);
+        //     mat.invert();
 
-            // console.log(mesh6);
-            // mat.copy(mesh1.matrix);
-            // mat.invert();
-            // console.log(mat);
+        //     // console.log(mesh6);
+        //     // mat.copy(mesh1.matrix);
+        //     // mat.invert();
+        //     // console.log(mat);
 
-            // console.log(mesh1.matrix);
-            // mesh6.matrix.copyPosition(mesh1.matrix);
-            // console.log(mesh6.matrix);
-            // mesh1.matrixWorld.decompose(mesh6.position, mesh6.quaternion, mesh6.scale);
-        });
+        //     // console.log(mesh1.matrix);
+        //     // mesh6.matrix.copyPosition(mesh1.matrix);
+        //     // console.log(mesh6.matrix);
+        //     // mesh1.matrixWorld.decompose(mesh6.position, mesh6.quaternion, mesh6.scale);
+        // });
 
-        tControl.attach(mesh1);
-        tControl.setMode('translate');
-        scene.add(tControl);
+        // tControl.attach(mesh1);
+        // tControl.setMode('translate');
+        // scene.add(tControl);
 
-        mat = mesh1.matrix.clone();
-        mat.invert();
+        // mat = mesh1.matrix.clone();
+        // mat.invert();
 
         // var invisible = new Event('invisible');
         // var invisible = new CustomEvent('invisible')
@@ -463,6 +465,21 @@
         // helper.addEventListener("end", function () {
         //     console.log(selectionBox.select());
         // });
+
+        const grid = new THREE.Group();
+
+        const grid1 = new THREE.GridHelper(300, 30, 0x888888);
+        grid1.material.color.setHex(0x888888);
+        grid1.material.vertexColors = false;
+        grid.add(grid1);
+
+        const grid2 = new THREE.GridHelper(300, 6, 0x222222);
+        grid2.material.color.setHex(0x222222);
+        grid2.material.vertexColors = false;
+        grid.add(grid2);
+
+        // scene.remove(grid);
+        scene.add(grid);
 
         function render() {
             stats.update();
@@ -520,7 +537,8 @@
         }
         // animate();
 
-        // window.addEventListener('click', selObject);
+        // window.removeEventListener('click', selObject);
+        window.addEventListener('click', selObject);
         function selObject(event) {
 
             // console.log(clock.getDelta());
@@ -542,20 +560,21 @@
                 // }
                 mColor += 0x111111;
 
-                const containType = ["Mesh", "Points"];
+                const containType = ["Mesh", "Points", "Line"];
                 const containName = ["X", "Y", "Z", "E", "XY", "XZ", "YZ", "XYZ", "XYZE"];
 
-                if (!containName.includes(intersects[0].object.name) && containType.includes(intersects[0].object.type))
+                if (!containName.includes(intersects[0].object.name) && containType.includes(intersects[0].object.type)) {
                     console.log(intersects[0].object);
-                intersects[0].object.material.color.set(mColor);
-                intersects[0].object.dispatchEvent({ type: 'invisible', obj: intersects[0].object });
+                    intersects[0].object.material.color.set(mColor);
+                    intersects[0].object.dispatchEvent({ type: 'invisible', obj: intersects[0].object });
+                }
             }
 
             // for (let i = 0; i < intersects.length; i++) {
             //     intersects[i].object.material.color.set(mColor);
             // }
 
-            // render();
+            render();
         }
 
         // mesh1.position.y = 0;
@@ -564,6 +583,7 @@
         //     quitAnima = true;
         // }
 
+        window.addEventListener('resize', onWindowResize, false);
         /* 窗口变动触发 */
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;

@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-04-27 10:13:00
- * @LastEditTime: 2022-06-26 20:36:01
+ * @LastEditTime: 2022-07-10 09:18:39
  * @LastEditors: your name
  * @Description: 这是一个用于编辑器根据传来的“状态”指令，来具体操作的代码
  * @FilePath: \Html5_3D\threeSrc\editor\EditorOperate.js
@@ -38,7 +38,11 @@ class EditorOperate extends EventDispatcher {
             that.camera = ort_Camera;
             that.camera.position.set(0, 0, 10);
         }
+
         this.renderer = renderer;
+        this.render = this.render.bind(this);
+
+        // this.renderList = new Array();
 
         //初始化轨道控制器
         this.orbitControls = new window["OrbitControls"](that.camera, that.renderer.domElement);
@@ -52,22 +56,56 @@ class EditorOperate extends EventDispatcher {
         this.viewHelper = new window["ViewHelper"](that.camera, document.body);
         this.viewHelper.controls = this.orbitControls;
 
-        // this.kdbOrbit = this.keydownBeOrbit.bind(this);
-        // this.kubOrbit = this.keyupBeOrbit.bind(this);
-        // this.kbSwitch = true;
+        this.kdbOrbit = this.keydownBeOrbit.bind(this);
+        this.kubOrbit = this.keyupBeOrbit.bind(this);
+        this.kbSwitch = true;
 
-        // this.dimType = dimType;
+        this.dimType = dimType;
         // this.changeDimensionType(this.dimType);
 
-        // this.state = eState;
-        // this.changeEditorState(this.state);
+        this.state = eState;
+        this.changeEditorState(this.state);
 
         this.render();
+
+        this.onWindowResize = this.onWindowResize.bind(this);
+        window.addEventListener('resize', that.onWindowResize, false);
 
         this.animateState = false;
         this.anima = this.animate.bind(this);
 
         this.selectedObject = [];
+    }
+
+    onWindowResize() {
+        let that = this;
+
+        if (that.dimType == DimensionType._3D) {
+
+            that.camera.aspect = window.innerWidth / window.innerHeight;
+            that.camera.updateProjectionMatrix();
+            that.renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+        if (that.dimType == DimensionType._2D) {
+
+            var width = window.innerWidth; //窗口宽度
+            var height = window.innerHeight; //窗口高度
+            var k = width / height; //窗口宽高比
+            var s = 150; //三维场景显示范围控制系数，系数越大，显示的范围越大
+
+            that.camera.left = - s * k;
+            that.camera.right = s * k;
+            that.camera.top = s;
+            that.camera.bottom = - s;
+
+            that.camera.updateProjectionMatrix();
+
+            that.renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+
+        that.render();
     }
 
     render() {
@@ -104,23 +142,27 @@ class EditorOperate extends EventDispatcher {
     }
 
     keydownBeOrbit(e) {
-        let that = this;
 
-        let target_Object = new Object3D();
-        target_Object.position.set(Math.round(Math.random() * 500), Math.round(Math.random() * 500), Math.round(Math.random() * 500));
+        e.preventDefault();
+
+        let that = this;
 
         if (this.kbSwitch) {
             if (e.key == "Control") {
                 that.orbitControls.enabled = true;
             } else {
-                this.changeOrbitTarget(target_Object);
+                // this.changeOrbitTarget(target_Object);
             }
             this.kbSwitch = false;
         }
     }
 
     keyupBeOrbit(e) {
+
+        e.preventDefault();
+
         let that = this;
+
         this.kbSwitch = true;
         if (e.key == "Control") {
             that.orbitControls.enabled = false;
@@ -128,8 +170,6 @@ class EditorOperate extends EventDispatcher {
     }
 
     changeEditorState(eState) {
-
-        this.dispatchEvent(_changeEvent);
 
         this.state = eState;
 
@@ -140,21 +180,34 @@ class EditorOperate extends EventDispatcher {
 
         switch (eState) {
             case EditorState.HALT:
+                that.dispatchEvent({ type: "changeState", state: "HALT" });
                 this.orbitControls.enabled = false;
                 // 执行代码块 0
                 break;
             case EditorState.OBSERVER:
+                that.dispatchEvent({ type: "changeState", state: "OBSERVER" });
+                that.orbitControls.enabled = true;
                 // 执行代码块 1
                 break;
-            case EditorState.Edit:
+            case EditorState.EDIT:
+                that.dispatchEvent({ type: "changeState", state: "EDIT" });
                 that.orbitControls.enabled = false;
+                //禁止鼠标右键菜单选项
+                document.oncontextmenu = function () {
+                    return false;
+                };
                 document.addEventListener('keydown', that.kdbOrbit);
                 document.addEventListener('keyup', that.kubOrbit);
                 // 执行代码块 2
                 break;
             case EditorState.DRAW:
+                that.dispatchEvent({ type: "changeState", state: "DRAW" });
                 // 执行代码块 3
                 break;
+            case EditorState.INPUT:
+                that.dispatchEvent({ type: "changeState", state: "INPUT" });
+                document.removeEventListener('keydown', that.kdbOrbit);
+                document.removeEventListener('keyup', that.kubOrbit);
             default:
             // 与 case 1 和 case 2 .......不同时执行的代码
         }

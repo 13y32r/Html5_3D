@@ -9,6 +9,6 @@
  */
 
 
-const EditorState = { HALT: 0, OBSERVER: 1, Edit: 2, DRAW: 3, };
+const EditorState = { HALT: 0, OBSERVER: 1, EDIT: 2, DRAW: 3, INPUT: 4 };
 
 export { EditorState };

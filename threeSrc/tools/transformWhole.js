@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-07-02 14:31:36
- * @LastEditTime: 2022-07-02 14:53:45
+ * @LastEditTime: 2022-07-05 20:51:41
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\threeSrc\tools\transformWhole.js
@@ -11,6 +11,8 @@
 class TransformWhole {
     constructor() {
         this.init();
+
+        this.enable = false;
     }
 
     async init() {
@@ -24,14 +26,21 @@ class TransformWhole {
             resolve();
         });
 
+        that.enable = true;
     }
 
     independent() {
+
+        if (!this.enable) return;
+
         window["编辑模式_TransformBySelection"].indepTransform = true;
         window["编辑模式_TransformBySelection"].refresh();
     }
 
     whole() {
+
+        if (!this.enable) return;
+
         window["编辑模式_TransformBySelection"].indepTransform = false;
         window["编辑模式_TransformBySelection"].refresh();
     }
