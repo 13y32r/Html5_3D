@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-13 19:20:28
- * @LastEditTime: 2022-07-08 11:04:03
+ * @LastEditTime: 2022-07-19 10:40:44
  * @LastEditors: your name
  * @Description: 这是引擎的启动主函数
  * @FilePath: \Html5_3D\main\init.js
@@ -9,6 +9,7 @@
  */
 import { preloadItem } from './preload_item.js';
 import { MenuGUI } from '../menuGUI/menuGUI.js';
+import { SelectState } from '../threeSrc/editor/EditorState.js';
 
 async function init() {
 
@@ -37,6 +38,17 @@ async function init() {
     var ambient = new window["THREE"].AmbientLight(0x444444);
     scene.add(ambient);
 
+    const geometry = new window["THREE"].PlaneGeometry(10, 10);
+    const material = new window["THREE"].MeshBasicMaterial({ color: 0xff0000, side: window["THREE"].DoubleSide });
+    const plane = new window["THREE"].Mesh(geometry, material);
+    plane.position.set(5, 5, 5);
+    scene.add(plane);
+
+    const bgeometry = new window["THREE"].BoxGeometry(1, 1, 1);
+    const bmaterial = new window["THREE"].MeshBasicMaterial({ color: 0x00ff00 });
+    const cube = new window["THREE"].Mesh(bgeometry, bmaterial);
+    scene.add(cube);
+
     //初始化摄像机
     var width = window.innerWidth; //窗口宽度
     var height = window.innerHeight; //窗口高度
@@ -55,18 +67,85 @@ async function init() {
     //开始装配编辑器
     window["editorOperate"] = new window["EditorOperate"](dimType, eState, scene, ort_Camera, per_Camera, renderer);
 
+    //初始化轨道控制器
+    initOrbitControls();
+
+    //初始化坐标轴观测器
+    window['viewHelper'] = new window["ViewHelper"](window["editorOperate"].camera, document.body, window["editorOperate"].render);
+    window['viewHelper'].controls = window['orbitControls'];
+    window["editorOperate"].renderObjList.push(window['viewHelper']);
+
     //初始化3D文字
     window["textIn3D"] = new window["TextIn3D"](undefined, renderer, editorOperate);
     //初始化菜单
-    let menuGUI = new MenuGUI();
+    window["menuGUI"] = new MenuGUI();
     // animate();
+
+    //渲染初始化场景
+    window["editorOperate"].render();
+}
+
+//轨道控制器初始化函数
+function initOrbitControls() {
+    window['orbitControls'] = new window["OrbitControls"](window["editorOperate"].camera, window["editorOperate"]);
+    window['orbitControls'].minPolarAngle = 0;
+    window['orbitControls'].maxPolarAngle = Math.PI;
+    window['orbitControls'].addEventListener('change', function () {
+        window["editorOperate"].render();
+    });
+
+    window["editorOperate"].addEventListener("editorKeyDown", function (event) {
+        if (event.key == "Control") {
+            if (window["editorOperate"].state == EditorState.EDIT) {
+                if (window["editorOperate"].selectState == SelectState.IDLE || window["editorOperate"].selectState == SelectState.HALT) {
+                    window['orbitControls'].enabled = true;
+                    window["editorOperate"].tempSelectState = window["editorOperate"].selectState;
+                    window["editorOperate"].changeSelectState(SelectState.HALT);
+                }
+            }
+        }
+    })
+
+    window["editorOperate"].addEventListener("editorKeyUp", function (event) {
+        if (event.key == "Control") {
+            if (window["editorOperate"].state == EditorState.EDIT) {
+                if (window["editorOperate"].selectState == SelectState.HALT) {
+                    window['orbitControls'].enabled = false;
+                    window["editorOperate"].changeSelectState(window["editorOperate"].tempSelectState);
+                }
+            }
+        }
+    })
+
+    window["editorOperate"].addEventListener("changeEditorState", function (event) {
+        switch (event.state) {
+            case EditorState.HALT:
+                window['orbitControls'].enabled = false;
+                break;
+            case EditorState.OBSERVER:
+                window['orbitControls'].enabled = true;
+                break;
+            case EditorState.EDIT:
+                window['orbitControls'].enabled = false;
+                break;
+            case EditorState.DRAW:
+                window['orbitControls'].enabled = false;
+                break;
+            case EditorState.INPUT:
+                window['orbitControls'].enabled = false;
+                break;
+            default:
+        }
+    })
+
+    window["editorOperate"].changeEditorState(window["editorOperate"].state);
 }
 
 function animate() {
     console.log("123");
     // let delta = this.clock.getDelta();
-    // if (this.viewHelper.animating === true) {
-    //     this.viewHelper.update(delta);
+    // if (window['viewHelper'].animating === true) {
+    //     window['viewHelper'].update(delta);
     // }
     // this.render();
     requestAnimationFrame(animate);

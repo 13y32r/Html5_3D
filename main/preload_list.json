@@ -1,6 +1,6 @@
 {
     "OrbitControls": {
-        "url": "../threeSrc/libs/OrbitControls.js",
+        "url": "../threeSrc/libs/OrbitControls_Editor.js",
         "inModule": true
     },
     "THREE": {
@@ -16,6 +16,10 @@
         "inModule": true
     },
     "EditorState": {
+        "url": "../threeSrc/editor/EditorState.js",
+        "inModule": true
+    },
+    "SelectState": {
         "url": "../threeSrc/editor/EditorState.js",
         "inModule": true
     },
@@ -53,6 +57,10 @@
     },
     "Grids": {
         "url": "../threeSrc/viewPort/AIDS/grids.js",
+        "inModule": true
+    },
+    "AxisScale": {
+        "url": "../threeSrc/viewPort/AIDS/axisScale.js",
         "inModule": true
     }
 }

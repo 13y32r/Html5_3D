@@ -1,18 +1,26 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-04-27 10:13:00
- * @LastEditTime: 2022-07-10 09:18:39
+ * @LastEditTime: 2022-07-19 10:44:52
  * @LastEditors: your name
  * @Description: 这是一个用于编辑器根据传来的“状态”指令，来具体操作的代码
  * @FilePath: \Html5_3D\threeSrc\editor\EditorOperate.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
-import { EventDispatcher, Vector3, Object3D } from "three";
+import {
+    EventDispatcher,
+    Vector3,
+    Object3D,
+    Box3,
+    Sphere
+} from "three";
 
-import { EditorState } from "./EditorState.js";
+import {
+    EditorState,
+    SelectState
+} from "./EditorState.js";
+
 import { DimensionType } from './DimensionType.js';
-
-const _changeEvent = { type: 'change' };
 
 class EditorOperate extends EventDispatcher {
     constructor(dimType, eState, scene, ort_Camera, per_Camera, renderer) {
@@ -42,23 +50,44 @@ class EditorOperate extends EventDispatcher {
         this.renderer = renderer;
         this.render = this.render.bind(this);
 
-        // this.renderList = new Array();
+        this.domElement = renderer.domElement;
 
-        //初始化轨道控制器
-        this.orbitControls = new window["OrbitControls"](that.camera, that.renderer.domElement);
-        this.orbitControls.minPolarAngle = 0;
-        this.orbitControls.maxPolarAngle = Math.PI;
-        this.orbitControls.addEventListener('change', function () {
-            that.render();
-        });
+        //已经按下的键盘元素
+        this.keyDownElement = new Array();
+        //需要实时更新的物体列表
+        this.updateObjList = new Array();
+        //需要实时渲染的物体列表
+        this.renderObjList = new Array();
 
-        //初始化坐标轴观测器
-        this.viewHelper = new window["ViewHelper"](that.camera, document.body);
-        this.viewHelper.controls = this.orbitControls;
+        //键盘监听绑定编辑器
+        this.editorKeyDown = this.editorKeyDown.bind(this);
+        this.editorKeyUp = this.editorKeyUp.bind(this);
 
-        this.kdbOrbit = this.keydownBeOrbit.bind(this);
-        this.kubOrbit = this.keyupBeOrbit.bind(this);
-        this.kbSwitch = true;
+        //为编辑器添加键盘监听
+        this.domElement.setAttribute('tabindex', '0');
+        this.domElement.addEventListener('keydown', that.editorKeyDown);
+        this.domElement.addEventListener('keyup', that.editorKeyUp);
+
+        //pointer监听绑定编辑器
+        this.editorPointerDown = this.editorPointerDown.bind(this);
+        this.editorPointerMove = this.editorPointerMove.bind(this);
+        this.editorPointerUp = this.editorPointerUp.bind(this);
+        this.editorPointerCancel = this.editorPointerCancel.bind(this);
+        this.editorWheel = this.editorWheel.bind(this);
+        this.editorContextMenu = this.editorContextMenu.bind(this);
+
+        //为编辑器添加pointer监听
+        this.domElement.addEventListener('pointerdown', that.editorPointerDown);
+        this.domElement.addEventListener('pointermove', that.editorPointerMove);
+        this.domElement.addEventListener('pointerup', that.editorPointerUp);
+        this.domElement.addEventListener('pointercancel', that.editorPointerCancel);
+        this.domElement.addEventListener('wheel', that.editorWheel);
+        this.domElement.addEventListener('contextmenu', that.editorContextMenu);
+        this.ePointerIsDown = false;
+
+        //绑定键盘的停用函数和键盘重用函数
+        this.stopKeyEvent = this.stopKeyEvent.bind(this);
+        this.reKeyEvent = this.reKeyEvent.bind(this);
 
         this.dimType = dimType;
         // this.changeDimensionType(this.dimType);
@@ -66,17 +95,20 @@ class EditorOperate extends EventDispatcher {
         this.state = eState;
         this.changeEditorState(this.state);
 
-        this.render();
-
         this.onWindowResize = this.onWindowResize.bind(this);
-        window.addEventListener('resize', that.onWindowResize, false);
+        this.domElement.addEventListener('resize', that.onWindowResize, false);
 
         this.animateState = false;
         this.anima = this.animate.bind(this);
 
-        this.selectedObject = [];
+        //执行选择函数
+        this.selectState = SelectState.IDLE;
+        this.tempSelectState;
+        this.selectObject = this.selectObject.bind(this);
+        this.selectObject();
     }
 
+    //重置窗口尺寸函数
     onWindowResize() {
         let that = this;
 
@@ -108,11 +140,28 @@ class EditorOperate extends EventDispatcher {
         that.render();
     }
 
+    stopKeyEvent() {
+        this.domElement.addEventListener('keydown', that.editorKeyDown);
+        this.domElement.addEventListener('keyup', that.editorKeyUp);
+    }
+
+    reKeyEvent() {
+        this.domElement.addEventListener('keydown', that.editorKeyDown);
+        this.domElement.addEventListener('keyup', that.editorKeyUp);
+    }
+
     render() {
+        let that = this;
+
         this.renderer.autoClear = false;
         this.renderer.setViewport(0, 0, this.width, this.height);
+        for (let obj of that.updateObjList) {
+            obj.update();
+        }
         this.renderer.render(this.scene, this.camera);
-        this.viewHelper.render(this.renderer);
+        for (let obj of that.renderObjList) {
+            obj.render(that.renderer);
+        }
         this.renderer.autoClear = true;
     }
 
@@ -120,97 +169,107 @@ class EditorOperate extends EventDispatcher {
         if (this.animateState == false) return;
 
         let delta = this.clock.getDelta();
-        if (this.viewHelper.animating === true) {
-            this.viewHelper.update(delta);
-        }
+
         this.render();
         requestAnimationFrame(this.anima);
     }
 
-    changeOrbitTarget(target_Obj) {
+    focus(target) {
 
-        let temp_cam = new Vector3(0, 0, 1);
-        let distance = this.orbitControls.getDistance();
+        let box = new Box3();
+        let sphere = new Sphere();
+        let center = new Vector3();
+        let delta = new Vector3();
 
-        temp_cam.applyQuaternion(this.orbitControls.object.quaternion);
-        temp_cam.multiplyScalar(distance);
+        let object = this.camera;
 
-        this.orbitControls.target = target_Obj.position;
-        this.orbitControls.object.position.copy(target_Obj.position).add(temp_cam);
+        let distance;
 
+        box.setFromObject(target);
+
+        if (box.isEmpty() === false) {
+
+            box.getCenter(center);
+            distance = box.getBoundingSphere(sphere).radius;
+
+        } else {
+
+            // Focusing on an Group, AmbientLight, etc
+            center.setFromMatrixPosition(target.matrixWorld);
+            distance = 0.1;
+
+        }
+
+        delta.set(0, 0, 1);
+        delta.applyQuaternion(object.quaternion);
+        delta.multiplyScalar(distance * 4);
+
+        object.position.copy(center).add(delta);
+        this.orbitControls.target.copy(target.position);
         this.render();
-    }
+    };
 
-    keydownBeOrbit(e) {
-
-        e.preventDefault();
-
-        let that = this;
-
-        if (this.kbSwitch) {
-            if (e.key == "Control") {
-                that.orbitControls.enabled = true;
-            } else {
-                // this.changeOrbitTarget(target_Object);
-            }
-            this.kbSwitch = false;
-        }
-    }
-
-    keyupBeOrbit(e) {
+    editorKeyDown(e) {
 
         e.preventDefault();
 
         let that = this;
 
-        this.kbSwitch = true;
-        if (e.key == "Control") {
-            that.orbitControls.enabled = false;
+        if (!that.keyDownElement.includes(e.key)) {
+            console.log(e.key);
+            that.dispatchEvent({ type: "editorKeyDown", key: e.key });
+            that.keyDownElement.push(e.key);
         }
+    }
+
+    editorKeyUp(e) {
+
+        e.preventDefault();
+
+        let that = this;
+
+        if (that.keyDownElement.includes(e.key)) {
+            that.keyDownElement = that.keyDownElement.filter(item => item != e.key);
+            this.dispatchEvent({ type: "editorKeyUp", key: e.key });
+        }
+    }
+
+    editorPointerDown(e) {
+        this.domElement.setPointerCapture(e.pointerId);
+        this.ePointerIsDown = true;
+        this.dispatchEvent({ type: "editorPointerDown", event: e });
+    }
+
+    editorPointerMove(e) {
+        if (!this.ePointerIsDown) return;
+        this.domElement.setPointerCapture(e.pointerId);
+        this.dispatchEvent({ type: "editorPointerMove", event: e });
+    }
+
+    editorPointerUp(e) {
+        this.ePointerIsDown = false;
+        this.domElement.releasePointerCapture(e.pointerId);
+        this.dispatchEvent({ type: "editorPointerUp", event: e });
+    }
+
+    editorPointerCancel(e) {
+        this.ePointerIsDown = false;
+        this.domElement.releasePointerCapture(e.pointerId);
+        this.dispatchEvent({ type: "editorPointerCancel", event: e });
+    }
+
+    editorWheel(e) {
+        this.dispatchEvent({ type: "editorWheel", event: e });
+    }
+
+    editorContextMenu(e) {
+        e.returnValue = false;
+        this.dispatchEvent({ type: "editorContextMenu", event: e });
     }
 
     changeEditorState(eState) {
-
         this.state = eState;
-
-        let that = this;
-
-        document.removeEventListener('keydown', this.kdbOrbit);
-        document.removeEventListener('keyup', this.kubOrbit);
-
-        switch (eState) {
-            case EditorState.HALT:
-                that.dispatchEvent({ type: "changeState", state: "HALT" });
-                this.orbitControls.enabled = false;
-                // 执行代码块 0
-                break;
-            case EditorState.OBSERVER:
-                that.dispatchEvent({ type: "changeState", state: "OBSERVER" });
-                that.orbitControls.enabled = true;
-                // 执行代码块 1
-                break;
-            case EditorState.EDIT:
-                that.dispatchEvent({ type: "changeState", state: "EDIT" });
-                that.orbitControls.enabled = false;
-                //禁止鼠标右键菜单选项
-                document.oncontextmenu = function () {
-                    return false;
-                };
-                document.addEventListener('keydown', that.kdbOrbit);
-                document.addEventListener('keyup', that.kubOrbit);
-                // 执行代码块 2
-                break;
-            case EditorState.DRAW:
-                that.dispatchEvent({ type: "changeState", state: "DRAW" });
-                // 执行代码块 3
-                break;
-            case EditorState.INPUT:
-                that.dispatchEvent({ type: "changeState", state: "INPUT" });
-                document.removeEventListener('keydown', that.kdbOrbit);
-                document.removeEventListener('keyup', that.kubOrbit);
-            default:
-            // 与 case 1 和 case 2 .......不同时执行的代码
-        }
+        this.dispatchEvent({ type: "changeEditorState", state: eState });
     }
 
     changeDimensionType(dimType) {
@@ -240,6 +299,97 @@ class EditorOperate extends EventDispatcher {
         }
         that.camera.applyQuaternion(temp_cam.quaternion)
         that.camera.position.set(temp_cam.position.x, temp_cam.position.y, temp_cam.position.z);
+    }
+
+    //更改编辑器的选择器状态
+    changeSelectState(sState) {
+        this.selectState = sState;
+        this.dispatchEvent({ type: "changeSelectState", state: sState });
+    }
+
+    //以下是选择物体处理函数
+    selectObject() {
+
+        if (this.state != EditorState.EDIT) {
+            this.selectState = SelectState.HALT;
+            return;
+        }
+        if (this.selectState == SelectState.HALT) return;
+
+        let that = this;
+
+        this.selectContainType = ["Mesh", "Points"];
+        this.selectNotContainName = ["X", "Y", "Z", "E", "XY", "XZ", "YZ", "XYZ", "XYZE", "START", "END", "DELTA", "AXIS"];
+
+        this.selectEnabled = true;
+
+        this.selectedObject = new Array();
+        this.outLineObject = new Array();
+
+        this.addEventListener("editorPointerDown", selectStart);
+
+        function selectStart(event) {
+
+            event = event.event;
+
+            that.selectState = SelectState.START;
+            // 如果鼠标没有移动，直接弹起，判断为点选。
+            that.addEventListener("editorPointerUp", singleSelectEnd);
+            that.addEventListener("editorPointerCancel", singleSelectEnd);
+            // 如果鼠标有移动，判断为复选。
+            that.addEventListener("editorPointerMove", multipleSelecting);
+
+            console.log("I am select start.");
+        }
+
+        function singleSelectEnd(event) {
+
+            that.selectState = SelectState.END;
+            //单选时，移除多选监听函数。
+            that.removeEventListener("editorPointerMove", multipleSelecting);
+            console.log("I am single end.");
+            that.selectState = SelectState.IDLE;
+        }
+
+        function multipleSelecting(event) {
+            that.selectState = SelectState.SELECTING;
+            //多选时，移除单选监听函数。
+            that.removeEventListener("editorPointerUp", singleSelectEnd);
+            that.removeEventListener("editorPointerCancel", singleSelectEnd);
+            //并添加多选结束监听函数。
+            that.addEventListener("editorPointerUp", multipleSelectEnd);
+            that.addEventListener("editorPointerCancel", multipleSelectEnd);
+
+            console.log("I am multiple selecting.");
+        }
+
+        function multipleSelectEnd(event) {
+            that.selectState = SelectState.END;
+            //移除多选监听函数。
+            that.removeEventListener("editorPointerMove", multipleSelecting);
+            that.removeEventListener("editorPointerUp", multipleSelectEnd);
+            that.removeEventListener("editorPointerCancel", multipleSelectEnd);
+
+            console.log("I am multiple select end.");
+            that.selectState = SelectState.IDLE;
+        }
+
+        // 如果编辑器发送停止选择器功能的指令，则取消选择器的鼠标监听。如果发送启动选择器功能命令，则重启选择器的鼠标监听。
+        this.addEventListener("changeSelectState", switchSelect);
+
+        function switchSelect(event) {
+            // event = event.event;
+            switch (event.state) {
+                case SelectState.HALT:
+                    that.removeEventListener("editorPointerDown", selectStart);
+                    break;
+                case SelectState.IDLE:
+                    that.addEventListener("editorPointerDown", selectStart);
+                    break;
+                default:
+                //默认保留。。。
+            }
+        }
     }
 }
 

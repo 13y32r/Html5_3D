@@ -95,28 +95,37 @@
         "X-Axis": {
             "name": "X坐标轴",
             "type": "button",
-            "class": "",
-            "param": [
-                "X"
-            ],
+            "class": "AxisScale",
+            "btnUp": "hideXAxis",
+            "btnDown": "showXAxis",
+            "param": {
+                "大小": 30,
+                "最小刻度": 1
+            },
             "image_url": "./menuGUI/img/xAxis.png"
         },
         "Y-Axis": {
             "name": "Y坐标轴",
             "type": "button",
-            "class": "",
-            "param": [
-                "Y"
-            ],
+            "class": "AxisScale",
+            "btnUp": "hideYAxis",
+            "btnDown": "showYAxis",
+            "param": {
+                "大小": 30,
+                "最小刻度": 1
+            },
             "image_url": "./menuGUI/img/yAxis.png"
         },
         "Z-Axis": {
             "name": "Z坐标轴",
             "type": "button",
-            "class": "",
-            "param": [
-                "Z"
-            ],
+            "class": "AxisScale",
+            "btnUp": "hideZAxis",
+            "btnDown": "showZAxis",
+            "param": {
+                "大小": 30,
+                "最小刻度": 1
+            },
             "image_url": "./menuGUI/img/zAxis.png"
         }
     },
@@ -136,11 +145,11 @@
         "SliceTool": {
             "name": "切割工具",
             "type": "button",
-            "class": "",
+            "class": "CutOffMesh",
+            "btnUp": "stopCut",
+            "btnDown": "startCut",
             "param": {
-                "unit": 10,
-                "editorOP": "editorOP",
-                "textIn3D": "textIn3D"
+                "分裂距离": 10
             },
             "image_url": "./menuGUI/img/cuttingTool.png"
         }

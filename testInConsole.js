@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-04-12 20:55:07
- * @LastEditTime: 2022-07-08 10:47:03
+ * @LastEditTime: 2022-07-13 15:50:13
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\testInConsole.js
@@ -180,11 +180,15 @@ class getTheFunctionValue {
 //     console.log(test[key]);
 // }
 
-let test = {1:2};
-let test2 = 123;
+class test {
+    aaa() {
+        console.log(this);
+        function bbb(scop) {
+            console.log(scop);
+        }
+        bbb(this);
+    }
+}
 
-// if (Object.keys(test).length == 0) {
-//     console.log(123)
-// }
-
-console.log(typeof(test) == "object")
+let ttt = new test();
+ttt.aaa();

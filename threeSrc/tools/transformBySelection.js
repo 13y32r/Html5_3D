@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-07-01 18:22:29
- * @LastEditTime: 2022-07-09 18:40:23
+ * @LastEditTime: 2022-07-13 20:38:03
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\threeSrc\tools\transformBySelection.js
@@ -69,12 +69,12 @@ class TransformBySelection {
 
             case '+':
             case '=':
-                that.t_Control.setSize(control.size + 0.1);
+                that.t_Control.setSize(that.t_Control.size + 0.1);
                 break;
 
             case '-':
             case '_': // -, _, num-
-                that.t_Control.setSize(Math.max(control.size - 0.1, 0.1));
+                that.t_Control.setSize(Math.max(that.t_Control.size - 0.1, 0.1));
                 break;
 
             case 'x':
@@ -125,7 +125,7 @@ class TransformBySelection {
 
     getSelectedObj(event) {
         this.selectObj = event.selObj;
-        this.refresh()
+        this.refresh();
     }
 
     refresh() {
@@ -176,7 +176,7 @@ class TransformBySelection {
                 }
                 that.group.add(that.selectObj[i]);
             }
-
+            window['editorOperate'].scene.add(that.group);
             that.t_Control.attach(that.group);
         }
 

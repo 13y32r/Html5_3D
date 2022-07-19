@@ -1,10 +1,10 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-05-15 10:30:42
- * @LastEditTime: 2022-07-11 18:02:22
+ * @LastEditTime: 2022-07-10 17:09:19
  * @LastEditors: your name
- * @Description: 这是用一个geomtry来优化性能的版本
- * @FilePath: \Html5_3D\threeSrc\tools\ruler.js
+ * @Description: 这是旧版本的Ruler，新版本将用一个Geometry来提升性能。
+ * @FilePath: \Html5_3D\threeSrc\tools\ruler copy.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
 import { Tool } from './tool.js';
@@ -25,6 +25,8 @@ class Ruler extends Tool {
 
         this.editorOP = window["editorOperate"];
 
+        this.lineGroup = new Group();
+
         this.Material = new LineBasicMaterial({ color: 0x000000 });
 
         this.gsPoint = this.getStartPoint.bind(this);
@@ -43,8 +45,7 @@ class Ruler extends Tool {
 
         this.addListener('pointerdown', this.gsPoint);
 
-        this.textGroup = new Group();
-        this.editorOP.scene.add(this.textGroup);
+        this.editorOP.scene.add(this.lineGroup);
         this.editorState = this.editorOP.state;
         this.editorOP.changeEditorState(EditorState.Edit);
 
@@ -62,6 +63,8 @@ class Ruler extends Tool {
         this.startPoint = pointer.unproject(this.editorOP.camera);
 
         this.addListener('pointermove', this.gePoint);
+        // this.removeListerner('pointerdown', this.gsPoint);
+        // this.addListener('pointerdown', this.spMeasure);
     }
 
     getEndPoint(event) {
@@ -94,17 +97,11 @@ class Ruler extends Tool {
     }
 
     refresh(startPoint, lineVector, lineUpVector, unitCopies) {
+        this.lineGroup.children.length = 0;
 
-        if (this.lineGeometry != undefined) {
-            this.points.length = 0;
-            this.textGroup.children.length = 0;
-            this.editorOP.scene.remove(this.lineObj);
-            this.lineGeometry.dispose();
-            this.lineGeometry = null;
-            this.lineObj = null;
-        }
-
-        this.points = new Array();
+        let endPoint = new Vector3().addVectors(startPoint, new Vector3().addScaledVector(lineVector, this.unit * unitCopies));
+        let mainLine = this.drwaLine(startPoint, endPoint);
+        this.lineGroup.add(mainLine);
 
         for (let i = 0; i <= unitCopies; i++) {
             let unitStartPoint = new Vector3().addVectors(startPoint, new Vector3().addScaledVector(lineVector, this.unit * i))
@@ -118,7 +115,7 @@ class Ruler extends Tool {
                 let numberText = this.textIn3D.createText("" + i, this.unit * 4);
                 numberText.position.set(textPoint.x, textPoint.y, textPoint.z);
                 numberText.applyQuaternion(this.editorOP.camera.quaternion);
-                this.textGroup.add(numberText);
+                this.lineGroup.add(numberText);
 
             } else if (i % 5 == 0) {
                 unitEndPoint.addVectors(unitStartPoint, new Vector3().addScaledVector(lineUpVector, this.unit * 3));
@@ -126,12 +123,19 @@ class Ruler extends Tool {
             else {
                 unitEndPoint.addVectors(unitStartPoint, new Vector3().addScaledVector(lineUpVector, this.unit * 2));
             }
-            this.points.push(unitStartPoint, unitEndPoint, unitStartPoint);
+            let unitLine = this.drwaLine(unitStartPoint, unitEndPoint);
+            this.lineGroup.add(unitLine);
         }
-        this.lineGeometry = new BufferGeometry().setFromPoints(this.points);
-        this.lineObj = new Line(this.lineGeometry, this.Material);
-        this.editorOP.scene.add(this.lineObj);
         this.editorOP.render();
+    }
+
+    drwaLine(startPoint, endPoint) {
+        let points = new Array();
+        points.push(startPoint, endPoint);
+        let lineGeometry = new BufferGeometry().setFromPoints(points);
+        let lineObj = new Line(lineGeometry, this.Material);
+
+        return lineObj;
     }
 
     stopMeasure() {
@@ -140,14 +144,10 @@ class Ruler extends Tool {
         this.removeListener('pointermove', this.gePoint);
         this.removeListener('pointerdown', this.spMeasure);
 
+        this.lineGroup.children.length = 0;
+
         if (this.editorState != undefined) {
-            this.points.length = 0;
-            this.lineGeometry.dispose();
-            this.editorOP.scene.remove(this.lineObj);
-            this.editorOP.scene.remove(this.textGroup);
-            this.textGroup.children.length = 0;
-            this.textGroup = null;
-            this.lineObj = null;
+            this.editorOP.scene.remove(this.lineGroup);
             this.editorOP.changeEditorState(this.editorState);
         }
         this.editorOP.render();

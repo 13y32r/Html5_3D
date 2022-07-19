@@ -1,9 +1,9 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-30 09:57:55
- * @LastEditTime: 2022-07-13 20:38:28
+ * @LastEditTime: 2022-07-13 10:21:46
  * @LastEditors: your name
- * @Description: 
+ * @Description: 这是原始的拷贝版本，新版本的直接做在了Editor编辑器中。
  * @FilePath: \Html5_3D\threeSrc\tools\selectionTool.js
  * @可以输入预定的版权声明、个性签名、空行等
  */

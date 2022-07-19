@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-09 20:49:54
- * @LastEditTime: 2022-06-30 21:11:40
+ * @LastEditTime: 2022-07-11 19:02:44
  * @LastEditors: your name
  * @Description:
  * @FilePath: \Html5_3D\threeSrc\tools\cutOffMesh.js
@@ -15,20 +15,16 @@ import { Raycaster, Vector2, Vector3, Plane } from "three";
 const _changeEvent = { type: "change" };
 
 class CutOffMesh extends Tool {
-  constructor(crackSize = 0.05, camera, scene) {
+  constructor(camera, scene) {
 
     super("CutOff Mesh");
 
-    this.crackSize = crackSize;
-
-    if (camera == null || camera == undefined) {
+    if (arguments.length < 2) {
       this.camera = window["editorOperate"].camera;
+      this.scene = window["editorOperate"].scene;
+      this.render = window["editorOperate"].render;
     } else {
       this.camera = camera;
-    }
-    if (scene == null || camera == undefined) {
-      this.scene = window["editorOperate"].scene;
-    } else {
       this.scene = scene;
     }
 
@@ -40,7 +36,19 @@ class CutOffMesh extends Tool {
     this.ocDown = this.onCutDown.bind(this);
     this.cOut = this.cutOut.bind(this);
     this.cIng = this.cutting.bind(this);
+    this.stopCut = this.stopCut.bind(this);
     this.raycaster = new Raycaster();
+  }
+
+  startCut(crackSize = 0.05) {
+
+    if (typeof (crackSize) == "object") {
+      this.crackSize = crackSize["分裂距离"];
+    } else {
+      this.crackSize = crackSize;
+    }
+
+    console.log(this.crackSize);
 
     this.addListener("pointerdown", this.ocDown);
   }
@@ -60,25 +68,29 @@ class CutOffMesh extends Tool {
 
     that.raycaster.setFromCamera(pointer, that.camera);
 
-    let intersects = that.raycaster.intersectObjects(scene.children);
+    let intersects = that.raycaster.intersectObjects(that.scene.children);
 
     if (intersects[0] != undefined) {
       that.planePoints.push(intersects[0].point);
-      if (that.cutOBJ.length == 0) {
-        that.cutOBJ.push(intersects[0].object);
-      } else if (!that.cutOBJ.includes(intersects[0].object)) {
-        that.cutOBJ.push(intersects[0].object);
+      if (intersects[0].object.type == "Mesh") {
+        if (that.cutOBJ.length == 0) {
+          that.cutOBJ.push(intersects[0].object);
+        } else if (!that.cutOBJ.includes(intersects[0].object)) {
+          that.cutOBJ.push(intersects[0].object);
+        }
       }
     }
   }
 
   cutOut() {
+    if (this.cutOBJ.length == 0) return;
+
     let that = this;
     let cutVector0 = new Vector3();
     let cutVector1 = new Vector3();
     let cutVector2 = new Vector3();
 
-    that.removeListerner("pointermove", that.cIng);
+    that.removeListener("pointermove", that.cIng);
     if (that.planePoints.length < 2) return;
     else {
       const vectorId = Math.floor(that.planePoints.length / 2);
@@ -126,6 +138,9 @@ class CutOffMesh extends Tool {
         mesh1.translateOnAxis(plane.normal, -that.crackSize);
         that.scene.add(mesh0, mesh1);
         that.scene.remove(that.cutOBJ[ele]);
+        if (that.render != undefined) {
+          that.render();
+        };
 
         mesh0 = null;
         mesh1 = null;
@@ -137,6 +152,18 @@ class CutOffMesh extends Tool {
     }
 
     that.dispatchEvent(_changeEvent);
+  }
+
+  stopCut() {
+    this.removeListener("pointerdown", this.ocDown);
+  }
+
+  dispose() {
+    this.removeListener("pointerdown", this.ocDown);
+    this.removeListener("pointermove", this.cIng);
+    this.cutOBJ.length = 0;
+    this.planePoints.length = 0;
+    this.crackSize = null;
   }
 }
 

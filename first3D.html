@@ -138,11 +138,13 @@
         // path.quadraticCurveTo(50, 50, 0, 200);
         // path.lineTo(100, 100);
 
-        var linePoints = path.getPoints(100);
+        // var linePoints = path.getPoints(100);
+        // const geometryLine = new THREE.BufferGeometry().setFromPoints(linePoints);
+        let linePoints = [new THREE.Vector3(0, 0, 200), new THREE.Vector3(0, 200, 200), new THREE.Vector3(200, 200, 200)];
         const geometryLine = new THREE.BufferGeometry().setFromPoints(linePoints);
         var lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
         var line11 = new THREE.Line(geometryLine, lineMaterial);
-        scene.add(line11)
+        scene.add(line11);
 
         var linePoints2 = new Float32Array([10, 20, 30, 40, 50, 60, 70, 80, 90]);
         const geometryLine2 = new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(linePoints2, 3));
@@ -302,6 +304,7 @@
         // controls.minAzimuthAngle = -Math.PI * (100 / 180);
         // controls.maxAzimuthAngle = Math.PI * (100 / 180);
         // controls.addEventListener('change', render);//监听鼠标、键盘事件
+        // controls.listenToKeyEvents(document);
 
 
         import { ViewHelper } from './threeSrc/viewPort/Viewport.ViewHelper.js';
@@ -354,7 +357,9 @@
 
         const box = new THREE.BoxHelper(mesh6, '#ffff00');
         mesh6.attach(box);
-        // console.log(box.parent.remove(box));
+        // mesh6.remove(box);
+        // box = null;
+        box.parent.remove(box);
         mesh6.rotateY(Math.PI / 4);
 
         // mesh6.matrixAutoUpdate = true;
@@ -538,10 +543,21 @@
         // animate();
 
         // window.removeEventListener('click', selObject);
-        window.addEventListener('click', selObject);
+        renderer.domElement.setAttribute('tabindex', '0');
+        // renderer.domElement.focus();
+        window.addEventListener('pointerdown', selObject);
         function selObject(event) {
+            // document.body.setPointerCapture(event.pointerId);
 
             // console.log(clock.getDelta());
+            // console.log(event.target);
+            // if (event.target != renderer.domElement) {
+            //     renderer.domElement.blur();
+            // } else {
+            //     renderer.domElement.focus();
+            // }
+            // if (renderer.domElement != document.activeElement) return;
+            // console.log(event);
 
             pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
             pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
@@ -549,24 +565,39 @@
             raycaster.setFromCamera(pointer, camera);
 
             let intersects = raycaster.intersectObjects(scene.children);
-            // console.log(scene.children);
+            console.log(intersects);
 
             if (intersects.length > 0) {
+                for (let ele of intersects) {
+                    if (ele.object.type == "Mesh") {
+                        ele.object.material.color.set(0xff0000);
+                        break;
+                    }
+                }
+
                 // for (let ele in scene.children) {
                 //     // console.log(ele)
                 //     if (scene.children[ele] instanceof THREE.Mesh) {
                 //         scene.children[ele].material.color.set(0x1111ff);
                 //     }
                 // }
-                mColor += 0x111111;
+                // mColor += 0x111111;
 
-                const containType = ["Mesh", "Points", "Line"];
-                const containName = ["X", "Y", "Z", "E", "XY", "XZ", "YZ", "XYZ", "XYZE"];
+                // const containType = ["Mesh", "Points", "Line"];
+                // const containName = ["X", "Y", "Z", "E", "XY", "XZ", "YZ", "XYZ", "XYZE"];
 
-                if (!containName.includes(intersects[0].object.name) && containType.includes(intersects[0].object.type)) {
-                    console.log(intersects[0].object);
-                    intersects[0].object.material.color.set(mColor);
-                    intersects[0].object.dispatchEvent({ type: 'invisible', obj: intersects[0].object });
+                // if (!containName.includes(intersects[0].object.name) && containType.includes(intersects[0].object.type)) {
+                //     console.log(intersects[0].object);
+                //     intersects[0].object.material.color.set(mColor);
+                //     intersects[0].object.dispatchEvent({ type: 'invisible', obj: intersects[0].object });
+                // }
+
+                let getObj = intersects[0].object;
+                if (intersects[0].face) {
+                    let getNormal = intersects[0].face.normal;
+                    getObj.localToWorld(getNormal);
+                    getNormal.sub(getObj.position);
+                    console.log(getNormal);
                 }
             }
 
@@ -612,11 +643,11 @@
                 document.getElementById(elmnt.domElement.id + "header").onmousedown = dragMouseDown;
             } else {
                 // otherwise, move the DIV from anywhere inside the DIV:
-                elmnt.domElement.onmousedown = dragMouseDown;
+                // elmnt.domElement.onmousedown = dragMouseDown;
+                elmnt.domElement.addEventListener('pointerdown', dragMouseDown);
             }
 
             function dragMouseDown(e) {
-                console.log(e)
                 e = e || window.event;
                 //e.preventDefault();
                 // get the mouse cursor position at startup:
@@ -640,7 +671,7 @@
                 elmnt.parent.domElement.style.left = (elmnt.parent.domElement.offsetLeft - pos1) + "px";
             }
 
-            function closeDragElement() {
+            function closeDragElement(e) {
                 // stop moving when mouse button is released:
                 document.onmouseup = null;
                 document.onmousemove = null;

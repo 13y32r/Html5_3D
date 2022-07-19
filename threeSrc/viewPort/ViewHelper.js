@@ -4,9 +4,11 @@ const vpTemp = new THREE.Vector4();
 
 class ViewHelper extends THREE.Object3D {
 
-	constructor(editorCamera, dom) {
+	constructor(editorCamera, dom, editorRender) {
 
 		super();
+
+		let scope = this;
 
 		const camera_Up = editorCamera.up;
 
@@ -167,6 +169,7 @@ class ViewHelper extends THREE.Object3D {
 				prepareAnimationData(object, this.controls.target);
 
 				this.animating = true;
+				this.animate();
 
 				return true;
 
@@ -178,21 +181,21 @@ class ViewHelper extends THREE.Object3D {
 
 		};
 
-		this.update = function ( delta ) {
+		this.update = function (delta) {
 
 			const step = delta * turnRate;
 			const focusPoint = this.controls.target;
 
 			// animate position by doing a slerp and then scaling the position on the unit sphere
 
-			q1.rotateTowards( q2, step );
-			editorCamera.position.set( 0, 0, 1 ).applyQuaternion( q1 ).multiplyScalar( radius ).add( focusPoint );
+			q1.rotateTowards(q2, step);
+			editorCamera.position.set(0, 0, 1).applyQuaternion(q1).multiplyScalar(radius).add(focusPoint);
 
 			// animate orientation
 
-			editorCamera.quaternion.rotateTowards( targetQuaternion, step );
+			editorCamera.quaternion.rotateTowards(targetQuaternion, step);
 
-			if ( q1.angleTo( q2 ) === 0 ) {
+			if (q1.angleTo(q2) === 0) {
 
 				this.animating = false;
 
@@ -200,57 +203,65 @@ class ViewHelper extends THREE.Object3D {
 
 		};
 
-		function prepareAnimationData( object, focusPoint ) {
+		this.animate = function () {
 
-			switch ( object.userData.type ) {
+			if (scope.animating == false) return;
+			scope.update(0.02);
+			editorRender();
+			requestAnimationFrame(scope.animate);
+		}
+
+		function prepareAnimationData(object, focusPoint) {
+
+			switch (object.userData.type) {
 
 				case 'posX':
-					targetPosition.set( 1, 0, 0 );
-					targetQuaternion.setFromEuler( new THREE.Euler( 0, Math.PI * 0.5, 0 ) );
+					targetPosition.set(1, 0, 0);
+					targetQuaternion.setFromEuler(new THREE.Euler(0, Math.PI * 0.5, 0));
 					break;
 
 				case 'posY':
-					targetPosition.set( 0, 1, 0 );
-					targetQuaternion.setFromEuler( new THREE.Euler( - Math.PI * 0.5, 0, 0 ) );
+					targetPosition.set(0, 1, 0);
+					targetQuaternion.setFromEuler(new THREE.Euler(- Math.PI * 0.5, 0, 0));
 					break;
 
 				case 'posZ':
-					targetPosition.set( 0, 0, 1 );
-					targetQuaternion.setFromEuler( new THREE.Euler() );
+					targetPosition.set(0, 0, 1);
+					targetQuaternion.setFromEuler(new THREE.Euler());
 					break;
 
 				case 'negX':
-					targetPosition.set( - 1, 0, 0 );
-					targetQuaternion.setFromEuler( new THREE.Euler( 0, - Math.PI * 0.5, 0 ) );
+					targetPosition.set(- 1, 0, 0);
+					targetQuaternion.setFromEuler(new THREE.Euler(0, - Math.PI * 0.5, 0));
 					break;
 
 				case 'negY':
-					targetPosition.set( 0, - 1, 0 );
-					targetQuaternion.setFromEuler( new THREE.Euler( Math.PI * 0.5, 0, 0 ) );
+					targetPosition.set(0, - 1, 0);
+					targetQuaternion.setFromEuler(new THREE.Euler(Math.PI * 0.5, 0, 0));
 					break;
 
 				case 'negZ':
-					targetPosition.set( 0, 0, - 1 );
-					targetQuaternion.setFromEuler( new THREE.Euler( 0, Math.PI, 0 ) );
+					targetPosition.set(0, 0, - 1);
+					targetQuaternion.setFromEuler(new THREE.Euler(0, Math.PI, 0));
 					break;
 
 				default:
-					console.error( 'ViewHelper: Invalid axis.' );
+					console.error('ViewHelper: Invalid axis.');
 
 			}
 
 			//
 
-			radius = editorCamera.position.distanceTo( focusPoint );
-			targetPosition.multiplyScalar( radius ).add( focusPoint );
+			radius = editorCamera.position.distanceTo(focusPoint);
+			targetPosition.multiplyScalar(radius).add(focusPoint);
 
-			dummy.position.copy( focusPoint );
+			dummy.position.copy(focusPoint);
 
-			dummy.lookAt( editorCamera.position );
-			q1.copy( dummy.quaternion );
+			dummy.lookAt(editorCamera.position);
+			q1.copy(dummy.quaternion);
 
-			dummy.lookAt( targetPosition );
-			q2.copy( dummy.quaternion );
+			dummy.lookAt(targetPosition);
+			q2.copy(dummy.quaternion);
 
 		}
 

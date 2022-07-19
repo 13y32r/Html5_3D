@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-18 14:28:01
- * @LastEditTime: 2022-07-10 11:42:43
+ * @LastEditTime: 2022-07-17 21:35:34
  * @LastEditors: your name
  * @Description:这时新版本的菜单类，已经将类的初始化放在了init.js文件中。
  * @FilePath: \Html5_3D\menuGUI\menuGUI.js
@@ -113,6 +113,8 @@ class MenuGUI {
     that[menuName].menu_name.className = 'menu_name';
     that[menuName].menu_name.classList.add('menu_name_V');
     that[menuName].menu_name.setAttribute('name', 'menu_name');
+    that[menuName].menu_name.style.userSelect = "none";
+    that[menuName].menu_name.style.touchAction = "none";
     that[menuName].menu_name.innerText = menuName;
     dragElement(that[menuName].menu_name, that[menuName].menu_main);
     that[menuName].title.appendChild(that[menuName].menu_name);
@@ -213,6 +215,7 @@ class MenuGUI {
 
           let tempEditorState = window["editorOperate"].state;
           window["editorOperate"].changeEditorState(EditorState.INPUT);
+          window["editorOperate"].stopKeyEvent();
 
           let initParam_body = document.createElement('div');
           initParam_body.className = "initParam_body";
@@ -280,7 +283,7 @@ class MenuGUI {
 
           confirm.onclick = endConfirm;
 
-          document.onmousedown = endConfirm;
+          initParam_body.onmousedown = endConfirm;
 
           function endConfirm(event) {
 
@@ -291,6 +294,7 @@ class MenuGUI {
             }
 
             window["editorOperate"].changeEditorState(tempEditorState);
+            window["editorOperate"].reKeyEvent();
             that[menuName][key][menuObj[key].class][menuObj[key].btnDown](paramObj);
             document.body.removeChild(initParam_body);
             confirm.onclick = null;
@@ -528,49 +532,30 @@ class MenuGUI {
         pos3 = 0,
         pos4 = 0;
 
-      // 对触屏事件进行侦听
-      target.ontouchstart = dragMouseDown;
-      // 对鼠标按键进行侦听
-      target.onmousedown = dragMouseDown;
-
-
-      function eventConversion(e) {
-        //不同的浏览器，阻止浏览器默认事件方法不同
-        if (e.preventDefault) {
-          e.preventDefault();
-        } else {
-          e.returnValue = false;
-        }
-
-        // 如果是鼠标事件，就直接返回，否则将事件重新赋值成“触屏”对象0
-        if (e instanceof MouseEvent) {
-          return e;
-        } else {
-          e = e.touches[0];
-          return e;
-        }
-      }
+      target.addEventListener("pointerdown", dragMouseDown);
 
       function dragMouseDown(e) {
-        e = e || window.event;
 
-        // 这里根据触发事件不同，对事件重新进行转换处理
-        e = eventConversion(e);
+        target.setPointerCapture(e.pointerId);
+
+        if (!e.defaultPrevented)
+          e.preventDefault();
 
         pos3 = e.clientX;
         pos4 = e.clientY;
 
-        if (e instanceof MouseEvent) {
-          document.onmouseup = closeDragElement;
-          document.onmousemove = elementDrag;
-        }
-        else {
-          document.ontouchend = closeDragElement;
-          document.ontouchmove = elementDrag;
-        }
+        document.body.addEventListener("pointerup", closeDragElement);
+        document.body.addEventListener("pointercancel", closeDragElement);
+        document.body.addEventListener("pointermove", elementDragProcessingFn, { passive: false });
       }
 
       function elementDragProcessingFn(e) {
+
+        if (!e.defaultPrevented)
+          e.preventDefault();
+
+        document.body.setPointerCapture(e.pointerId);
+
         // calculate the new cursor position:
         pos1 = pos3 - e.clientX;
         pos2 = pos4 - e.clientY;
@@ -593,25 +578,14 @@ class MenuGUI {
         }
       }
 
-      function elementDrag(e) {
-        e = e || window.event;
-
-        e = eventConversion(e);
-
-        //根据处理事件不同，执行不同处理函数。
-        elementDragProcessingFn(e);
-      }
-
       function closeDragElement(e) {
-        // stop moving when mouse button is released:
-        if (e instanceof MouseEvent) {
-          document.onmouseup = null;
-          document.onmousemove = null;
-        }
-        else {
-          document.ontouchend = null;
-          document.ontouchmove = null;
-        }
+
+        document.body.releasePointerCapture(e.pointerId);
+
+        document.body.removeEventListener("pointerup", closeDragElement);
+        document.body.removeEventListener("pointercancel", closeDragElement);
+        document.body.removeEventListener("pointermove", elementDragProcessingFn);
+
       }
     }
 
