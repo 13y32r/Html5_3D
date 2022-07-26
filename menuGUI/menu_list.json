@@ -38,14 +38,14 @@
             "name": "选择工具",
             "type": "button",
             "class": "SelectionTool",
-            "param": {},
             "btnUp": "selectionUp",
             "btnDown": "selectionDown",
             "image_url": "./menuGUI/img/selectTool.png",
             "shortcut": [
                 "Q",
                 "q"
-            ]
+            ],
+            "preEditorCondition": "OBSERVER"
         },
         "MoveTool": {
             "name": "移动工具",
@@ -138,9 +138,10 @@
             "btnUp": "stopMeasure",
             "btnDown": "measure",
             "param": {
-                "最小刻度": 10
+                "最小刻度": 1
             },
-            "image_url": "./menuGUI/img/ruler.png"
+            "image_url": "./menuGUI/img/ruler.png",
+            "preEditorCondition": "OBSERVER"
         },
         "SliceTool": {
             "name": "切割工具",
@@ -149,9 +150,10 @@
             "btnUp": "stopCut",
             "btnDown": "startCut",
             "param": {
-                "分裂距离": 10
+                "分裂距离": 1
             },
-            "image_url": "./menuGUI/img/cuttingTool.png"
+            "image_url": "./menuGUI/img/cuttingTool.png",
+            "preEditorCondition": "OBSERVER"
         }
     },
     "Grids": {

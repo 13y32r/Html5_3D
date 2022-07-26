@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-07-01 18:22:29
- * @LastEditTime: 2022-07-13 20:38:03
+ * @LastEditTime: 2022-07-25 10:21:28
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\threeSrc\tools\transformBySelection.js
@@ -9,18 +9,25 @@
  */
 
 import { TransformControls } from "../libs/TransformControls.js";
-import { Group } from "three";
+import {
+    Box3,
+    Sphere,
+    Vector3,
+    Group
+} from "three";
+import { EditorState } from '../editor/EditorState.js';
 
 class TransformBySelection {
     constructor() {
-        this.init();
 
         this.indepTransform = true;
+
+        this.editorOperate = window["editorOperate"];
 
         this.group = new Group();
         this.fatherArrayNumber = {};
 
-        this.tcDrag = this.tControlDragging.bind(this);
+        this.selectObj = new Array();
         this.getSelObj = this.getSelectedObj.bind(this);
 
         this.addCShort = this.addControlShortcut.bind(this);
@@ -29,6 +36,14 @@ class TransformBySelection {
         this.tlateChange = this.translateChange.bind(this);
         this.rotChange = this.rotateChange.bind(this);
         this.scaChange = this.scaleChange.bind(this);
+
+        this.focus = this.focus.bind(this);
+        this.editorOperate.addEventListener("editorKeyDown", this.focus);
+
+        //已经按下的键盘元素
+        this.keyDownElement = new Array();
+
+        this.init();
     }
 
     async init() {
@@ -47,22 +62,55 @@ class TransformBySelection {
         that.t_Control.setSpace('local');
 
         that.t_Control.addEventListener('change', window["editorOperate"].render);
-        that.t_Control.addEventListener('dragging-changed', that.tcDrag);
+        that.t_Control.addEventListener('mouseDown', function () {
+            window["editorOperate"].tempState = window["editorOperate"].state;
+            window["editorOperate"].changeEditorState(EditorState.TRANSFORM);
 
-        window["编辑模式_SelectionTool"].addEventListener("selected", that.getSelObj);
+            window["editorOperate"].stopKeyEvent();
 
-        window.addEventListener('keydown', that.addCShort);
-        window.addEventListener('keyup', that.removeSShort);
+            window["editorOperate"].domElement.addEventListener('keydown', that.addCShort);
+            window["editorOperate"].domElement.addEventListener('keyup', that.removeSShort);
+
+        });
+        that.t_Control.addEventListener('mouseUp', function () {
+            window["editorOperate"].changeEditorState(window["editorOperate"].tempState);
+
+            window["editorOperate"].reKeyEvent();
+
+            that.t_Control.setTranslationSnap(null);
+            that.t_Control.setRotationSnap(null);
+            that.t_Control.setScaleSnap(null);
+
+            that.keyDownElement.length = 0;
+
+            window["editorOperate"].domElement.removeEventListener('keydown', that.addCShort);
+            window["editorOperate"].domElement.removeEventListener('keyup', that.removeSShort);
+        });
+
+        window["editorOperate"].selectionHelper.addEventListener("end", that.getSelObj);
+
+        window["editorOperate"].addEventListener("changeEditorState", function (event) {
+            if (event.state != EditorState.EDIT && event.state != EditorState.TRANSFORM) {
+                that.selectObj.length = 0;
+                that.refresh();
+            }
+        });
+
+        this.getSelObj();
     }
 
     addControlShortcut(event) {
 
         let that = this;
 
+        if (that.keyDownElement.includes(event.key)) return;
+
+        that.keyDownElement.push(event.key);
+
         switch (event.key) {
 
             case "Shift":
-                that.t_Control.setTranslationSnap(100);
+                that.t_Control.setTranslationSnap(10);
                 that.t_Control.setRotationSnap(THREE.MathUtils.degToRad(15));
                 that.t_Control.setScaleSnap(0.25);
                 break;
@@ -108,6 +156,8 @@ class TransformBySelection {
 
         let that = this;
 
+        that.keyDownElement = that.keyDownElement.filter(item => item != event.key);
+
         switch (event.key) {
             case 'Shift':
                 that.t_Control.setTranslationSnap(null);
@@ -118,13 +168,8 @@ class TransformBySelection {
 
     }
 
-    tControlDragging(event) {
-        window["editorOperate"].orbitControls.enabled = !event.value;
-        window["编辑模式_SelectionTool"].enabled = !event.value;
-    }
-
-    getSelectedObj(event) {
-        this.selectObj = event.selObj;
+    getSelectedObj() {
+        this.selectObj = window["editorOperate"].selectionHelper.selectedObject;
         this.refresh();
     }
 
@@ -134,12 +179,16 @@ class TransformBySelection {
 
         let that = this;
 
-        that.t_Control.removeEventListener('dragging-changed', that.tlateChange);
-        that.t_Control.removeEventListener('dragging-changed', that.rotChange);
-        that.t_Control.removeEventListener('dragging-changed', that.scaChange);
+        that.t_Control.removeEventListener('change', that.tlateChange);
+        that.t_Control.removeEventListener('change', that.rotChange);
+        that.t_Control.removeEventListener('change', that.scaChange);
 
         if (this.selectObj == undefined) return;
-        if (this.selectObj.length == 0) return;
+        if (this.selectObj.length == 0) {
+            that.t_Control.detach();
+            window["editorOperate"].render();
+            return;
+        }
 
         if (this.indepTransform) {
 
@@ -151,25 +200,22 @@ class TransformBySelection {
 
                 switch (that.t_Control.getMode()) {
                     case "translate":
-
-                        that.t_Control.addEventListener('dragging-changed', that.tlateChange);
+                        that.t_Control.addEventListener('change', that.tlateChange);
                         that.selObj0Mat = that.selectObj[0].matrix.clone();
                         that.selObj0Mat.invert();
-
                         break;
                     case "rotate":
-                        that.t_Control.addEventListener('dragging-changed', that.rotChange);
+                        that.t_Control.addEventListener('change', that.rotChange);
                         that.selObj0Mat = that.selectObj[0].matrix.clone();
                         that.selObj0Mat.invert();
                         break;
                     case "scale":
-                        that.t_Control.addEventListener('dragging-changed', that.scaChange);
+                        that.t_Control.addEventListener('change', that.scaChange);
                         break;
                 }
             }
         }
         else {
-
             for (let i = 0; i < that.selectObj.length; i++) {
                 if (that.selectObj[i].parent) {
                     that.fatherArrayNumber[i] = that.selectObj[i].parent;
@@ -183,7 +229,53 @@ class TransformBySelection {
         if (!window['editorOperate'].scene.children.includes(that.t_Control)) {
             window['editorOperate'].scene.add(that.t_Control);
         }
+
+        window["editorOperate"].render();
     }
+
+
+    focus(event) {
+
+        if (event.key != "F" && event.key != "f") return;
+        if (this.selectObj.length == 0) return;
+
+        let that = this;
+
+        let target = that.selectObj[0];
+
+        let box = new Box3();
+        let sphere = new Sphere();
+        let center = new Vector3();
+        let delta = new Vector3();
+
+        let object = that.editorOperate.camera;
+
+        let distance;
+
+        box.setFromObject(target);
+
+        if (box.isEmpty() === false) {
+
+            box.getCenter(center);
+            distance = box.getBoundingSphere(sphere).radius;
+
+        } else {
+
+            // Focusing on an Group, AmbientLight, etc
+            center.setFromMatrixPosition(target.matrixWorld);
+            distance = 0.1;
+
+        }
+
+        delta.set(0, 0, 1);
+        delta.applyQuaternion(object.quaternion);
+        delta.multiplyScalar(distance * 4);
+
+        object.position.copy(center).add(delta);
+        window["orbitControls"].target.copy(target.position);
+
+        that.editorOperate.render();
+    };
 
     translateChange() {
 
@@ -251,15 +343,14 @@ class TransformBySelection {
         let that = this;
 
         that.t_Control.removeEventListener('change', window["editorOperate"].render);
-        that.t_Control.removeEventListener('dragging-changed', that.tcDrag);
         that.t_Control.dispose();
         that.t_Control = null;
         window["editorOperate"].scene.remove(that.t_Control);
 
-        window["编辑模式_SelectionTool"].removeEventListener("selected", that.getSelObj);
+        window["editorOperate"].selectionHelper.removeEventListener("selected", that.getSelObj);
 
-        window.removeEventListener('keydown', that.addCShort);
-        window.removeEventListener('keyup', that.removeSShort);
+        window["editorOperate"].domElement.removeEventListener('keydown', that.addCShort);
+        window["editorOperate"].domElement.removeEventListener('keyup', that.removeSShort);
     }
 }
 

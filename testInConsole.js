@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-04-12 20:55:07
- * @LastEditTime: 2022-07-13 15:50:13
+ * @LastEditTime: 2022-07-25 14:37:59
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\testInConsole.js
@@ -180,15 +180,6 @@ class getTheFunctionValue {
 //     console.log(test[key]);
 // }
 
-class test {
-    aaa() {
-        console.log(this);
-        function bbb(scop) {
-            console.log(scop);
-        }
-        bbb(this);
-    }
-}
-
-let ttt = new test();
-ttt.aaa();
+let test = [1, 2, 3, 4, 5];
+test = test.filter(item => item != 3);
+console.log(test);

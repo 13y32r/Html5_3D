@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-06-10 09:43:17
- * @LastEditTime: 2022-07-01 10:38:18
+ * @LastEditTime: 2022-07-24 11:44:18
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\threeSrc\tools\tool.js
@@ -10,9 +10,10 @@
 import { EventDispatcher } from "three";
 
 class Tool extends EventDispatcher {
-    constructor(name) {
+    constructor(name, domElement) {
         super();
         this.name = name;
+        this.domElement = domElement;
         this.listenType = [];
         this.listenFun = [];
     }
@@ -20,11 +21,11 @@ class Tool extends EventDispatcher {
     addListener(type, fun) {
         this.listenType.push(type);
         this.listenFun.push(fun);
-        window.addEventListener(type, fun);
+        this.domElement.addEventListener(type, fun);
     }
 
     removeListener(type, fun) {
-        window.removeEventListener(type, fun);
+        this.domElement.removeEventListener(type, fun);
         this.listenType.pop();
         this.listenFun.pop();
     }
@@ -33,7 +34,7 @@ class Tool extends EventDispatcher {
         let that = this;
         if (that.listenType.length > 0) {
             for (let i = 0; i < that.listenType.length; i++) {
-                window.removeEventListener(that.listenType[i], that.listenFun[i]);
+                that.domElement.removeEventListener(that.listenType[i], that.listenFun[i]);
             }
         }
         for (let i in this) {

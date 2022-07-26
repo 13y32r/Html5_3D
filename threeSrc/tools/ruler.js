@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-05-15 10:30:42
- * @LastEditTime: 2022-07-11 18:02:22
+ * @LastEditTime: 2022-07-24 11:42:30
  * @LastEditors: your name
  * @Description: 这是用一个geomtry来优化性能的版本
  * @FilePath: \Html5_3D\threeSrc\tools\ruler.js
@@ -14,7 +14,8 @@ import { EditorState } from '../editor/EditorState.js';
 class Ruler extends Tool {
     constructor() {
 
-        super("Ruler");
+        let domElement = window["editorOperate"].domElement;
+        super("Ruler", domElement);
 
         this.startPoint;
         this.endPoint;
@@ -41,12 +42,14 @@ class Ruler extends Tool {
             this.unit = unit;
         }
 
+        this.unit = parseFloat(this.unit);
+
         this.addListener('pointerdown', this.gsPoint);
 
         this.textGroup = new Group();
         this.editorOP.scene.add(this.textGroup);
         this.editorState = this.editorOP.state;
-        this.editorOP.changeEditorState(EditorState.Edit);
+        this.editorOP.changeEditorState(EditorState.DRAW);
 
     }
 

@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-04-27 10:13:00
- * @LastEditTime: 2022-07-19 10:44:52
+ * @LastEditTime: 2022-07-25 10:03:38
  * @LastEditors: your name
  * @Description: 这是一个用于编辑器根据传来的“状态”指令，来具体操作的代码
  * @FilePath: \Html5_3D\threeSrc\editor\EditorOperate.js
@@ -9,18 +9,17 @@
  */
 import {
     EventDispatcher,
-    Vector3,
+    Vector2,
     Object3D,
-    Box3,
-    Sphere
+    Raycaster
 } from "three";
 
-import {
-    EditorState,
-    SelectState
-} from "./EditorState.js";
+import { EditorState } from "./EditorState.js";
 
 import { DimensionType } from './DimensionType.js';
+import { SelectionBox } from '../tools/selectionControl/SelectionBox.js';
+import { SelectionHelper } from '../tools/selectionControl/SelectionHelper_Editor.js';
+import { SelectState } from '../tools/selectionControl/SelectState.js';
 
 class EditorOperate extends EventDispatcher {
     constructor(dimType, eState, scene, ort_Camera, per_Camera, renderer) {
@@ -92,20 +91,20 @@ class EditorOperate extends EventDispatcher {
         this.dimType = dimType;
         // this.changeDimensionType(this.dimType);
 
+        this.defaultState = eState;
         this.state = eState;
+        this.tempState;
         this.changeEditorState(this.state);
 
         this.onWindowResize = this.onWindowResize.bind(this);
         this.domElement.addEventListener('resize', that.onWindowResize, false);
 
         this.animateState = false;
-        this.anima = this.animate.bind(this);
+        this.animate = this.animate.bind(this);
 
         //执行选择函数
-        this.selectState = SelectState.IDLE;
-        this.tempSelectState;
-        this.selectObject = this.selectObject.bind(this);
-        this.selectObject();
+        let selectionBox = new SelectionBox(that.camera, that.scene);
+        this.selectionHelper = new SelectionHelper(selectionBox, that);
     }
 
     //重置窗口尺寸函数
@@ -141,11 +140,13 @@ class EditorOperate extends EventDispatcher {
     }
 
     stopKeyEvent() {
-        this.domElement.addEventListener('keydown', that.editorKeyDown);
-        this.domElement.addEventListener('keyup', that.editorKeyUp);
+        let that = this;
+        this.domElement.removeEventListener('keydown', that.editorKeyDown);
+        this.domElement.removeEventListener('keyup', that.editorKeyUp);
     }
 
     reKeyEvent() {
+        let that = this;
         this.domElement.addEventListener('keydown', that.editorKeyDown);
         this.domElement.addEventListener('keyup', that.editorKeyUp);
     }
@@ -171,43 +172,8 @@ class EditorOperate extends EventDispatcher {
         let delta = this.clock.getDelta();
 
         this.render();
-        requestAnimationFrame(this.anima);
+        requestAnimationFrame(this.animate);
     }
-
-    focus(target) {
-
-        let box = new Box3();
-        let sphere = new Sphere();
-        let center = new Vector3();
-        let delta = new Vector3();
-
-        let object = this.camera;
-
-        let distance;
-
-        box.setFromObject(target);
-
-        if (box.isEmpty() === false) {
-
-            box.getCenter(center);
-            distance = box.getBoundingSphere(sphere).radius;
-
-        } else {
-
-            // Focusing on an Group, AmbientLight, etc
-            center.setFromMatrixPosition(target.matrixWorld);
-            distance = 0.1;
-
-        }
-
-        delta.set(0, 0, 1);
-        delta.applyQuaternion(object.quaternion);
-        delta.multiplyScalar(distance * 4);
-
-        object.position.copy(center).add(delta);
-        this.orbitControls.target.copy(target.position);
-        this.render();
-    };
 
     editorKeyDown(e) {
 
@@ -303,93 +269,7 @@ class EditorOperate extends EventDispatcher {
 
     //更改编辑器的选择器状态
     changeSelectState(sState) {
-        this.selectState = sState;
         this.dispatchEvent({ type: "changeSelectState", state: sState });
-    }
-
-    //以下是选择物体处理函数
-    selectObject() {
-
-        if (this.state != EditorState.EDIT) {
-            this.selectState = SelectState.HALT;
-            return;
-        }
-        if (this.selectState == SelectState.HALT) return;
-
-        let that = this;
-
-        this.selectContainType = ["Mesh", "Points"];
-        this.selectNotContainName = ["X", "Y", "Z", "E", "XY", "XZ", "YZ", "XYZ", "XYZE", "START", "END", "DELTA", "AXIS"];
-
-        this.selectEnabled = true;
-
-        this.selectedObject = new Array();
-        this.outLineObject = new Array();
-
-        this.addEventListener("editorPointerDown", selectStart);
-
-        function selectStart(event) {
-
-            event = event.event;
-
-            that.selectState = SelectState.START;
-            // 如果鼠标没有移动，直接弹起，判断为点选。
-            that.addEventListener("editorPointerUp", singleSelectEnd);
-            that.addEventListener("editorPointerCancel", singleSelectEnd);
-            // 如果鼠标有移动，判断为复选。
-            that.addEventListener("editorPointerMove", multipleSelecting);
-
-            console.log("I am select start.");
-        }
-
-        function singleSelectEnd(event) {
-
-            that.selectState = SelectState.END;
-            //单选时，移除多选监听函数。
-            that.removeEventListener("editorPointerMove", multipleSelecting);
-            console.log("I am single end.");
-            that.selectState = SelectState.IDLE;
-        }
-
-        function multipleSelecting(event) {
-            that.selectState = SelectState.SELECTING;
-            //多选时，移除单选监听函数。
-            that.removeEventListener("editorPointerUp", singleSelectEnd);
-            that.removeEventListener("editorPointerCancel", singleSelectEnd);
-            //并添加多选结束监听函数。
-            that.addEventListener("editorPointerUp", multipleSelectEnd);
-            that.addEventListener("editorPointerCancel", multipleSelectEnd);
-
-            console.log("I am multiple selecting.");
-        }
-
-        function multipleSelectEnd(event) {
-            that.selectState = SelectState.END;
-            //移除多选监听函数。
-            that.removeEventListener("editorPointerMove", multipleSelecting);
-            that.removeEventListener("editorPointerUp", multipleSelectEnd);
-            that.removeEventListener("editorPointerCancel", multipleSelectEnd);
-
-            console.log("I am multiple select end.");
-            that.selectState = SelectState.IDLE;
-        }
-
-        // 如果编辑器发送停止选择器功能的指令，则取消选择器的鼠标监听。如果发送启动选择器功能命令，则重启选择器的鼠标监听。
-        this.addEventListener("changeSelectState", switchSelect);
-
-        function switchSelect(event) {
-            // event = event.event;
-            switch (event.state) {
-                case SelectState.HALT:
-                    that.removeEventListener("editorPointerDown", selectStart);
-                    break;
-                case SelectState.IDLE:
-                    that.addEventListener("editorPointerDown", selectStart);
-                    break;
-                default:
-                //默认保留。。。
-            }
-        }
     }
 }
 

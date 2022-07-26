@@ -1,9 +1,9 @@
 /*******
  * @Author: your name
  * @Date: 2022-04-29 12:03:11
- * @LastEditTime: 2022-07-02 15:34:57
+ * @LastEditTime: 2022-07-20 13:28:03
  * @LastEditors: your name
- * @Description: 
+ * @Description: 这个是旧的通用版本，另外做了一个编辑器的专属版本
  * @FilePath: \Html5_3D\threeSrc\tools\selectionControl\SelectionHelper.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
@@ -14,6 +14,7 @@ import {
 import { Tool } from '../tool.js';
 
 const _startSelection = { type: 'start' };
+const _selecting = { type: 'selecting' };
 const _endSelected = { type: 'end' };
 
 class SelectionHelper extends Tool {
@@ -100,6 +101,8 @@ class SelectionHelper extends Tool {
 	}
 
 	onSelectMove(event) {
+
+		this.dispatchEvent(_selecting);
 
 		this.pointBottomRight.x = Math.max(this.startPoint.x, event.clientX);
 		this.pointBottomRight.y = Math.max(this.startPoint.y, event.clientY);

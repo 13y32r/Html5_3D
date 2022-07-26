@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-13 19:20:28
- * @LastEditTime: 2022-07-19 10:40:44
+ * @LastEditTime: 2022-07-25 19:16:54
  * @LastEditors: your name
  * @Description: 这是引擎的启动主函数
  * @FilePath: \Html5_3D\main\init.js
@@ -9,7 +9,8 @@
  */
 import { preloadItem } from './preload_item.js';
 import { MenuGUI } from '../menuGUI/menuGUI.js';
-import { SelectState } from '../threeSrc/editor/EditorState.js';
+import { SelectState } from '../threeSrc/tools/selectionControl/SelectState.js';
+import { EditorState } from '../threeSrc/editor/EditorState.js';
 
 async function init() {
 
@@ -20,15 +21,17 @@ async function init() {
     if (dimType == undefined) {
         dimType = window["DimensionType"]._3D;
     }
+
     // 页面传来的几何体数据
     let eState;
-    let geoData = GetRequest()['geoData'];
-    if (geoData != undefined) {
-        geoData = JSON.parse(geoData);
-        eState = window["EditorState"].OBSERVER;
-    } else {
-        eState = window["EditorState"].EDIT;
-    }
+    // let geoData = GetRequest()['geoData'];
+    // if (geoData != undefined) {
+    //     geoData = JSON.parse(geoData);
+    //     eState = window["EditorState"].OBSERVER;
+    // } else {
+    //     eState = window["EditorState"].EDIT;
+    // }
+    eState = window["EditorState"].OBSERVER;
 
     //初始化场景
     let scene = new window["THREE"].Scene();
@@ -44,8 +47,8 @@ async function init() {
     plane.position.set(5, 5, 5);
     scene.add(plane);
 
-    const bgeometry = new window["THREE"].BoxGeometry(1, 1, 1);
-    const bmaterial = new window["THREE"].MeshBasicMaterial({ color: 0x00ff00 });
+    const bgeometry = new window["THREE"].BoxGeometry(5, 5, 5);
+    const bmaterial = new window["THREE"].MeshBasicMaterial({ color: 0x00ff00, side: window["THREE"].DoubleSide });
     const cube = new window["THREE"].Mesh(bgeometry, bmaterial);
     scene.add(cube);
 
@@ -53,7 +56,7 @@ async function init() {
     var width = window.innerWidth; //窗口宽度
     var height = window.innerHeight; //窗口高度
     var k = width / height; //窗口宽高比
-    var s = 200; //三维场景显示范围控制系数，系数越大，显示的范围越大
+    var s = 20; //三维场景显示范围控制系数，系数越大，显示的范围越大
     var ort_Camera = new window["THREE"].OrthographicCamera(-s * k, s * k, s, -s, 1, 1000);
     var per_Camera = new window["THREE"].PerspectiveCamera(60, k, 1, 1000);
 
@@ -97,9 +100,8 @@ function initOrbitControls() {
     window["editorOperate"].addEventListener("editorKeyDown", function (event) {
         if (event.key == "Control") {
             if (window["editorOperate"].state == EditorState.EDIT) {
-                if (window["editorOperate"].selectState == SelectState.IDLE || window["editorOperate"].selectState == SelectState.HALT) {
+                if (window["editorOperate"].selectionHelper.selectState == SelectState.IDLE || window["editorOperate"].selectionHelper.selectState == SelectState.HALT) {
                     window['orbitControls'].enabled = true;
-                    window["editorOperate"].tempSelectState = window["editorOperate"].selectState;
                     window["editorOperate"].changeSelectState(SelectState.HALT);
                 }
             }
@@ -109,9 +111,9 @@ function initOrbitControls() {
     window["editorOperate"].addEventListener("editorKeyUp", function (event) {
         if (event.key == "Control") {
             if (window["editorOperate"].state == EditorState.EDIT) {
-                if (window["editorOperate"].selectState == SelectState.HALT) {
+                if (window["editorOperate"].selectionHelper.selectState == SelectState.HALT) {
                     window['orbitControls'].enabled = false;
-                    window["editorOperate"].changeSelectState(window["editorOperate"].tempSelectState);
+                    window["editorOperate"].changeSelectState(SelectState.RESTART);
                 }
             }
         }
@@ -134,6 +136,8 @@ function initOrbitControls() {
             case EditorState.INPUT:
                 window['orbitControls'].enabled = false;
                 break;
+            case EditorState.TRANSFORM:
+                window['orbitControls'].enabled = false;
             default:
         }
     })

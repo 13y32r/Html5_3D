@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-06-13 10:10:32
- * @LastEditTime: 2022-07-11 11:28:40
+ * @LastEditTime: 2022-07-21 12:30:56
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\threeSrc\viewPort\AIDS\axisScale.js
@@ -43,6 +43,9 @@ class AxisScale {
 
         let points = new Array();
 
+        size = parseFloat(size);
+        unit = parseFloat(unit);
+
         for (let i = -size; i <= size; i += unit) {
             let posPoint = new Vector3(i, 0, 0);
             let posScale;
@@ -54,6 +57,8 @@ class AxisScale {
 
                 let numberText = this.textIn3D.createText("" + i, unit * 3);
                 numberText.position.copy(textPoint);
+
+                numberText.tag = "No_Selection";
 
                 this.xGroup.add(numberText);
             }
@@ -71,6 +76,7 @@ class AxisScale {
         this.xGroup.add(this.xline);
 
         let arrowHelper = new ArrowHelper(new Vector3(1, 0, 0), new Vector3(size, 0, 0), unit * 4, 0x000000, unit * 2, unit);
+        arrowHelper.cone.tag = "No_Selection";
         this.xGroup.add(arrowHelper);
 
         window["editorOperate"].scene.add(this.xGroup);
@@ -100,6 +106,9 @@ class AxisScale {
 
         let points = new Array();
 
+        size = parseFloat(size);
+        unit = parseFloat(unit);
+
         for (let i = -size; i <= size; i += unit) {
             let posPoint = new Vector3(0, i, 0);
             let posScale;
@@ -111,6 +120,8 @@ class AxisScale {
 
                 let numberText = this.textIn3D.createText("" + i, unit * 3);
                 numberText.position.copy(textPoint);
+
+                numberText.tag = "No_Selection";
 
                 this.yGroup.add(numberText);
             }
@@ -128,6 +139,7 @@ class AxisScale {
         this.yGroup.add(this.yline);
 
         let arrowHelper = new ArrowHelper(new Vector3(0, 1, 0), new Vector3(0, size, 0), unit * 4, 0x000000, unit * 2, unit);
+        arrowHelper.cone.tag = "No_Selection";
         this.yGroup.add(arrowHelper);
 
         window["editorOperate"].scene.add(this.yGroup);
@@ -157,6 +169,9 @@ class AxisScale {
 
         let points = new Array();
 
+        size = parseFloat(size);
+        unit = parseFloat(unit);
+
         for (let i = -size; i <= size; i += unit) {
             let posPoint = new Vector3(0, 0, i);
             let posScale;
@@ -169,6 +184,8 @@ class AxisScale {
                 let numberText = this.textIn3D.createText("" + i, unit * 3);
                 numberText.position.copy(textPoint);
                 numberText.rotateY(Math.PI / 2);
+
+                numberText.tag = "No_Selection";
 
                 this.zGroup.add(numberText);
             }
@@ -186,6 +203,7 @@ class AxisScale {
         this.zGroup.add(this.zline);
 
         let arrowHelper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, size), unit * 4, 0x000000, unit * 2, unit);
+        arrowHelper.cone.tag = "No_Selection";
         this.zGroup.add(arrowHelper);
 
         window["editorOperate"].scene.add(this.zGroup);

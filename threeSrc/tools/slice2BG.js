@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-04 17:28:11
- * @LastEditTime: 2022-06-12 16:27:01
+ * @LastEditTime: 2022-07-25 14:59:07
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\threeSrc\tools\slice2BG.js
@@ -306,10 +306,10 @@ class SliceBufferGeometry {
             }
         }
 
-        for (let j = 1; j < p_SectionIndex.length - 1; j++) {
+        for (let j = p_SectionIndex.length - 1; j > 1; j--) {
             that.onPositiveIndex.push(p_SectionIndex[0]);
-            that.onPositiveIndex.push(p_SectionIndex[j]);
             that.onPositiveIndex.push(p_SectionIndex[j + 1]);
+            that.onPositiveIndex.push(p_SectionIndex[j]);
         }
 
         for (let k = 1; k < n_SectionIndex.length - 1; k++) {

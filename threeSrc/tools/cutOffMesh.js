@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-09 20:49:54
- * @LastEditTime: 2022-07-11 19:02:44
+ * @LastEditTime: 2022-07-25 10:36:08
  * @LastEditors: your name
  * @Description:
  * @FilePath: \Html5_3D\threeSrc\tools\cutOffMesh.js
@@ -11,13 +11,15 @@
 import { Tool } from "./tool.js";
 import { SliceBufferGeometry } from "./slice2BG.js";
 import { Raycaster, Vector2, Vector3, Plane } from "three";
+import { SelectNotContainName, SelectNotContainType } from "./selectionControl/selectNotContainTypeAndNotContainName.js";
 
 const _changeEvent = { type: "change" };
 
 class CutOffMesh extends Tool {
   constructor(camera, scene) {
 
-    super("CutOff Mesh");
+    let domElement = window["editorOperate"].domElement;
+    super("CutOff Mesh", domElement);
 
     if (arguments.length < 2) {
       this.camera = window["editorOperate"].camera;
@@ -27,6 +29,9 @@ class CutOffMesh extends Tool {
       this.camera = camera;
       this.scene = scene;
     }
+
+    this.selectNotContainType = SelectNotContainType;
+    this.selectNotContainName = SelectNotContainName;
 
     this.cutInterval;
 
@@ -48,7 +53,8 @@ class CutOffMesh extends Tool {
       this.crackSize = crackSize;
     }
 
-    console.log(this.crackSize);
+    this.editorState = window["editorOperate"].state;
+    window["editorOperate"].changeEditorState(EditorState.DRAW);
 
     this.addListener("pointerdown", this.ocDown);
   }
@@ -70,13 +76,21 @@ class CutOffMesh extends Tool {
 
     let intersects = that.raycaster.intersectObjects(that.scene.children);
 
-    if (intersects[0] != undefined) {
-      that.planePoints.push(intersects[0].point);
-      if (intersects[0].object.type == "Mesh") {
-        if (that.cutOBJ.length == 0) {
-          that.cutOBJ.push(intersects[0].object);
-        } else if (!that.cutOBJ.includes(intersects[0].object)) {
-          that.cutOBJ.push(intersects[0].object);
+    if (intersects.length > 0) {
+
+      for (let ele of intersects) {
+        if (ele.object.tag != "No_Selection") {
+          if (!that.selectNotContainType.includes(ele.object.type) && !that.selectNotContainName.includes(ele.object.name)) {
+            that.planePoints.push(ele.point);
+
+            if (that.cutOBJ.length == 0) {
+              that.cutOBJ.push(ele.object);
+            } else if (!that.cutOBJ.includes(ele.object)) {
+              that.cutOBJ.push(ele.object);
+            }
+
+            break;
+          }
         }
       }
     }
@@ -155,7 +169,13 @@ class CutOffMesh extends Tool {
   }
 
   stopCut() {
-    this.removeListener("pointerdown", this.ocDown);
+    let that = this;
+
+    if (that.editorState != undefined) {
+      window["editorOperate"].changeEditorState(that.editorState);
+    }
+
+    that.dispose();
   }
 
   dispose() {

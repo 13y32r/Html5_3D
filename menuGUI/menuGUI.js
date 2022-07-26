@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-18 14:28:01
- * @LastEditTime: 2022-07-17 21:35:34
+ * @LastEditTime: 2022-07-25 10:28:04
  * @LastEditors: your name
  * @Description:这时新版本的菜单类，已经将类的初始化放在了init.js文件中。
  * @FilePath: \Html5_3D\menuGUI\menuGUI.js
@@ -190,6 +190,12 @@ class MenuGUI {
         }
 
         that[menuName][key].btnDown = function () {
+          if (menuObj[key].preEditorCondition != undefined) {
+            if (window["editorOperate"].state != EditorState[menuObj[key].preEditorCondition]) {
+              return;
+            }
+          }
+
           if (that[menuName][key].classList.contains('btUpStyle2'))
             that[menuName][key].classList.remove('btUpStyle2');
           if (!that[menuName][key].classList.contains('btDownStyle2'))
@@ -201,14 +207,27 @@ class MenuGUI {
               that[menuName][key][menuObj[key].class][menuObj[key].btnDown]();
             }
           }
+
+          that[menuName][key].btnPress = true;
         }
+
         that[menuName][key].btnUp = function () {
+          if (!that[menuName][key].btnPress) {
+            if (menuObj[key].preEditorCondition != undefined) {
+              if (window["editorOperate"].state != EditorState[menuObj[key].preEditorCondition]) {
+                return;
+              }
+            }
+          }
+
           if (that[menuName][key].classList.contains('btDownStyle2'))
             that[menuName][key].classList.remove('btDownStyle2');
           if (!that[menuName][key].classList.contains('btUpStyle2'))
             that[menuName][key].classList.add('btUpStyle2');
           if (menuObj[key].btnUp != undefined)
             that[menuName][key][menuObj[key].class][menuObj[key].btnUp]();
+
+          that[menuName][key].btnPress = false;
         }
 
         function initParamWindow(paramObj) {
@@ -332,10 +351,10 @@ class MenuGUI {
       switch (menuObj[key].type) {
         case "folder":
           cellInit();
+          that[menuName][key].btnPress = false;
           that[menuName][key].onmousedown = function () {
             if (window["editorOperate"].state == EditorState.INPUT) return;
-            that[menuName][key].btnPress = !that[menuName][key].btnPress;
-            if (that[menuName][key].btnPress) {
+            if (!that[menuName][key].btnPress) {
               that[menuName][key].btnDown();
               that[menuName][key].folderObj = that.creatGUI(that.listJson[key], that[menuName][key]);
               that[menuName].subMenus[key] = that[menuName][key].folderObj;
@@ -347,6 +366,7 @@ class MenuGUI {
           break;
         case "button":
           cellInit();
+          that[menuName][key].btnPress = false;
           if (that[menuName][key].btnPress) {
             that[menuName][key].btnDown();
           } else {
@@ -354,8 +374,7 @@ class MenuGUI {
           }
           that[menuName][key].onmousedown = function () {
             if (window["editorOperate"].state == EditorState.INPUT) return;
-            that[menuName][key].btnPress = !that[menuName][key].btnPress;
-            if (that[menuName][key].btnPress) {
+            if (!that[menuName][key].btnPress) {
               that[menuName][key].btnDown();
             } else {
               that[menuName][key].btnUp();
@@ -372,13 +391,15 @@ class MenuGUI {
           }
           that[menuName][key].onmousedown = function () {
             if (window["editorOperate"].state == EditorState.INPUT) return;
-            for (let i = 0; i < that[menuName].radioArray.length; i++) {
-              if (that[menuName].radioArray[i] != that[menuName][key]) {
-                that[menuName].radioArray[i].btnPress = false;
-                that[menuName].radioArray[i].btnUp();
-              } else {
-                that[menuName].radioArray[i].btnPress = true;
-                that[menuName].radioArray[i].btnDown();
+            if (that[menuName][key].btnPress) {
+              that[menuName][key].btnUp();
+            } else {
+              for (let i = 0; i < that[menuName].radioArray.length; i++) {
+                if (that[menuName].radioArray[i] != that[menuName][key]) {
+                  that[menuName].radioArray[i].btnUp();
+                } else {
+                  that[menuName].radioArray[i].btnDown();
+                }
               }
             }
           }
@@ -409,18 +430,19 @@ class MenuGUI {
 
           if (event.key == menuObj[key].shortcut[0] || event.key == menuObj[key].shortcut[1]) {
             if (menuObj[key].type == "radio") {
-              for (let i = 0; i < that[menuName].radioArray.length; i++) {
-                if (that[menuName].radioArray[i] != that[menuName][key]) {
-                  that[menuName].radioArray[i].btnPress = false;
-                  that[menuName].radioArray[i].btnUp();
-                } else {
-                  that[menuName].radioArray[i].btnPress = true;
-                  that[menuName].radioArray[i].btnDown();
+              if (that[menuName][key].btnPress) {
+                that[menuName][key].btnUp();
+              } else {
+                for (let i = 0; i < that[menuName].radioArray.length; i++) {
+                  if (that[menuName].radioArray[i] != that[menuName][key]) {
+                    that[menuName].radioArray[i].btnUp();
+                  } else {
+                    that[menuName].radioArray[i].btnDown();
+                  }
                 }
               }
             } else {
-              that[menuName][key].btnPress = !that[menuName][key].btnPress;
-              if (that[menuName][key].btnPress) {
+              if (!that[menuName][key].btnPress) {
                 that[menuName][key].btnDown();
               } else {
                 that[menuName][key].btnUp();
@@ -432,10 +454,11 @@ class MenuGUI {
         that[menuName]["shortcutArray"].push(that[menuName][key].shortcut);
 
         document.addEventListener('keydown', that[menuName][key].shortcut);
+
         that[menuName][key].shortcutSwitch = true;
 
-        window["editorOperate"].addEventListener("changeState", function (event) {
-          if (event.state == "INPUT") {
+        window["editorOperate"].addEventListener("changeEditorState", function (event) {
+          if (event.state == window["EditorState"].INPUT) {
             if (that[menuName][key].shortcutSwitch) {
               that[menuName][key].shortcutSwitch = false;
               document.removeEventListener('keydown', that[menuName][key].shortcut);
@@ -621,7 +644,6 @@ class MenuGUI {
     function closeMenuUp() {
       smallBtnUp(that[menuName].closeBtn);
       that[menuName].fatherBtn.btnUp();
-      that[menuName].fatherBtn.btnPress = false;
 
       that[menuName].hide();
     }
