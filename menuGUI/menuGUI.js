@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-18 14:28:01
- * @LastEditTime: 2022-07-25 10:28:04
+ * @LastEditTime: 2022-07-27 15:14:55
  * @LastEditors: your name
  * @Description:这时新版本的菜单类，已经将类的初始化放在了init.js文件中。
  * @FilePath: \Html5_3D\menuGUI\menuGUI.js
@@ -257,6 +257,8 @@ class MenuGUI {
           initParam_title.className = "initParam_title";
           initParam_main.appendChild(initParam_title);
           initParam_title.innerHTML = "初始化参数";
+          initParam_title.style.userSelect = "none";
+          initParam_title.style.touchAction = "none";
           dragElement(initParam_title, initParam_body);
 
           let initParam_content = document.createElement('div');

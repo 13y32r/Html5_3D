@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-09 20:49:54
- * @LastEditTime: 2022-07-25 10:36:08
+ * @LastEditTime: 2022-07-27 15:30:56
  * @LastEditors: your name
  * @Description:
  * @FilePath: \Html5_3D\threeSrc\tools\cutOffMesh.js
@@ -98,6 +98,8 @@ class CutOffMesh extends Tool {
 
   cutOut() {
     if (this.cutOBJ.length == 0) return;
+
+    console.log(this.cutOBJ);
 
     let that = this;
     let cutVector0 = new Vector3();
