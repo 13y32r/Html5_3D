@@ -30,6 +30,17 @@
             "name": "三维形状",
             "type": "folder",
             "image_url": "./menuGUI/img/3D-Shape.png"
+        },
+        "FullScreen": {
+            "name": "全屏显示",
+            "type": "button",
+            "class": "FullScreen",
+            "btnUp": "exitFullScreen",
+            "btnDown": "requestFullScreen",
+            "image_url": "./menuGUI/img/fullScreen.png",
+            "shortcut": [
+                "F11"
+            ]
         }
     },
     "EditorMode": {
@@ -51,31 +62,40 @@
             "name": "移动工具",
             "type": "radio",
             "class": "TransformBySelection",
+            "btnUp": "toTranslateModeUp",
+            "btnDown": "toTranslateMode",
             "image_url": "./menuGUI/img/moveTool.png",
             "shortcut": [
                 "W",
                 "w"
-            ]
+            ],
+            "preEditorCondition": "EDIT"
         },
         "RotateTool": {
             "name": "旋转工具",
             "type": "radio",
             "class": "TransformBySelection",
+            "btnUp": "toRotateModeUp",
+            "btnDown": "toRotateMode",
             "image_url": "./menuGUI/img/rotateTool.png",
             "shortcut": [
                 "E",
                 "e"
-            ]
+            ],
+            "preEditorCondition": "EDIT"
         },
         "ScaleTool": {
             "name": "缩放工具",
             "type": "radio",
             "class": "TransformBySelection",
+            "btnUp": "toScaleModeUp",
+            "btnDown": "toScaleMode",
             "image_url": "./menuGUI/img/scaleTool.png",
             "shortcut": [
                 "R",
                 "r"
-            ]
+            ],
+            "preEditorCondition": "EDIT"
         },
         "WholeTool": {
             "name": "整体或单独工具",
@@ -87,7 +107,8 @@
             "shortcut": [
                 "A",
                 "a"
-            ]
+            ],
+            "preEditorCondition": "EDIT"
         }
     },
     "AxisScale": {

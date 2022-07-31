@@ -1,0 +1,58 @@
+<!--
+ * @Author: your name
+ * @Date: 2022-07-28 20:26:10
+ * @LastEditTime: 2022-07-29 08:34:16
+ * @LastEditors: your name
+ * @Description: 
+ * @FilePath: \Html5_3D\testWeb\sendMessageToWeiXin.html
+ * 可以输入预定的版权声明、个性签名、空行等
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send MessageTo WeiXin</title>
+    <script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+</head>
+
+<body>
+    <div>我其实是一个网页。</div>
+
+    <div id="txtMsg">
+    </div>
+
+    <div id="txtDetail">
+    </div>
+
+    <button onclick="backWeiXin()">回到微信</button>
+
+    <script>
+        window.onload = function () {
+            console.log(document.location);
+            console.log(window.location);
+            document.getElementById("txtMsg").innerText = document.location.href;
+            document.getElementById("txtDetail").innerText = window.__wxjs_environment;
+            // document.getElementById("txtMsg").innerText = "Hello World!";
+            // document.getElementById("txtDetail").innerText = "周大川。";
+        }
+
+        function backWeiXin() {
+            document.getElementById("txtMsg").innerText = "怎么没反应？";
+
+            // window.ft.miniProgram.sendWebviewEvent({
+            //     message: "王大法！"
+            // })
+
+            wx.miniProgram.navigateTo({
+                url: '/pages/HtmlPageTest/html2?htmlvalue=Hello World!&htmlvalue2=231',
+            });
+
+            // wx.miniProgram.navigateTo('/pages/login/login?htmlvalue=12dasf&htmlvalue2=231');
+        }
+    </script>
+</body>
+
+</html>

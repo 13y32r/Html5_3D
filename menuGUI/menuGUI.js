@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-18 14:28:01
- * @LastEditTime: 2022-07-27 15:14:55
+ * @LastEditTime: 2022-07-29 21:57:53
  * @LastEditors: your name
  * @Description:这时新版本的菜单类，已经将类的初始化放在了init.js文件中。
  * @FilePath: \Html5_3D\menuGUI\menuGUI.js
@@ -250,6 +250,7 @@ class MenuGUI {
 
           let initParam_drag = document.createElement('div');
           initParam_drag.className = "initParam_drag";
+          initParam_drag.style.touchAction = "none";
           initParam_body.appendChild(initParam_drag);
           initParam_drag.addEventListener("mousedown", changeWidth);
 
@@ -415,6 +416,7 @@ class MenuGUI {
       if (menuObj[key].shortcut != undefined) {
         that[menuName][key].shortcut = function (event) {
 
+          // console.log("我是快捷键：" + event.key);
           event.preventDefault();
 
           if (menuObj[key].combkey != undefined) {
@@ -657,6 +659,62 @@ class MenuGUI {
       }
     }
 
+
+    //监听不同浏览器的全屏事件，并件执行相应的代码
+    document.addEventListener("webkitfullscreenchange", function () {
+      if (document.webkitIsFullScreen) {
+        //全屏后要执行的代码
+        if (!that["主菜单"]["FullScreen"].btnPress) {
+          that["主菜单"]["FullScreen"].btnDown();
+        }
+      } else {
+        //退出全屏后执行的代码
+        if (that["主菜单"]["FullScreen"].btnPress) {
+          that["主菜单"]["FullScreen"].btnUp();
+        }
+      }
+    }, false);
+    document.addEventListener("fullscreenchange", function () {
+      if (document.webkitIsFullScreen) {
+        //全屏后要执行的代码
+        if (!that["主菜单"]["FullScreen"].btnPress) {
+          that["主菜单"]["FullScreen"].btnDown();
+        }
+      } else {
+        //退出全屏后执行的代码
+        if (that["主菜单"]["FullScreen"].btnPress) {
+          that["主菜单"]["FullScreen"].btnUp();
+        }
+      }
+    }, false);
+    document.addEventListener("mozfullscreenchange", function () {
+      if (document.webkitIsFullScreen) {
+        //全屏后要执行的代码
+        if (!that["主菜单"]["FullScreen"].btnPress) {
+          that["主菜单"]["FullScreen"].btnDown();
+        }
+      } else {
+        //退出全屏后执行的代码
+        if (that["主菜单"]["FullScreen"].btnPress) {
+          that["主菜单"]["FullScreen"].btnUp();
+        }
+      }
+    }, false);
+    document.addEventListener("msfullscreenchange", function () {
+      if (document.webkitIsFullScreen) {
+        //全屏后要执行的代码
+        if (!that["主菜单"]["FullScreen"].btnPress) {
+          that["主菜单"]["FullScreen"].btnDown();
+        }
+      } else {
+        //退出全屏后执行的代码
+        if (that["主菜单"]["FullScreen"].btnPress) {
+          that["主菜单"]["FullScreen"].btnUp();
+        }
+      }
+    }, false);
+
+    //返回菜单对象
     return that[menuName];
   }
 }

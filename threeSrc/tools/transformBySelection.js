@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-07-01 18:22:29
- * @LastEditTime: 2022-07-25 10:21:28
+ * @LastEditTime: 2022-07-31 09:45:51
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\threeSrc\tools\transformBySelection.js
@@ -21,6 +21,7 @@ class TransformBySelection {
     constructor() {
 
         this.indepTransform = true;
+        this.enabled = false;
 
         this.editorOperate = window["editorOperate"];
 
@@ -37,6 +38,13 @@ class TransformBySelection {
         this.rotChange = this.rotateChange.bind(this);
         this.scaChange = this.scaleChange.bind(this);
 
+        this.toTranslateMode = this.toTranslateMode.bind(this);
+        this.toRotateMode = this.toRotateMode.bind(this);
+        this.toScaleMode = this.toScaleMode.bind(this);
+        this.toEmptyMode = this.toEmptyMode.bind(this);
+
+        this.modeState = [false, false, false];
+
         this.focus = this.focus.bind(this);
         this.editorOperate.addEventListener("editorKeyDown", this.focus);
 
@@ -46,16 +54,8 @@ class TransformBySelection {
         this.init();
     }
 
-    async init() {
-
+    init() {
         let that = this;
-
-        await new Promise((resolve) => {
-            while (!window["编辑模式_SelectionTool"]) {
-                console.log("等待'SelectionTool'对象实例化");
-            }
-            resolve();
-        });
 
         that.t_Control = new TransformControls(window["editorOperate"].camera, window["editorOperate"].renderer.domElement);
 
@@ -169,6 +169,7 @@ class TransformBySelection {
     }
 
     getSelectedObj() {
+        if (!this.enabled) return;
         this.selectObj = window["editorOperate"].selectionHelper.selectedObject;
         this.refresh();
     }
@@ -184,7 +185,7 @@ class TransformBySelection {
         that.t_Control.removeEventListener('change', that.scaChange);
 
         if (this.selectObj == undefined) return;
-        if (this.selectObj.length == 0) {
+        if (this.selectObj.length == 0 || this.selectObj == null) {
             that.t_Control.detach();
             window["editorOperate"].render();
             return;
@@ -216,10 +217,15 @@ class TransformBySelection {
             }
         }
         else {
+
+            that.group.position.copy(that.selectObj[0].position);
+            that.group.updateMatrixWorld();
+
             for (let i = 0; i < that.selectObj.length; i++) {
-                if (that.selectObj[i].parent) {
+                if (that.selectObj[i].parent != that.group) {
                     that.fatherArrayNumber[i] = that.selectObj[i].parent;
                 }
+                that.group.worldToLocal(that.selectObj[i].position);
                 that.group.add(that.selectObj[i]);
             }
             window['editorOperate'].scene.add(that.group);
@@ -321,20 +327,81 @@ class TransformBySelection {
 
     }
 
+    toTranslateMode() {
+        this.modeState[0] = true;
+        this.t_Control.setMode("translate");
+        this.checkAllModeState();
+    }
+
+    toTranslateModeUp() {
+        this.modeState[0] = false;
+        this.checkAllModeState();
+    }
+
+    toRotateMode() {
+        this.modeState[1] = true;
+        this.t_Control.setMode("rotate");
+        this.checkAllModeState();
+    }
+
+    toRotateModeUp() {
+        this.modeState[1] = false;
+        this.checkAllModeState();
+    }
+
+    toScaleMode() {
+        this.modeState[2] = true;
+        this.t_Control.setMode("scale");
+        this.checkAllModeState();
+    }
+
+    toScaleModeUp() {
+        this.modeState[2] = false;
+        this.checkAllModeState();
+    }
+
+    checkAllModeState() {
+        let that = this;
+
+        for (let i = 0; i < that.modeState.length; i++) {
+            if (that.modeState[i]) {
+                that.enabled = true;
+                that.getSelectedObj();
+                return;
+            }
+        }
+
+        this.toEmptyMode();
+        return;
+    }
+
+    toEmptyMode() {
+        this.enabled = false;
+        this.selectObj = null;
+        this.selectObj = new Array();
+        this.refresh();
+    }
+
     groupRelease() {
 
         let that = this;
 
-        if (that.group.children.length > 0) {
-            for (let i = 0; i < that.group.children.length; i++) {
-                if (that.fatherArrayNumber[i]) {
-                    that.fatherArrayNumber[i].add(that.group.children[i]);
-                }
-                else {
-                    that.group.remove(that.group.children[i]);
-                }
+        while (that.group.children.length > 0) {
+
+            //更新group及其子元素的世界矩阵
+            that.group.updateMatrixWorld();
+
+            that.group.localToWorld(that.group.children[that.group.children.length - 1].position);
+            console.log(that.fatherArrayNumber[that.group.children.length - 1]);
+
+            if (that.fatherArrayNumber[that.group.children.length - 1] != that.group) {
+                // console.log(that.group.children[i]);
+                that.fatherArrayNumber[that.group.children.length - 1].add(that.group.children[that.group.children.length - 1]);
             }
         }
+
+        that.group = null;
+        that.group = new Group();
 
     }
 

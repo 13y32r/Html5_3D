@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-04-27 10:13:00
- * @LastEditTime: 2022-07-25 10:03:38
+ * @LastEditTime: 2022-07-30 11:41:59
  * @LastEditors: your name
  * @Description: 这是一个用于编辑器根据传来的“状态”指令，来具体操作的代码
  * @FilePath: \Html5_3D\threeSrc\editor\EditorOperate.js
@@ -97,7 +97,7 @@ class EditorOperate extends EventDispatcher {
         this.changeEditorState(this.state);
 
         this.onWindowResize = this.onWindowResize.bind(this);
-        this.domElement.addEventListener('resize', that.onWindowResize, false);
+        window.addEventListener('resize', that.onWindowResize, false);
 
         this.animateState = false;
         this.animate = this.animate.bind(this);
@@ -135,6 +135,9 @@ class EditorOperate extends EventDispatcher {
             that.renderer.setSize(window.innerWidth, window.innerHeight);
 
         }
+
+        that.width = window.innerWidth; //窗口宽度
+        that.height = window.innerHeight; //窗口高度
 
         that.render();
     }

@@ -62,5 +62,9 @@
     "AxisScale": {
         "url": "../threeSrc/viewPort/AIDS/axisScale.js",
         "inModule": true
+    },
+    "FullScreen": {
+        "url": "../threeSrc/viewPort/fullScreen.js",
+        "inModule": true
     }
 }

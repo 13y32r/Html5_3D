@@ -25,8 +25,7 @@
         src="https://6d61-math-training-9g90u35i7d2b235b-1304747630.tcb.qcloud.la/html5_Pages/threeSrc/OrbitControls.js"></script> -->
 
     <!--引入data.gui.js图形用户界面-->
-    <script
-        src="https://6d61-math-training-9g90u35i7d2b235b-1304747630.tcb.qcloud.la/html5_Pages/threeSrc/dat.gui.min.js"></script>
+    <script src="./threeSrc/libs/dat.gui.min.js"></script>
 
     <!--引入State.js状态监视代码-->
     <script src="./threeSrc/libs/stats.min.js"></script>
@@ -281,9 +280,9 @@
         renderer.localClippingEnabled = true;
         document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
 
-        let stats = new Stats();
-        stats.showPanel(1);
-        document.body.appendChild(stats.dom);
+        // let stats = new Stats();
+        // stats.showPanel(1);
+        // document.body.appendChild(stats.dom);
 
         let dummy = new THREE.Object3D();
         var controls = new OrbitControls(camera, renderer.domElement);//创建控件对象
@@ -362,19 +361,51 @@
         box.parent.remove(box);
         mesh6.rotateY(Math.PI / 4);
 
+        console.log(mesh6);
+
         // mesh6.matrixAutoUpdate = true;
         // mesh6.matrixWorldNeedsUpdate = true;
         // mesh4.matrixAutoUpdate = true;
         // mesh4.matrixWorldNeedsUpdate = true;
 
-        let group = new THREE.Group();
+        // let group = new THREE.Group();
+        // group.translateZ(50);
+        // group.updateMatrixWorld();
+        // group.worldToLocal(mesh1.position);
+        // group.worldToLocal(mesh2.position);
+        // group.worldToLocal(mesh3.position);
+        // group.worldToLocal(mesh4.position);
+        // group.worldToLocal(mesh5.position);
+        // group.worldToLocal(mesh6.position);
 
         // group.add(mesh1, mesh2, mesh3, mesh4, mesh5, mesh6);
         // group.toGeometryCenter();
         // group.toCommonCenter();
+        // group.remove(mesh1, mesh2, mesh3, mesh4, mesh5, mesh6);
 
         // scene.add(group);
+
+        // console.log(v1);
+        // mesh1.position.copy(mesh1.position);
+        // group.localToWorld(mesh1.position);
+        // group.localToWorld(mesh2.position);
+        // group.localToWorld(mesh3.position);
+        // group.localToWorld(mesh4.position);
+        // group.localToWorld(mesh5.position);
+        // group.localToWorld(mesh6.position);
+
         scene.add(mesh1, mesh2, mesh3, mesh4, mesh5, mesh6);
+
+        console.log(scene.children[7] != mesh1);
+
+        // group.updateMatrixWorld();
+        // group.worldToLocal(mesh1.position);
+        // group.worldToLocal(mesh2.position);
+        // group.worldToLocal(mesh3.position);
+        // group.worldToLocal(mesh4.position);
+        // group.worldToLocal(mesh5.position);
+        // group.worldToLocal(mesh6.position);
+        // group.add(mesh1, mesh2, mesh3, mesh4, mesh5, mesh6);
 
         // let tControl = new TransformControls(camera, renderer.domElement);
         // tControl.addEventListener('change', render);
@@ -440,7 +471,7 @@
         // mesh6.applyMatrix4(mesh5.matrix);
 
 
-        f2.add(mesh4.position, "y", 0, 200, 1).name('mesh4的位置').onChange(render);
+        // f2.add(mesh4.position, "y", 0, 200, 1).name('mesh4的位置').onChange(render);
 
         //下面的代码是做3D物体对象的拾取操作
         const raycaster = new THREE.Raycaster();
@@ -487,8 +518,8 @@
         scene.add(grid);
 
         function render() {
-            stats.update();
-            TWEEN.update();
+            // stats.update();
+            // TWEEN.update();
             renderer.autoClear = false;
             renderer.setViewport(0, 0, width, height);
             renderer.render(scene, camera);//执行渲染操作

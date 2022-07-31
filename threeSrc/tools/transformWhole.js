@@ -1,12 +1,13 @@
 /*******
  * @Author: your name
  * @Date: 2022-07-02 14:31:36
- * @LastEditTime: 2022-07-05 20:51:41
+ * @LastEditTime: 2022-07-30 13:16:08
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\threeSrc\tools\transformWhole.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
+import { Group } from 'three';
 
 class TransformWhole {
     constructor() {
