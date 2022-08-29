@@ -79,38 +79,38 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 // test.dispose();
 // console.log(test.proto);
 
-let timeOutFn = new Promise((resolve) => {
-    setTimeout(() => {
-        console.log("Hello world!");
-        resolve();
-    }, 3000);
-});
+// let timeOutFn = new Promise((resolve) => {
+//   setTimeout(() => {
+//     console.log("Hello world!");
+//     resolve();
+//   }, 3000);
+// });
 
-let timeOutFn2 = new Promise((resolve) => {
-    setTimeout(() => {
-        console.log("hi world!");
-        resolve();
-    }, 1000);
-});
+// let timeOutFn2 = new Promise((resolve) => {
+//   setTimeout(() => {
+//     console.log("hi world!");
+//     resolve();
+//   }, 1000);
+// });
 
-let timeOutFn3 = new Promise((resolve) => {
-    setTimeout(() => {
-        console.log("hi universe!");
-        resolve();
-    }, 5000);
-});
+// let timeOutFn3 = new Promise((resolve) => {
+//   setTimeout(() => {
+//     console.log("hi universe!");
+//     resolve();
+//   }, 5000);
+// });
 
-async function aaa(){
-  await timeOutFn;
-  console.log("I am in aaa.");
-}
+// async function aaa() {
+//   await timeOutFn;
+//   console.log("I am in aaa.");
+// }
 
-function bbb(){
-  aaa();
-  console.log("I am in bbb.");
-}
+// function bbb() {
+//   aaa();
+//   console.log("I am in bbb.");
+// }
 
-bbb();
+// bbb();
 
 // (async () => {
 //     await Promise.all([timeOutFn, timeOutFn2, timeOutFn3]);
@@ -136,3 +136,236 @@ bbb();
 // }
 
 // test.apply(null, [123, 321]);
+
+// let testObj = {
+//   "Main-Menu": {
+//     Title: "主菜单",
+//     EditorMode: {
+//       name: "编辑模式",
+//       type: "folder",
+//       image_url: "./menuGUI/img/editorMode.png",
+//     },
+//     Grids: {
+//       name: "网格",
+//       type: "folder",
+//       image_url: "./menuGUI/img/gridFolder.png",
+//     },
+//     Tools: {
+//       name: "工具箱",
+//       type: "folder",
+//       image_url: "./menuGUI/img/toolsFolder.png",
+//     },
+//     AxisScale: {
+//       name: "坐标轴",
+//       type: "folder",
+//       image_url: "./menuGUI/img/axisFolder.png",
+//     },
+//     "2D-Shape": {
+//       name: "二维形状",
+//       type: "folder",
+//       image_url: "./menuGUI/img/2D-Shape.png",
+//     },
+//     "3D-Shape": {
+//       name: "三维形状",
+//       type: "folder",
+//       image_url: "./menuGUI/img/3D-Shape.png",
+//     },
+//     PropertiesWindow: {
+//       name: "对象属性窗",
+//       type: "button",
+//       class: "PropertiesWindow",
+//       btnUp: "closeWindow",
+//       btnDown: "openWindow",
+//       image_url: "./menuGUI/img/propWindow.png",
+//       shortcut: ["P", "p"],
+//     },
+//     FullScreen: {
+//       name: "全屏显示",
+//       type: "button",
+//       class: "FullScreen",
+//       btnUp: "exitFullScreen",
+//       btnDown: "requestFullScreen",
+//       image_url: "./menuGUI/img/fullScreen.png",
+//       shortcut: ["F11"],
+//     },
+//   },
+//   EditorMode: {
+//     Title: "编辑模式",
+//     SelectTool: {
+//       name: "选择工具",
+//       type: "button",
+//       class: "SelectionTool",
+//       btnUp: "selectionUp",
+//       btnDown: "selectionDown",
+//       image_url: "./menuGUI/img/selectTool.png",
+//       shortcut: ["Q", "q"],
+//       preEditorCondition: "OBSERVER",
+//     },
+//     MoveTool: {
+//       name: "移动工具",
+//       type: "radio",
+//       class: "TransformBySelection",
+//       btnUp: "toTranslateModeUp",
+//       btnDown: "toTranslateMode",
+//       image_url: "./menuGUI/img/moveTool.png",
+//       shortcut: ["W", "w"],
+//       preEditorCondition: "EDIT",
+//     },
+//     RotateTool: {
+//       name: "旋转工具",
+//       type: "radio",
+//       class: "TransformBySelection",
+//       btnUp: "toRotateModeUp",
+//       btnDown: "toRotateMode",
+//       image_url: "./menuGUI/img/rotateTool.png",
+//       shortcut: ["E", "e"],
+//       preEditorCondition: "EDIT",
+//     },
+//     ScaleTool: {
+//       name: "缩放工具",
+//       type: "radio",
+//       class: "TransformBySelection",
+//       btnUp: "toScaleModeUp",
+//       btnDown: "toScaleMode",
+//       image_url: "./menuGUI/img/scaleTool.png",
+//       shortcut: ["R", "r"],
+//       preEditorCondition: "EDIT",
+//     },
+//     WholeTool: {
+//       name: "整体或单独工具",
+//       type: "button",
+//       class: "TransformWhole",
+//       btnUp: "independent",
+//       btnDown: "whole",
+//       image_url: "./menuGUI/img/selectionWhole.png",
+//       shortcut: ["A", "a"],
+//       preEditorCondition: "EDIT",
+//     },
+//   },
+//   AxisScale: {
+//     Title: "坐标轴",
+//     "X-Axis": {
+//       name: "X坐标轴",
+//       type: "button",
+//       class: "AxisScale",
+//       btnUp: "hideXAxis",
+//       btnDown: "showXAxis",
+//       param: {
+//         大小: 30,
+//         最小刻度: 1,
+//       },
+//       image_url: "./menuGUI/img/xAxis.png",
+//     },
+//     "Y-Axis": {
+//       name: "Y坐标轴",
+//       type: "button",
+//       class: "AxisScale",
+//       btnUp: "hideYAxis",
+//       btnDown: "showYAxis",
+//       param: {
+//         大小: 30,
+//         最小刻度: 1,
+//       },
+//       image_url: "./menuGUI/img/yAxis.png",
+//     },
+//     "Z-Axis": {
+//       name: "Z坐标轴",
+//       type: "button",
+//       class: "AxisScale",
+//       btnUp: "hideZAxis",
+//       btnDown: "showZAxis",
+//       param: {
+//         大小: 30,
+//         最小刻度: 1,
+//       },
+//       image_url: "./menuGUI/img/zAxis.png",
+//     },
+//   },
+//   Tools: {
+//     Title: "工具箱",
+//     Rule: {
+//       name: "标尺工具",
+//       type: "button",
+//       class: "Ruler",
+//       btnUp: "stopMeasure",
+//       btnDown: "measure",
+//       param: {
+//         最小刻度: 1,
+//       },
+//       image_url: "./menuGUI/img/ruler.png",
+//       preEditorCondition: "OBSERVER",
+//     },
+//     SliceTool: {
+//       name: "切割工具",
+//       type: "button",
+//       class: "CutOffMesh",
+//       btnUp: "stopCut",
+//       btnDown: "startCut",
+//       param: {
+//         分裂距离: 1,
+//       },
+//       image_url: "./menuGUI/img/cuttingTool.png",
+//       preEditorCondition: "OBSERVER",
+//     },
+//   },
+//   Grids: {
+//     Title: "网格",
+//     "X-Grid": {
+//       name: "X面网格",
+//       type: "button",
+//       class: "Grids",
+//       btnUp: "hideXGrid",
+//       btnDown: "showXGrid",
+//       param: {
+//         大小: 30,
+//         最小刻度: 1,
+//       },
+//       image_url: "./menuGUI/img/xGrid.png",
+//     },
+//     "Y-Grid": {
+//       name: "Y面网格",
+//       type: "button",
+//       class: "Grids",
+//       btnUp: "hideYGrid",
+//       btnDown: "showYGrid",
+//       param: {
+//         大小: 30,
+//         最小刻度: 1,
+//       },
+//       image_url: "./menuGUI/img/yGrid.png",
+//     },
+//     "Z-Grid": {
+//       name: "Z面网格",
+//       type: "button",
+//       class: "Grids",
+//       btnUp: "hideZGrid",
+//       btnDown: "showZGrid",
+//       param: {
+//         大小: 30,
+//         最小刻度: 1,
+//       },
+//       image_url: "./menuGUI/img/zGrid.png",
+//     },
+//   },
+// };
+
+// for (let ele in testObj) {
+//   console.log(testObj[ele]);
+// }
+
+class Test{
+    aa = 123;
+    bb = "sadf";
+}
+
+let test = new Test();
+
+test["kk"]={fun:function(param){
+    param++;
+    console.log(param);
+}};
+
+let test2 = new Test();
+
+console.log(test);
+console.log(test2);

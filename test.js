@@ -1,5 +1,4 @@
 // 如果在你的插件中药引用别的js文件，请参考此模板
-
 // 添加js文件的函数，url为js文件的路径
 function addScript(url) {
     var hm = document.createElement("script");

@@ -1,0 +1,109 @@
+.propWindow_input::-webkit-outer-spin-button,
+.propWindow_input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.propWindow_input {
+  border: 0;
+  outline: 0;
+  background-color: #282828;
+  color: #f5f5f5;
+  cursor: ns-resize;
+}
+
+.propWindow_input:focus {
+  color: #535353;
+  background-color: #f5f5f5;
+}
+
+.propWindow_main {
+  border: 1px solid #282828;
+  display: flex;
+  background-color: #535353;
+  position: absolute;
+  font-family: 宋体;
+  font-size: 12px;
+  border-radius: 5px 5px 0px 0px;
+  flex-direction: column;
+  width: 285px;
+  height: auto;
+  z-index: 2;
+}
+
+.propWindow_title {
+  color: #f5f5f5;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  height: 22px;
+  flex-direction: row;
+  border-bottom: 1px solid #282828;
+  cursor: move;
+}
+
+.propWindow_options {
+  display: flex;
+  height: 22px;
+  flex-direction: row;
+  margin-bottom: 5px;
+}
+
+.propWindow_options_selButton {
+  color: #f5f5f5;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  width: 50%;
+  user-select: none;
+}
+
+.propWindow_options_unSelButton {
+  color: #f5f5f5;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  width: 50%;
+  user-select: none;
+  background-color: #282828;
+  border-bottom: 1px solid #6a6a6a;
+}
+
+.propWindow_content {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.propWindow_cell {
+  color: #f5f5f5;
+  margin-left: 2px;
+  margin-right: 2px;
+  margin-top: 2px;
+  margin-bottom: 4px;
+  display: flex;
+  flex-direction: row;
+}
+
+.propWindow_arrName {
+  width: 90px;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  user-select: none;
+}
+
+.propWindow_arrComponent {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.propWindow_inputColor::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.propWindow_inputColor::-webkit-color-swatch {
+  border: 0;
+}

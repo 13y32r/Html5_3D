@@ -31,6 +31,18 @@
             "type": "folder",
             "image_url": "./menuGUI/img/3D-Shape.png"
         },
+        "PropertiesWindow":{
+            "name":"对象属性窗",
+            "type":"button",
+            "class": "PropertiesWindow",
+            "btnUp": "closeWindow",
+            "btnDown": "openWindow",
+            "image_url":"./menuGUI/img/propWindow.png",
+            "shortcut": [
+                "P",
+                "p"
+            ]
+        },
         "FullScreen": {
             "name": "全屏显示",
             "type": "button",

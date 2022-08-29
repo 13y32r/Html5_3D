@@ -50,6 +50,7 @@ class EditorOperate extends EventDispatcher {
         this.render = this.render.bind(this);
 
         this.domElement = renderer.domElement;
+        this.domElement.style.zIndex = -1;
 
         //已经按下的键盘元素
         this.keyDownElement = new Array();

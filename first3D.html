@@ -323,7 +323,7 @@
         var geometry6 = new THREE.BoxGeometry(10, 10, 10);
 
         var materil1 = new THREE.MeshBasicMaterial({
-            color: 0x0000ff
+            color: 0xffffff
         })
         var materil2 = new THREE.MeshBasicMaterial({
             color: 0x0000ff
@@ -396,7 +396,9 @@
 
         scene.add(mesh1, mesh2, mesh3, mesh4, mesh5, mesh6);
 
-        console.log(scene.children[7] != mesh1);
+        const texture = new THREE.TextureLoader().load("./testWeb/mapping.jpg");
+        console.log(texture);
+        mesh1.material.map = texture;
 
         // group.updateMatrixWorld();
         // group.worldToLocal(mesh1.position);
@@ -554,7 +556,7 @@
             T0 = T1;//把本次时间赋值给上次时间
 
             // const mixer = editor.mixer;
-            // const delta = clock.getDelta();
+            const delta = clock.getDelta();
 
             // if (mesh1.position.y < 110)
             // if (T1 - startTime > 1000) return;
@@ -571,7 +573,7 @@
             // console.log(t);
             requestAnimationFrame(animate);
         }
-        // animate();
+        animate();
 
         // window.removeEventListener('click', selObject);
         renderer.domElement.setAttribute('tabindex', '0');

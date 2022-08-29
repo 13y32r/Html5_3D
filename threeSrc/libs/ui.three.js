@@ -400,8 +400,10 @@ class UIOutliner extends UIDiv {
 
 			this.setValue( this.options[ index ].value );
 
-			const changeEvent = document.createEvent( 'HTMLEvents' );
-			changeEvent.initEvent( 'change', true, true );
+		const changeEvent = new CustomEvent('change',{
+            bubbles: true,
+            cancelable:true
+        });
 			this.dom.dispatchEvent( changeEvent );
 
 		}
@@ -422,8 +424,10 @@ class UIOutliner extends UIDiv {
 
 			scope.setValue( this.value );
 
-			const changeEvent = document.createEvent( 'HTMLEvents' );
-			changeEvent.initEvent( 'change', true, true );
+			const changeEvent = new CustomEvent('change',{
+				bubbles: true,
+				cancelable:true
+			});
 			scope.dom.dispatchEvent( changeEvent );
 
 		}
@@ -446,21 +450,21 @@ class UIOutliner extends UIDiv {
 
 		function onDragOver( event ) {
 
-			if ( this === currentDrag ) return;
+			if ( scope === currentDrag ) return;
 
 			const area = event.offsetY / this.clientHeight;
 
 			if ( area < 0.25 ) {
 
-				this.className = 'option dragTop';
+				scope.className = 'option dragTop';
 
 			} else if ( area > 0.75 ) {
 
-				this.className = 'option dragBottom';
+				scope.className = 'option dragBottom';
 
 			} else {
 
-				this.className = 'option drag';
+				scope.className = 'option drag';
 
 			}
 
@@ -468,35 +472,35 @@ class UIOutliner extends UIDiv {
 
 		function onDragLeave() {
 
-			if ( this === currentDrag ) return;
+			if ( scope === currentDrag ) return;
 
-			this.className = 'option';
+			scope.className = 'option';
 
 		}
 
 		function onDrop( event ) {
 
-			if ( this === currentDrag || currentDrag === undefined ) return;
+			if ( scope === currentDrag || currentDrag === undefined ) return;
 
-			this.className = 'option';
+			scope.className = 'option';
 
 			const scene = scope.scene;
 			const object = scene.getObjectById( currentDrag.value );
 
-			const area = event.offsetY / this.clientHeight;
+			const area = event.offsetY / scope.clientHeight;
 
 			if ( area < 0.25 ) {
 
-				const nextObject = scene.getObjectById( this.value );
+				const nextObject = scene.getObjectById( scope.value );
 				moveObject( object, nextObject.parent, nextObject );
 
 			} else if ( area > 0.75 ) {
 
 				let nextObject, parent;
 
-				if ( this.nextSibling !== null ) {
+				if ( scope.nextSibling !== null ) {
 
-					nextObject = scene.getObjectById( this.nextSibling.value );
+					nextObject = scene.getObjectById( scope.nextSibling.value );
 					parent = nextObject.parent;
 
 				} else {
@@ -504,7 +508,7 @@ class UIOutliner extends UIDiv {
 					// end of list (no next object)
 
 					nextObject = null;
-					parent = scene.getObjectById( this.value ).parent;
+					parent = scene.getObjectById( scope.value ).parent;
 
 				}
 
@@ -512,7 +516,7 @@ class UIOutliner extends UIDiv {
 
 			} else {
 
-				const parentObject = scene.getObjectById( this.value );
+				const parentObject = scene.getObjectById( scope.value );
 				moveObject( object, parentObject );
 
 			}
@@ -536,8 +540,10 @@ class UIOutliner extends UIDiv {
 			const editor = scope.editor;
 			editor.execute( new MoveObjectCommand( editor, object, newParent, nextObject ) );
 
-			const changeEvent = document.createEvent( 'HTMLEvents' );
-			changeEvent.initEvent( 'change', true, true );
+			const changeEvent = new CustomEvent('change',{
+				bubbles: true,
+				cancelable:true
+			});
 			scope.dom.dispatchEvent( changeEvent );
 
 		}

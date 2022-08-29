@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="../threeSrc/three.js"></script>
+    <script src="./defultTemplate.js"></script>
+    <script src="../threeSrc/libs/Tween.js"></script>
+    <title>Animation Test</title>
+</head>
+
+<body>
+    <script>
+        document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
+
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+        render();
+
+        // const times = [0, 10] // 时间序列
+        // const valuesX = [
+        //     0, 0, 0, 10, 0, 0
+        // ] // 过渡的值
+
+        // const quaternion1 = new THREE.Quaternion();
+        // const euler1 = new THREE.Euler(0, 0, 0, 'XYZ');
+        // quaternion1.setFromEuler(euler1);
+
+        // const quaternion2 = new THREE.Quaternion();
+        // const euler2 = new THREE.Euler(0, Math.PI, 0, 'XYZ');
+        // quaternion2.setFromEuler(euler2);
+
+        // const valuesY = [
+        //     quaternion1.x, quaternion1.y, quaternion1.z, quaternion1.w, quaternion2.x, quaternion2.y, quaternion2.z, quaternion2.w
+        // ] // 过渡的值
+
+        // // 0 - 10 秒内的位置变化
+        // const posXKeyFramTrack = new THREE.KeyframeTrack('.position', times, valuesX);
+        // const posYKeyFramTrack = new THREE.QuaternionKeyframeTrack('.quaternion', [10, 20], valuesY);
+
+
+        // // 通过THREE.AnimationClip对象对动画进行剪辑
+        // // name, 持续时间, KeyframeTrack<>
+        // const trackArr = [posXKeyFramTrack, posYKeyFramTrack];
+        // const clip = new THREE.AnimationClip('CUBE-ANUMATION', 20, trackArr);
+
+        // const mixer = new THREE.AnimationMixer(cube)
+        // const action = mixer.clipAction(clip);
+        // action.play();
+
+        let tween = new TWEEN.Tween(cube.rotation);
+        tween.to({ y: Math.PI / 2 }, 2000);
+        tween.easing(TWEEN.Easing.Elastic.InOut);
+        tween.repeat(4);
+        tween.yoyo(true);
+        let isStart = false;
+        let isEnd = false;
+
+        let clock = new THREE.Clock();
+
+        function animate() {
+            // mixer.update(clock.getDelta());
+            if (clock.getElapsedTime() > 5 && !isStart) {
+                tween.start();
+                isStart = true;
+            }
+
+            if (clock.getElapsedTime() > 25 && !isEnd) {
+                tween.stop();
+                clock.stop();
+                isEnd = true;
+                console.log("Time's up.");
+            }
+
+            TWEEN.update();
+            render();
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+
+</html>

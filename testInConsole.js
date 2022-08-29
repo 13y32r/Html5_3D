@@ -3,43 +3,41 @@
  * @Date: 2022-04-12 20:55:07
  * @LastEditTime: 2022-07-30 12:15:52
  * @LastEditors: your name
- * @Description: 
+ * @Description:
  * @FilePath: \Html5_3D\testInConsole.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
 
-
 // console.log("Hello world!");
 
 function relationShape(param, fn) {
-    return fn(param);
+  return fn(param);
 }
 
 var add = function (param) {
-    let sum = 0;
-    for (var i = 0; i < param.length; i++) {
-        sum += param[i];
-    }
-    return sum;
-}
+  let sum = 0;
+  for (var i = 0; i < param.length; i++) {
+    sum += param[i];
+  }
+  return sum;
+};
 
 var sub = function (param) {
-    let diff = param[0];
-    for (var i = 1; i < param.length; i++) {
-        diff -= param[i];
-    }
-    return diff;
-}
-
+  let diff = param[0];
+  for (var i = 1; i < param.length; i++) {
+    diff -= param[i];
+  }
+  return diff;
+};
 
 var bibao = (function () {
-    let count = 0;
-    var name = "big World!";
-    return function (message) {
-        count++;
+  let count = 0;
+  var name = "big World!";
+  return function (message) {
+    count++;
 
-        return count + message;
-    }
+    return count + message;
+  };
 })();
 
 // var getValue = relationShape([123, 321], sub);
@@ -99,27 +97,26 @@ var bibao = (function () {
 // console.log(comArray);
 
 function getCharCount(str, char) {
-    var regex = new RegExp(char, 'g'); // 使用g表示整个字符串都要匹配
-    var result = str.match(regex);          //match方法可在字符串内检索指定的值，或找到一个或多个正则表达式的匹配。
-    var count = !result ? 0 : result.length;
-    return count;
+  var regex = new RegExp(char, "g"); // 使用g表示整个字符串都要匹配
+  var result = str.match(regex); //match方法可在字符串内检索指定的值，或找到一个或多个正则表达式的匹配。
+  var count = !result ? 0 : result.length;
+  return count;
 }
 
 //获取字符串的字节数
 function getStringByte(str) {
-    let count = 0;
-    if (str) {
-        for (var i = 0; i < str.length; i++) {
-            if (str.charCodeAt(i) > 255) {
-                count += 2;
-            } else {
-                count++;
-            }
-        }
+  let count = 0;
+  if (str) {
+    for (var i = 0; i < str.length; i++) {
+      if (str.charCodeAt(i) > 255) {
+        count += 2;
+      } else {
+        count++;
+      }
     }
-    return count;
+  }
+  return count;
 }
-
 
 // let sShow = "Hello,Jean.\nI am a big fan of The Super Heros.\n\n"
 // console.log(getCharCount(sShow, "\n"));
@@ -145,31 +142,35 @@ cc["Name"].push(101);
 // console.log("I am in the Out!")
 
 class getTheFunctionValue {
+  excectFun() {
+    return ["I am a function value.", 123456, this.value];
+  }
 
-    excectFun() {
-        return ["I am a function value.", 123456, this.value];
+  getFunctionValue() {
+    this.value = "I come from the getFunctionValue.";
+    console.log(this.excectFun());
+  }
+
+  addPropertyTest() {
+    this["abc"] = {};
+    this["abc"].bbq = {};
+    this["abc"].bbq.cac = "狗蛋去！";
+    this["abc"].cad = "Hello world!";
+
+    function innerFn(message) {
+      console.log("I am inner,outside doesn't look me.");
+      console.log("The message come from inner function." + message);
     }
-
-    getFunctionValue() {
-        this.value = "I come from the getFunctionValue.";
-        console.log(this.excectFun());
-    }
-
-    addPropertyTest() {
-        this['abc'] = {};
-        this['abc'].bbq = {};
-        this['abc'].bbq.cac = "狗蛋去！";
-        this['abc'].cad = "Hello world!";
-
-        function innerFn(message) {
-            console.log("I am inner,outside doesn't look me.");
-            console.log("The message come from inner function." + message);
-        }
-        innerFn('hi,backhuman.');
-    }
+    innerFn("hi,backhuman.");
+  }
 }
 
-// let tt = new getTheFunctionValue();
+getTheFunctionValue.prototype["sayMessage"] = function (message) {
+  console.log("Hi," + message);
+};
+
+let tt = new getTheFunctionValue();
+tt.sayMessage("王大发！");
 // tt.addPropertyTest();
 // console.log(tt['abc'].bbq.cac);
 // tt.getFunctionValue();
@@ -179,9 +180,3 @@ class getTheFunctionValue {
 //     if (key == "one") continue;
 //     console.log(test[key]);
 // }
-
-let test1 = [1, 2, 3, 4, 5];
-let test2 = test1;
-test2 = new Array();
-console.log(test1);
-console.log(test2)

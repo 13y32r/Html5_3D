@@ -24,6 +24,11 @@
         /* Safari and Chrome */
         /* } */
 
+        /* #num::-webkit-outer-spin-button,
+        #num::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        } */
+
         .cell {
             border-radius: 2px;
             border: 1px solid #282828;
@@ -177,6 +182,16 @@
         </div>
     </div> -->
 
+    <input id="num" type="number" onchange="numeberChange(this.value)" style="cursor:e-resize;">
+    <input onchange="numeberChange(this.value)">
+    <input type="number" onchange="numeberChange(this.value)">
+
+    <div style=" position:absolute;
+    left:100px;
+    top:150px;">
+        <input id="innerInput" type="number" onchange="numeberChange(this.value)">
+    </div>
+
     <script type="importmap">
         {
             "imports": {
@@ -185,12 +200,33 @@
         }
     </script>
 
-    <script type="module">
-        import { MenuGUI } from './menuGUI.js';
-        let guiObj = new MenuGUI();
-    </script>
-
     <script>
+        
+		const changeEvent = new CustomEvent('HTMLEvents',{
+            bubbles: false,
+            cancelable:true,
+            detail:{changeState:0}
+        });
+        document.addEventListener("HTMLEvents",function(event){
+            console.log(event.detail);
+        });
+
+        document.addEventListener("keydown", function (event) {
+            console.log(event.key);
+        });
+
+        document.addEventListener("keydown", function (event) {
+            console.log("No.1 function.");
+        });
+
+        document.addEventListener("keydown", function (event) {
+            console.log("No.2 function.");
+        });
+
+        document.addEventListener("keydown", function (event) {
+            console.log("No.3 function.");
+        });
+
         // let tt = document.getElementsByName("xAxis");
         // console.log(tt[0]);
         // tt[0].onclick = function (event) { console.log(event); };
@@ -226,6 +262,34 @@
             me.classList.add('btUpStyle1');
             me.classList.remove('btDownStyle1');
         }
+
+        function numeberChange(event) {
+            console.log(event);
+        }
+
+        let testP = document.getElementById("num");
+        testP.addEventListener("keydown", inputKeyDown);
+
+        function inputKeyDown(event) {
+            console.log("hello");
+            event.stopPropagation();
+        }
+
+        let fTest = document.getElementById("innerInput");
+        fTest.focus();
+        fTest.oncontextmenu = function () {
+            return false;
+        }
+        
+        const pointerEvent = new CustomEvent("pointerdown");
+        pointerEvent.clientX =625;
+
+        fTest.addEventListener("pointerdown", function (event) {
+            console.log(event.clientX);
+        });
+        fTest.dispatchEvent(pointerEvent);
+        fTest.dispatchEvent(changeEvent);
+        document.dispatchEvent(changeEvent);
     </script>
 </body>
 
