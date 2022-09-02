@@ -9,7 +9,7 @@
  */
 
 import { TransformControls } from "../libs/TransformControls.js";
-import { Box3, Sphere, Vector3, Group } from "three";
+import { Group } from "three";
 import { EditorState } from "../editor/EditorState.js";
 
 class TransformBySelection {
@@ -41,9 +41,6 @@ class TransformBySelection {
     this.toEmptyMode = this.toEmptyMode.bind(this);
 
     this.modeState = [false, false, false];
-
-    this.focus = this.focus.bind(this);
-    this.editorOperate.addEventListener("editorKeyDown", this.focus);
 
     //已经按下的键盘元素
     this.keyDownElement = new Array();
@@ -258,44 +255,6 @@ class TransformBySelection {
     }
 
     window["editorOperate"].render();
-  }
-
-  focus(event) {
-    if (event.key != "F" && event.key != "f") return;
-    if (this.selectObj.length == 0) return;
-
-    let that = this;
-
-    let target = that.selectObj[0];
-
-    let box = new Box3();
-    let sphere = new Sphere();
-    let center = new Vector3();
-    let delta = new Vector3();
-
-    let object = that.editorOperate.camera;
-
-    let distance;
-
-    box.setFromObject(target);
-
-    if (box.isEmpty() === false) {
-      box.getCenter(center);
-      distance = box.getBoundingSphere(sphere).radius;
-    } else {
-      // Focusing on an Group, AmbientLight, etc
-      center.setFromMatrixPosition(target.matrixWorld);
-      distance = 0.1;
-    }
-
-    delta.set(0, 0, 1);
-    delta.applyQuaternion(object.quaternion);
-    delta.multiplyScalar(distance * 4);
-
-    object.position.copy(center).add(delta);
-    window["orbitControls"].target.copy(target.position);
-
-    that.editorOperate.render();
   }
 
   translateChange() {

@@ -461,12 +461,13 @@ select:hover {
   color: #444;
   background-color: #fff;
   padding: 0;
-  width: 100%;
+  width: 300px;
   height: 140px;
   font-size: 12px;
   cursor: default;
   overflow: auto;
   resize: vertical;
+  position: absolute;
   outline: none !important;
 }
 

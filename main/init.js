@@ -52,6 +52,17 @@ async function init() {
     const cube = new window["THREE"].Mesh(bgeometry, bmaterial);
     scene.add(cube);
 
+    const cube2 = new window["THREE"].Mesh(bgeometry, bmaterial);
+    cube2.position.set(-5, 10, -5);
+
+    const cube3 = new window["THREE"].Mesh(bgeometry, bmaterial);
+    cube3.position.set(5, 10, -5);
+
+    const group = new window["THREE"].Group();
+    group.add(cube2);
+    group.add(cube3);
+    scene.add(group);
+
     //初始化摄像机
     var width = window.innerWidth; //窗口宽度
     var height = window.innerHeight; //窗口高度

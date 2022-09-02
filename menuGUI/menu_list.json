@@ -43,6 +43,18 @@
                 "p"
             ]
         },
+        "HierarchyPanel":{
+            "name":"层级面板",
+            "type":"button",
+            "class": "HierarchyPanel",
+            "btnUp": "closePanel",
+            "btnDown": "openPanel",
+            "image_url":"./menuGUI/img/hierarchyPanel.png",
+            "shortcut": [
+                "H",
+                "h"
+            ]
+        },
         "FullScreen": {
             "name": "全屏显示",
             "type": "button",

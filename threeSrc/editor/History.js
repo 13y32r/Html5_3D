@@ -12,22 +12,7 @@ function History( editor ) {
 	this.historyDisabled = false;
 	this.config = editor.config;
 
-	// signals
-
 	const scope = this;
-
-	this.editor.signals.startPlayer.add( function () {
-
-		scope.historyDisabled = true;
-
-	} );
-
-	this.editor.signals.stopPlayer.add( function () {
-
-		scope.historyDisabled = false;
-
-	} );
-
 }
 
 History.prototype = {

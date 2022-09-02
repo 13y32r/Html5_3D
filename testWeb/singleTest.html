@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Single Test</title>
+    <script src="../threeSrc/libs/signals.min.js"></script>
+</head>
+
+<body>
+    <script>
+        const Signal = signals.Signal;
+
+        this.signals = { tSignal: new Signal() };
+
+        this.signals.tSignal.add(function () {
+            console.log("I got the t'signal");
+        })
+
+        this.signals.tSignal.add(function () {
+            console.log("This message come from other subscribe.");
+        })
+
+        this.signals.tSignal.active = false;
+
+        this.signals.tSignal.dispatch("This is a first dispatch message.");
+
+        this.signals.tSignal.add(function (message) {
+            console.log("Show the message:" + message);
+        })
+
+        this.signals.tSignal.active = true;
+
+        this.signals.tSignal.dispatch("Hello world!");
+
+        this.signals.tSignal.active = false;
+
+        this.signals.tSignal.dispatch("BIg world!");
+
+        this.signals.tSignal.active = true;
+
+        this.signals.tSignal.dispatch("I change my mind.");
+    </script>
+</body>
+
+</html>

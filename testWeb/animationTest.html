@@ -58,30 +58,36 @@
         tween.easing(TWEEN.Easing.Elastic.InOut);
         tween.repeat(4);
         tween.yoyo(true);
+        tween.start();
         let isStart = false;
         let isEnd = false;
 
         let clock = new THREE.Clock();
 
-        function animate() {
-            // mixer.update(clock.getDelta());
-            if (clock.getElapsedTime() > 5 && !isStart) {
-                tween.start();
-                isStart = true;
-            }
+        // function animate() {
+        //     // mixer.update(clock.getDelta());
+        //     // if (clock.getElapsedTime() > 5 && !isStart) {
+        //     //     tween.start();
+        //     //     isStart = true;
+        //     // }
 
-            if (clock.getElapsedTime() > 25 && !isEnd) {
-                tween.stop();
-                clock.stop();
-                isEnd = true;
-                console.log("Time's up.");
-            }
+        //     // if (clock.getElapsedTime() > 25 && !isEnd) {
+        //     //     tween.stop();
+        //     //     clock.stop();
+        //     //     isEnd = true;
+        //     //     console.log("Time's up.");
+        //     // }
 
+        //     TWEEN.update();
+        //     render();
+        //     requestAnimationFrame(animate);
+        // }
+        // animate();
+
+        renderer.setAnimationLoop(function(){
             TWEEN.update();
             render();
-            requestAnimationFrame(animate);
-        }
-        animate();
+        })
     </script>
 </body>
 

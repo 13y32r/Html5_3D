@@ -198,6 +198,7 @@ class MenuDirectionBtn extends UIElement {
   }
 
   changeDirectionState(state) {
+    let that = this;
     this.state = state;
 
     switch (state) {
@@ -206,12 +207,16 @@ class MenuDirectionBtn extends UIElement {
           this.dom.classList.remove("direction_btn_V");
         if (!this.dom.classList.contains("direction_btn_H"))
           this.dom.classList.add("direction_btn_H");
+
+        that.dom.setAttribute("title", "菜单栏竖向展示");
         break;
       case MenuDirectionState.VERTICAL:
         if (this.dom.classList.contains("direction_btn_H"))
           this.dom.classList.remove("direction_btn_H");
         if (!this.dom.classList.contains("direction_btn_V"))
           this.dom.classList.add("direction_btn_V");
+
+        that.dom.setAttribute("title", "菜单栏横向展示");
         break;
       default:
         console.warn("菜单元素变化了一个未知的状态，请重新审查代码。");
@@ -580,6 +585,7 @@ class MenuObject {
 
     this.mainMenu = new MenuMain(name);
     this.fatherBtn = fatherBtn;
+    this.cellBtns = {};
 
     this.directionMenu = new MenuDirectionColumn();
     this.mainMenu.add(this.directionMenu);
@@ -691,6 +697,7 @@ class MenuObject {
       );
 
       this.menuContent.add(cellBtn);
+      this.cellBtns[cellBtnObjs[ele].name] = cellBtn;
 
       switch (cellBtnObjs[ele].type) {
         case "folder":
@@ -726,9 +733,10 @@ class MenuObject {
           });
           break;
         case "radio":
-
-          cellBtn["classUP"]=initClasses[cellBtnObjs[ele].class][cellBtnObjs[ele].btnUp];
-          cellBtn["classDown"]=initClasses[cellBtnObjs[ele].class][cellBtnObjs[ele].btnDown];
+          cellBtn["classUP"] =
+            initClasses[cellBtnObjs[ele].class][cellBtnObjs[ele].btnUp];
+          cellBtn["classDown"] =
+            initClasses[cellBtnObjs[ele].class][cellBtnObjs[ele].btnDown];
 
           radioArray.push(cellBtn);
 
@@ -754,10 +762,6 @@ class MenuObject {
             "在菜单中定义了一个未知的按钮文件，请重新审核之后再次输入。"
           );
       }
-    }
-
-    if (name != "Main-Menu") {
-      that.mainMenu.hide();
     }
 
     dragElement(this.menuTitleName, this.mainMenu);
