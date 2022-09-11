@@ -45,6 +45,7 @@ class Grids {
         this.xGrid.add(bigGrid);
 
         this.xGrid.rotateZ(Math.PI / 2);
+        this.xGrid.layersSet(31);
 
         window["editorOperate"].scene.add(this.xGrid);
         window["editorOperate"].render();
@@ -82,6 +83,8 @@ class Grids {
         bigGrid.material.color.setHex(0x222222);
         bigGrid.material.vertexColors = false;
         this.yGrid.add(bigGrid);
+
+        this.yGrid.layersSet(31);
 
         window["editorOperate"].scene.add(this.yGrid);
         window["editorOperate"].render();
@@ -121,6 +124,7 @@ class Grids {
         this.zGrid.add(bigGrid);
 
         this.zGrid.rotateX(Math.PI / 2);
+        this.zGrid.layersSet(31);
 
         window["editorOperate"].scene.add(this.zGrid);
         window["editorOperate"].render();

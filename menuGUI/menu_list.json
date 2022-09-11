@@ -31,25 +31,25 @@
             "type": "folder",
             "image_url": "./menuGUI/img/3D-Shape.png"
         },
-        "PropertiesWindow":{
-            "name":"对象属性窗",
-            "type":"button",
+        "PropertiesWindow": {
+            "name": "对象属性窗",
+            "type": "button",
             "class": "PropertiesWindow",
             "btnUp": "closeWindow",
             "btnDown": "openWindow",
-            "image_url":"./menuGUI/img/propWindow.png",
+            "image_url": "./menuGUI/img/propWindow.png",
             "shortcut": [
                 "P",
                 "p"
             ]
         },
-        "HierarchyPanel":{
-            "name":"层级面板",
-            "type":"button",
+        "HierarchyPanel": {
+            "name": "层级面板",
+            "type": "button",
             "class": "HierarchyPanel",
             "btnUp": "closePanel",
             "btnDown": "openPanel",
-            "image_url":"./menuGUI/img/hierarchyPanel.png",
+            "image_url": "./menuGUI/img/hierarchyPanel.png",
             "shortcut": [
                 "H",
                 "h"
@@ -122,15 +122,15 @@
             "preEditorCondition": "EDIT"
         },
         "WholeTool": {
-            "name": "整体或单独工具",
+            "name": "全局变换和局部变换的切换开关",
             "type": "button",
-            "class": "TransformWhole",
-            "btnUp": "independent",
-            "btnDown": "whole",
-            "image_url": "./menuGUI/img/selectionWhole.png",
+            "class": "TransformSpaceChange",
+            "btnUp": "local",
+            "btnDown": "global",
+            "image_url": "./menuGUI/img/GlobalSpace.png",
             "shortcut": [
-                "A",
-                "a"
+                "G",
+                "g"
             ],
             "preEditorCondition": "EDIT"
         }

@@ -174,6 +174,8 @@ class TransformControls extends Object3D {
 		this.domElement.addEventListener( 'pointermove', this._onPointerHover );
 		this.domElement.addEventListener( 'pointerup', this._onPointerUp );
 
+		this.layersSet(31);
+		_raycaster.layers.set(31);
 	}
 
 	// updateMatrixWorld  updates key transformation variables

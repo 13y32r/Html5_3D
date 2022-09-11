@@ -796,6 +796,7 @@ class ParamWindow {
   constructor(paramObj) {
     let tempEditorState = window["editorOperate"].state;
     window["editorOperate"].changeEditorState(EditorState.INPUT);
+    window["editorOperate"].stopKeyEvent();
 
     let that = this;
 
@@ -891,6 +892,7 @@ class ParamWindow {
         }
 
       window["editorOperate"].changeEditorState(tempEditorState);
+      window["editorOperate"].reKeyEvent();
 
       this.initParam_body.dom.dispatchEvent(
         new CustomEvent("endParam", {

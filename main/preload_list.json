@@ -51,8 +51,8 @@
         "url": "../threeSrc/tools/TransformBySelection.js",
         "inModule": true
     },
-    "TransformWhole": {
-        "url": "../threeSrc/tools/transformWhole.js",
+    "TransformSpaceChange": {
+        "url": "../threeSrc/tools/transformSpaceChange.js",
         "inModule": true
     },
     "Grids": {

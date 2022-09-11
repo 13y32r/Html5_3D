@@ -58,8 +58,6 @@ class AxisScale {
                 let numberText = this.textIn3D.createText("" + i, unit * 3);
                 numberText.position.copy(textPoint);
 
-                numberText.tag = "No_Selection";
-
                 this.xGroup.add(numberText);
             }
             else if (i % (5 * unit) == 0) {
@@ -76,8 +74,8 @@ class AxisScale {
         this.xGroup.add(this.xline);
 
         let arrowHelper = new ArrowHelper(new Vector3(1, 0, 0), new Vector3(size, 0, 0), unit * 4, 0x000000, unit * 2, unit);
-        arrowHelper.cone.tag = "No_Selection";
         this.xGroup.add(arrowHelper);
+        this.xGroup.layersSet(31);
 
         window["editorOperate"].scene.add(this.xGroup);
         window["editorOperate"].render();
@@ -121,8 +119,6 @@ class AxisScale {
                 let numberText = this.textIn3D.createText("" + i, unit * 3);
                 numberText.position.copy(textPoint);
 
-                numberText.tag = "No_Selection";
-
                 this.yGroup.add(numberText);
             }
             else if (i % (5 * unit) == 0) {
@@ -139,8 +135,8 @@ class AxisScale {
         this.yGroup.add(this.yline);
 
         let arrowHelper = new ArrowHelper(new Vector3(0, 1, 0), new Vector3(0, size, 0), unit * 4, 0x000000, unit * 2, unit);
-        arrowHelper.cone.tag = "No_Selection";
         this.yGroup.add(arrowHelper);
+        this.yGroup.layersSet(31);
 
         window["editorOperate"].scene.add(this.yGroup);
         window["editorOperate"].render();
@@ -185,8 +181,6 @@ class AxisScale {
                 numberText.position.copy(textPoint);
                 numberText.rotateY(Math.PI / 2);
 
-                numberText.tag = "No_Selection";
-
                 this.zGroup.add(numberText);
             }
             else if (i % (5 * unit) == 0) {
@@ -203,8 +197,8 @@ class AxisScale {
         this.zGroup.add(this.zline);
 
         let arrowHelper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, size), unit * 4, 0x000000, unit * 2, unit);
-        arrowHelper.cone.tag = "No_Selection";
         this.zGroup.add(arrowHelper);
+        this.zGroup.layersSet(31);
 
         window["editorOperate"].scene.add(this.zGroup);
         window["editorOperate"].render();

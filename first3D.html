@@ -359,16 +359,17 @@
         // mesh6.remove(box);
         // box = null;
         box.parent.remove(box);
-        mesh6.rotateY(Math.PI / 4);
+        // mesh6.rotateY(Math.PI / 4);
+        mesh6.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 10);
 
-        console.log(mesh6);
+        // console.log(mesh6);
 
         // mesh6.matrixAutoUpdate = true;
         // mesh6.matrixWorldNeedsUpdate = true;
         // mesh4.matrixAutoUpdate = true;
         // mesh4.matrixWorldNeedsUpdate = true;
 
-        // let group = new THREE.Group();
+        let group = new THREE.Group();
         // group.translateZ(50);
         // group.updateMatrixWorld();
         // group.worldToLocal(mesh1.position);
@@ -378,12 +379,27 @@
         // group.worldToLocal(mesh5.position);
         // group.worldToLocal(mesh6.position);
 
-        // group.add(mesh1, mesh2, mesh3, mesh4, mesh5, mesh6);
+        group.add(mesh1, mesh2, mesh3, mesh4, mesh5, mesh6);
+        group.position.set(0, 0, 15);
         // group.toGeometryCenter();
         // group.toCommonCenter();
         // group.remove(mesh1, mesh2, mesh3, mesh4, mesh5, mesh6);
 
-        // scene.add(group);
+        scene.add(group);
+        console.log(group.matrixWorld);
+        // mesh6.position.copy(mesh6.parent.localToWorld(mesh6.position));
+        let testV = new THREE.Vector3(1, 2, 3);
+        mesh6.updateMatrix();
+        mesh6.updateMatrixWorld();
+        console.log(mesh6.position);
+        // scene.add(mesh6);
+
+        setTimeout(function () {
+            testV.applyMatrix4(group.matrixWorld);
+            console.log(testV);
+            mesh6.parent.localToWorld(mesh6.position);
+            // scene.add(mesh6);
+        }, 1000);
 
         // console.log(v1);
         // mesh1.position.copy(mesh1.position);
@@ -394,11 +410,32 @@
         // group.localToWorld(mesh5.position);
         // group.localToWorld(mesh6.position);
 
-        scene.add(mesh1, mesh2, mesh3, mesh4, mesh5, mesh6);
+        // scene.add(mesh1, mesh2, mesh3, mesh4, mesh5, mesh6);
 
         const texture = new THREE.TextureLoader().load("./testWeb/mapping.jpg");
-        console.log(texture);
         mesh1.material.map = texture;
+
+        THREE.Object3D.prototype.showTraverseMe = function (num) {
+            // this.layers.set(num);
+            // console.log(this);
+            this.traverse(function (e) {
+                console.log(e);
+            });
+        }
+
+        // group.showTraverseMe();
+
+        mesh1.layers.set(2);
+        mesh2.layers.set(3);
+        mesh3.layers.set(4);
+        mesh4.layers.set(5);
+
+        camera.layers.enable(2);
+        camera.layers.toggle(5);
+
+        // let newQ = new THREE.Quaternion();
+        // console.log("New Quaternion is:");
+        // console.log(newQ);
 
         // group.updateMatrixWorld();
         // group.worldToLocal(mesh1.position);
@@ -520,7 +557,7 @@
         scene.add(grid);
 
         let scene2 = new THREE.Scene();
-        let lightHelper = new THREE.PointLightHelper(point,5);
+        let lightHelper = new THREE.PointLightHelper(point, 5);
         scene2.add(lightHelper);
 
         function render() {
@@ -529,12 +566,12 @@
             renderer.autoClear = false;
             renderer.setViewport(0, 0, width, height);
             renderer.render(scene, camera);//执行渲染操作
-            renderer.render( scene2, camera );
+            renderer.render(scene2, camera);
             viewHelper.render(renderer);
             // renderer.autoClear = true;
 
             // renderer.autoClear = false;
-			renderer.autoClear = true;
+            renderer.autoClear = true;
 
             // console.log(mesh4.position);
             // console.log(mesh4.matrix);
@@ -606,7 +643,6 @@
             raycaster.setFromCamera(pointer, camera);
 
             let intersects = raycaster.intersectObjects(scene.children);
-            console.log(intersects);
 
             if (intersects.length > 0) {
                 for (let ele of intersects) {

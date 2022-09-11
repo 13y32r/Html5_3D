@@ -1,28 +1,46 @@
 import { UIOutliner } from "../libs/ui.three.js";
+import { Layers } from "three";
 
 class HierarchyPanel {
   constructor() {
     let that = this;
 
+    this.showLayers = new Layers();
+
     this.editor = window["editorOperate"];
 
-    this.ignoreObjectSelectedSignal = false;
-
     this.outliner = new UIOutliner(that.editor);
-    outliner.setId("outliner");
-    outliner.onChange(function () {
-      this.ignoreObjectSelectedSignal = true;
+    that.outliner.setId("outliner");
 
-      that.editor.selectById(parseInt(outliner.getValue()));
+    // 时间器，用于分辨鼠标的‘单击’或是‘双击’事件
+    let timer = null;
 
-      this.ignoreObjectSelectedSignal = false;
+    that.outliner.onChange(function (event) {
+      that.editor.selectById(that.outliner.getValue());
+
+      if (event.detail == "click") {
+        if (timer) {
+          clearTimeout(timer);
+          timer = null;
+          let ids = that.outliner.getValue();
+          that.editor.focusById(ids);
+          return;
+        }
+
+        timer = setTimeout(() => {
+          clearTimeout(timer);
+          timer = null;
+          that.editor.signals.hierarchyChange.dispatch();
+        }, 180);
+      } else if (event.detail == "selectIndex") {
+        let ids = that.outliner.getValue();
+        that.editor.focusById(ids);
+      }
     });
-    outliner.onDblClick(function () {
-      that.editor.focusById(parseInt(outliner.getValue()));
-    });
-    outliner.setLeft("250px");
-    outliner.setTop("50px");
-    document.body.appendChild(outliner.dom);
+
+    that.outliner.setLeft("250px");
+    that.outliner.setTop("50px");
+    document.body.appendChild(that.outliner.dom);
 
     this.nodeStates = new WeakMap();
 
@@ -32,7 +50,10 @@ class HierarchyPanel {
     this.escapeHTML = this.escapeHTML.bind(this);
     this.getObjectType = this.getObjectType.bind(this);
     this.buildHTML = this.buildHTML.bind(this);
-    this.getScript = this.getScript.bind(this);
+
+    this.refreshUI();
+    this.editor.signals.objectSelected.add(that.refreshUI);
+    this.editor.signals.sceneGraphChanged.add(that.refreshUI);
   }
 
   closePanel() {}
@@ -73,8 +94,8 @@ class HierarchyPanel {
   refreshUI() {
     let that = this;
 
-    const camera = window["editorOperate"].camera;
-    const scene = window["editorOperate"].scene;
+    const camera = that.editor.camera;
+    const scene = that.editor.scene;
 
     const options = [];
 
@@ -83,6 +104,8 @@ class HierarchyPanel {
 
     (function addObjects(objects, pad) {
       for (let i = 0, l = objects.length; i < l; i++) {
+        if (!that.showLayers.test(objects[i].layers)) continue;
+
         const object = objects[i];
 
         if (that.nodeStates.has(object) === false) {
@@ -101,8 +124,17 @@ class HierarchyPanel {
 
     that.outliner.setOptions(options);
 
-    if (that.editor.selected !== null) {
-      that.outliner.setValue(that.editor.selected.id);
+    if (that.editor.selectionHelper.selectedObject) {
+      let selObjsID = new Array();
+      for (
+        let i = 0;
+        i < that.editor.selectionHelper.selectedObject.length;
+        i++
+      ) {
+        selObjsID.push(that.editor.selectionHelper.selectedObject[i].id);
+      }
+
+      that.outliner.setValue(selObjsID);
     }
   }
 
@@ -145,7 +177,7 @@ class HierarchyPanel {
 
     let html = `<span class="type ${that.getObjectType(
       object
-    )}"></span> ${that.escapeHTML(object.name)}`;
+    )}"></span> ${that.escapeHTML(object.type)}`;
 
     if (object.isMesh) {
       const geometry = object.geometry;
@@ -159,17 +191,7 @@ class HierarchyPanel {
       )}`;
     }
 
-    html += that.getScript(object.uuid);
-
     return html;
-  }
-
-  getScript(uuid) {
-    if (this.editor.scripts[uuid] !== undefined) {
-      return ' <span class="type Script"></span>';
-    }
-
-    return "";
   }
 }
 

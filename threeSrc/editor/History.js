@@ -55,11 +55,11 @@ History.prototype = {
 		cmd.execute();
 		cmd.inMemory = true;
 
-		if ( this.config.getKey( 'settings/history' ) ) {
+		// if ( this.config.getKey( 'settings/history' ) ) {
 
-			cmd.json = cmd.toJSON();	// serialize the cmd immediately after execution and append the json to the cmd
+		// 	cmd.json = cmd.toJSON();	// serialize the cmd immediately after execution and append the json to the cmd
 
-		}
+		// }
 
 		this.lastCmdTime = new Date();
 

@@ -35,6 +35,11 @@ class EditorOperate extends EventDispatcher {
     const Signal = signals.Signal; // eslint-disable-line no-undef
 
     this.signals = {
+      editorFocusChange: new Signal(),
+
+      objectSelected: new Signal(),
+      hierarchyChange: new Signal(),
+
       sceneGraphChanged: new Signal(),
 
       historyChanged: new Signal(),
@@ -59,6 +64,8 @@ class EditorOperate extends EventDispatcher {
       that.camera.position.set(0, 0, 10);
     }
 
+    this.camera.layers.enableAll();
+
     this.renderer = renderer;
     this.render = this.render.bind(this);
 
@@ -78,8 +85,19 @@ class EditorOperate extends EventDispatcher {
 
     //为编辑器添加键盘监听
     this.domElement.setAttribute("tabindex", "0");
-    this.domElement.addEventListener("keydown", that.editorKeyDown);
-    this.domElement.addEventListener("keyup", that.editorKeyUp);
+    document.addEventListener("keydown", that.editorKeyDown);
+    document.addEventListener("keyup", that.editorKeyUp);
+
+    //判断canvas是否获得焦点
+    this.hasFocus = false;
+    this.domElement.addEventListener("focus", function () {
+      that.hasFocus = true;
+      that.signals.editorFocusChange.dispatch(true);
+    });
+    this.domElement.addEventListener("blur", function () {
+      that.hasFocus = false;
+      that.signals.editorFocusChange.dispatch(false);
+    });
 
     //pointer监听绑定编辑器
     this.editorPointerDown = this.editorPointerDown.bind(this);
@@ -120,7 +138,10 @@ class EditorOperate extends EventDispatcher {
     let selectionBox = new SelectionBox(that.camera, that.scene);
     this.selectionHelper = new SelectionHelper(selectionBox, that);
 
-    this.selectObj = this.selectionHelper.selectedObject;
+    this.selectionHelper.addEventListener("end", function () {
+      that.signals.objectSelected.dispatch();
+    });
+
     this.focus = this.focus.bind(this);
   }
 
@@ -157,14 +178,14 @@ class EditorOperate extends EventDispatcher {
 
   stopKeyEvent() {
     let that = this;
-    this.domElement.removeEventListener("keydown", that.editorKeyDown);
-    this.domElement.removeEventListener("keyup", that.editorKeyUp);
+    document.removeEventListener("keydown", that.editorKeyDown);
+    document.removeEventListener("keyup", that.editorKeyUp);
   }
 
   reKeyEvent() {
     let that = this;
-    this.domElement.addEventListener("keydown", that.editorKeyDown);
-    this.domElement.addEventListener("keyup", that.editorKeyUp);
+    document.addEventListener("keydown", that.editorKeyDown);
+    document.addEventListener("keyup", that.editorKeyUp);
   }
 
   render() {
@@ -197,7 +218,6 @@ class EditorOperate extends EventDispatcher {
     let that = this;
 
     if (!that.keyDownElement.includes(e.key)) {
-      console.log(e.key);
       that.dispatchEvent({ type: "editorKeyDown", key: e.key });
       that.keyDownElement.push(e.key);
     }
@@ -209,7 +229,7 @@ class EditorOperate extends EventDispatcher {
     let that = this;
 
     if (e.key == "f" || e.key == "F") {
-      that.focus();
+      that.focus(that.selectionHelper.selectedObject);
     }
 
     if (that.keyDownElement.includes(e.key)) {
@@ -294,22 +314,34 @@ class EditorOperate extends EventDispatcher {
     this.dispatchEvent({ type: "changeSelectState", state: sState });
   }
 
-  select(object) {
-    this.selectObj = object;
+  select(objects) {
+    this.selectionHelper.selectedObject = objects;
     this.selectionHelper.addObjectOutline();
   }
 
+  selectById(ids) {
+    let selectObects = new Array();
+    let that = this;
+
+    for (let id of ids) {
+      if (id === that.camera.id) {
+        selectObects.push(that.camera);
+      }
+
+      selectObects.push(that.scene.getObjectById(id));
+    }
+
+    this.select(selectObects);
+  }
+
   focus(selObj) {
-    if (this.selectObj.length == 0) return;
+    if (selObj.length == 0) return;
 
     let that = this;
 
     let target;
-    if (selObj) {
-      target = selObj;
-    } else {
-      target = that.selectObj[0];
-    }
+
+    target = selObj[0];
 
     let box = new Box3();
     let sphere = new Sphere();
@@ -341,8 +373,19 @@ class EditorOperate extends EventDispatcher {
     that.render();
   }
 
-  focusById(id) {
-    this.focus(this.scene.getObjectById(id));
+  focusById(ids) {
+    let selectObects = new Array();
+    let that = this;
+
+    for (let id of ids) {
+      if (id === that.camera.id) {
+        selectObects.push(that.camera);
+      }
+
+      selectObects.push(that.scene.getObjectById(id));
+    }
+
+    this.focus(selectObects);
   }
 
   objectByUuid(uuid) {

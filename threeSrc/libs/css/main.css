@@ -466,7 +466,7 @@ select:hover {
   font-size: 12px;
   cursor: default;
   overflow: auto;
-  resize: vertical;
+  resize: both;
   position: absolute;
   outline: none !important;
 }

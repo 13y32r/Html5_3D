@@ -1,5 +1,5 @@
 /*******
- * @Author: your name
+ * @Author: 邹岱志
  * @Date: 2022-07-01 18:22:29
  * @LastEditTime: 2022-07-31 09:45:51
  * @LastEditors: your name
@@ -9,17 +9,15 @@
  */
 
 import { TransformControls } from "../libs/TransformControls.js";
-import { Group } from "three";
+import { Matrix4, Vector3, Quaternion } from "three";
 import { EditorState } from "../editor/EditorState.js";
 
 class TransformBySelection {
   constructor() {
-    this.indepTransform = true;
     this.enabled = false;
 
     this.editorOperate = window["editorOperate"];
 
-    this.group = new Group();
     this.fatherArrayNumber = {};
 
     this.selectObj = new Array();
@@ -45,6 +43,13 @@ class TransformBySelection {
     //已经按下的键盘元素
     this.keyDownElement = new Array();
 
+    //第零个选择物体的变化前位置、旋转四元数、和缩放因子
+    this.selObj0Position = new Vector3();
+    this.selObjsStartQuaternion = new Array();
+    this.selObj0Scale = new Vector3();
+
+    this.transformStarted = false;
+
     this.init();
   }
 
@@ -60,18 +65,19 @@ class TransformBySelection {
 
     that.t_Control.addEventListener("change", function () {
       window["editorOperate"].render();
-    //   if (that.t_Control.object.children.length > 0) {
-    //     // let cPosition = new Vector3();
-    //     // cPosition.copy(that.t_Control.object.children[0].position);
-    //     // that.t_Control.object.localToWorld(cPosition);
-    //     console.log(that.t_Control.object.children[0]);
-    //   }
     });
     that.t_Control.addEventListener("mouseDown", function () {
       window["editorOperate"].tempState = window["editorOperate"].state;
       window["editorOperate"].changeEditorState(EditorState.TRANSFORM);
 
       window["editorOperate"].stopKeyEvent();
+
+      that.transformStarted = true;
+
+      for (let i = 0; i < that.selectObj.length; i++) {
+        that.selObjsStartQuaternion[i] = new Quaternion();
+        that.selObjsStartQuaternion[i].copy(that.selectObj[i].quaternion);
+      }
 
       window["editorOperate"].domElement.addEventListener(
         "keydown",
@@ -95,6 +101,8 @@ class TransformBySelection {
 
       that.keyDownElement.length = 0;
 
+      that.transformStarted = false;
+
       window["editorOperate"].domElement.removeEventListener(
         "keydown",
         that.addCShort
@@ -109,6 +117,7 @@ class TransformBySelection {
       "end",
       that.getSelObj
     );
+    window["editorOperate"].signals.hierarchyChange.add(that.getSelObj);
 
     window["editorOperate"].addEventListener(
       "changeEditorState",
@@ -197,9 +206,21 @@ class TransformBySelection {
     this.refresh();
   }
 
-  refresh() {
-    this.groupRelease();
+  judgingLocalOrWorldMatrix(obj) {
+    let that = this;
 
+    let tempMatrix = new Matrix4();
+
+    if (that.t_Control.space == "local") {
+      tempMatrix = obj.matrix.clone();
+    } else if (that.t_Control.space == "world") {
+      tempMatrix = obj.matrixWorld.clone();
+    }
+
+    return tempMatrix;
+  }
+
+  refresh() {
     let that = this;
 
     that.t_Control.removeEventListener("change", that.tlateChange);
@@ -213,41 +234,22 @@ class TransformBySelection {
       return;
     }
 
-    if (this.indepTransform) {
-      that.t_Control.attach(that.selectObj[0]);
+    that.t_Control.attach(that.selectObj[0]);
 
-      if (that.selectObj.length > 1) {
-        that.selObj0Mat;
-
-        switch (that.t_Control.getMode()) {
-          case "translate":
-            that.t_Control.addEventListener("change", that.tlateChange);
-            that.selObj0Mat = that.selectObj[0].matrix.clone();
-            that.selObj0Mat.invert();
-            break;
-          case "rotate":
-            that.t_Control.addEventListener("change", that.rotChange);
-            that.selObj0Mat = that.selectObj[0].matrix.clone();
-            that.selObj0Mat.invert();
-            break;
-          case "scale":
-            that.t_Control.addEventListener("change", that.scaChange);
-            break;
-        }
+    if (that.selectObj.length > 1) {
+      switch (that.t_Control.getMode()) {
+        case "translate":
+          that.selObj0Position.copy(that.selectObj[0].position);
+          that.t_Control.addEventListener("change", that.tlateChange);
+          break;
+        case "rotate":
+          that.t_Control.addEventListener("change", that.rotChange);
+          break;
+        case "scale":
+          that.selObj0Scale.copy(that.selectObj[0].scale);
+          that.t_Control.addEventListener("change", that.scaChange);
+          break;
       }
-    } else {
-      that.group.position.copy(that.selectObj[0].position);
-      that.group.updateMatrixWorld();
-
-      for (let i = 0; i < that.selectObj.length; i++) {
-        if (that.selectObj[i].parent != that.group) {
-          that.fatherArrayNumber[i] = that.selectObj[i].parent;
-        }
-        that.group.worldToLocal(that.selectObj[i].position);
-        that.group.add(that.selectObj[i]);
-      }
-      window["editorOperate"].scene.add(that.group);
-      that.t_Control.attach(that.group);
     }
 
     if (!window["editorOperate"].scene.children.includes(that.t_Control)) {
@@ -258,45 +260,67 @@ class TransformBySelection {
   }
 
   translateChange() {
+    if (!this.transformStarted) return;
+
     let that = this;
 
-    let matk = that.selectObj[0].matrix.clone();
-    matk.multiply(that.selObj0Mat);
+    let distance = new Vector3();
+    distance.subVectors(that.selectObj[0].position, that.selObj0Position);
 
     for (let i = 1; i < that.selectObj.length; i++) {
-      let mati = that.selectObj[i].matrix.clone();
-      mati.multiply(matk);
-      mati.decompose(
-        that.selectObj[i].position,
-        that.selectObj[i].quaternion,
-        that.selectObj[i].scale
-      );
+      that.selectObj[i].position.add(distance);
     }
-    that.selObj0Mat.copy(that.selectObj[0].matrix);
-    that.selObj0Mat.invert();
+    that.selObj0Position.copy(that.selectObj[0].position);
   }
 
   rotateChange() {
+    if (!this.transformStarted) return;
+
     let that = this;
 
-    let matk = that.selectObj[0].matrix.clone();
-    matk.multiply(that.selObj0Mat);
+    let _tempQuaternion = new Quaternion();
 
     for (let i = 1; i < that.selectObj.length; i++) {
-      let mati = that.selectObj[i].matrix.clone();
-      mati.multiply(matk);
-      that.selectObj[i].setRotationFromMatrix(mati);
+      if (
+        that.t_Control.space === "local" &&
+        that.t_Control.axis !== "E" &&
+        that.t_Control.axis !== "XYZE"
+      ) {
+        that.selectObj[i].quaternion.copy(that.selObjsStartQuaternion[i]);
+        that.selectObj[i].quaternion
+          .multiply(
+            _tempQuaternion.setFromAxisAngle(
+              that.t_Control.rotationAxis,
+              that.t_Control.rotationAngle
+            )
+          )
+          .normalize();
+      } else {
+        that.selectObj[i].quaternion.copy(
+          _tempQuaternion.setFromAxisAngle(
+            that.t_Control.rotationAxis,
+            that.t_Control.rotationAngle
+          )
+        );
+        that.selectObj[i].quaternion
+          .multiply(that.selObjsStartQuaternion[i])
+          .normalize();
+      }
     }
-    that.selObj0Mat.copy(that.selectObj[0].matrix);
-    that.selObj0Mat.invert();
   }
 
   scaleChange() {
+    if (!this.transformStarted) return;
+
     let that = this;
 
+    let offset = new Vector3();
+    offset.subVectors(that.selectObj[0].scale, that.selObj0Scale);
+
     for (let i = 1; i < that.selectObj.length; i++) {
-      that.selectObj[i].scale.copy(that.selectObj[0].scale);
+      that.selectObj[i].scale.add(offset);
     }
+    that.selObj0Scale.copy(that.selectObj[0].scale);
   }
 
   toTranslateMode() {
@@ -355,36 +379,6 @@ class TransformBySelection {
     this.selectObj = null;
     this.selectObj = new Array();
     this.refresh();
-  }
-
-  groupRelease() {
-    let that = this;
-
-    let tempQuaternion = that.group.quaternion;
-
-    while (that.group.children.length > 0) {
-      //更新group及其子元素的世界矩阵
-      that.group.updateMatrixWorld();
-
-      that.group.localToWorld(
-        that.group.children[that.group.children.length - 1].position
-      );
-      that.group.children[that.group.children.length - 1].applyQuaternion(
-        tempQuaternion
-      );
-
-      if (
-        that.fatherArrayNumber[that.group.children.length - 1] != that.group
-      ) {
-        // console.log(that.group.children[i]);
-        that.fatherArrayNumber[that.group.children.length - 1].add(
-          that.group.children[that.group.children.length - 1]
-        );
-      }
-    }
-
-    that.group = null;
-    that.group = new Group();
   }
 
   dispose() {
