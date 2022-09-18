@@ -63,20 +63,23 @@ input {
   /* No support for these yet */
   -o-user-select: none;
   user-select: none;
-  position: relative;
-  display: block;
+  /* position: relative; */
+  display: flex;
+  flex-direction: column;
   width: 100%;
 }
 
 .TabbedPanel .Tabs {
-  position: relative;
-  display: block;
+  /* position: relative; */
+  display: flex;
   width: 100%;
   min-width: 300px;
 }
 
 .TabbedPanel .Tabs .Tab {
-  padding: 10px;
+  flex:1;
+  padding: 5px;
+  text-align: center;
   text-transform: uppercase;
 }
 
@@ -86,6 +89,10 @@ input {
   width: 100%;
   height: 100%;
   min-width: 300px;
+}
+
+.Row {
+  margin-top: 5px;
 }
 
 /* Listbox */
@@ -230,7 +237,7 @@ input {
 
 /*  */
 
-button{
+button {
   cursor: pointer;
 }
 
@@ -239,7 +246,7 @@ button{
   background-color: #ddd;
   border: 0px;
   margin: 0px; /* GNOME Web */
-  padding: 5px 8px;
+  padding: 1px 4px;
   font-size: 12px;
   text-transform: uppercase;
   outline: none;
@@ -273,6 +280,7 @@ select {
   text-transform: uppercase;
   cursor: pointer;
   outline: none;
+  font-size: 12px;
 }
 
 select:hover {
@@ -461,13 +469,10 @@ select:hover {
   color: #444;
   background-color: #fff;
   padding: 0;
-  width: 300px;
-  height: 140px;
+  width: auto;
+  height: auto;
   font-size: 12px;
   cursor: default;
-  overflow: auto;
-  resize: both;
-  position: absolute;
   outline: none !important;
 }
 
@@ -486,18 +491,16 @@ select:hover {
 }
 
 .TabbedPanel .Tabs {
-  background-color: #ddd;
-  border-top: 1px solid #ccc;
+  background-color: #282828;
 }
 
 .TabbedPanel .Tab {
   color: #aaa;
-  border-right: 1px solid #ccc;
 }
 
 .TabbedPanel .Tab.selected {
-  color: #888;
-  background-color: #eee;
+  color: #f5f5f5;
+  background-color: #535353;
 }
 
 .Listbox {
@@ -506,7 +509,7 @@ select:hover {
 }
 
 .Panel {
-  color: #888;
+  color: #f5f5f5;
 }
 
 .HorizontalSplitLine {

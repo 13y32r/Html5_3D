@@ -69,7 +69,7 @@ async function init() {
   const group = new window["THREE"].Group();
   group.add(cube2);
   group.add(cube3);
-  // group.layersSet(3);
+  group.layersSet(3);
   scene.add(group);
 
   //初始化摄像机

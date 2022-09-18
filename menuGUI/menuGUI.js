@@ -39,7 +39,6 @@ class MenuGUI {
           that.linkCSS("../threeSrc/libs/css/main.css");
           that.initClass4Menu(that.listJson);
           that.initFolder(that.listJson);
-          // that.creatGUI(that.listJson["Main-Menu"], null);
           resolve();
         } else {
           alert(url + ":" + request.status + " " + request.statusText);
@@ -95,6 +94,8 @@ class MenuGUI {
         that.class4Menu,
         that.folderDictionary
       );
+
+      window["editorOperate"].signals.folderInitialized.dispatch(ele1);
     }
 
     that.initMainGUI();

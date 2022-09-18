@@ -274,6 +274,8 @@ class UIInput extends UIElement {
     this.dom.className = "Input";
     this.dom.style.padding = "2px";
     this.dom.style.border = "1px solid transparent";
+    this.dom.style.color = "#f5f5f5";
+    this.dom.style.backgroundColor = "#282828";
 
     this.dom.setAttribute("autocomplete", "off");
 
@@ -337,7 +339,6 @@ class UISelect extends UIElement {
     super(document.createElement("select"));
 
     this.dom.className = "Select";
-    this.dom.style.padding = "2px";
 
     this.dom.setAttribute("autocomplete", "off");
   }

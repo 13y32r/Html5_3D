@@ -1,10 +1,6 @@
 import {
   UIElement,
-  UISpan,
   UIDiv,
-  UIRow,
-  UIButton,
-  UICheckbox,
   UIText,
   UINumber,
   UIHorizontalSplitLine,
@@ -919,6 +915,79 @@ class ParamWindow {
   }
 }
 
+class normalWindow extends UIDiv {
+  constructor(name, fatherBtn) {
+    super();
+
+    let that = this;
+
+    this.dom.className = "normalWindow";
+    this.dom.setAttribute("name", name);
+    documentBodyAdd(this);
+
+    let initX = document.body.clientWidth - 100;
+    initX = Math.floor(Math.random() * initX);
+    let initY = Math.floor(Math.random() * 100);
+    this.dom.setAttribute("style", "top:" + initY + "px;left:" + initX + "px;");
+
+    let titleArea = new UIDiv();
+    titleArea.setClass("normalWindow_titleArea");
+    this.add(titleArea);
+
+    let titleName = new UIDiv();
+    titleName.setClass("normalWindow_titleArea_name");
+    titleName.dom.style.userSelect = "none";
+    titleName.dom.style.touchAction = "none";
+    titleName.dom.innerText = name;
+    titleArea.add(titleName);
+
+    dragElement(titleName, this);
+
+    let splitLine1 = new UIVerticalSplitLine();
+    titleArea.add(splitLine1);
+
+    let closeMize = new UIDiv();
+    closeMize.setClass("normalWindow_titleArea_closeMize");
+    titleArea.add(closeMize);
+
+    let closeBtn = new MenuCloseBtn();
+    closeBtn.setStyle("padding", "0px");
+    closeMize.add(closeBtn);
+    let mizeBtn = new MenuMizeBtn();
+    mizeBtn.setStyle("padding", "0px");
+    closeMize.add(mizeBtn);
+
+    let splitLine2 = new UIHorizontalSplitLine();
+    this.add(splitLine2);
+
+    this.content = new UIDiv();
+    this.content.setClass("normalWindow_content");
+    this.add(this.content);
+
+    mizeBtn.changed(function (event) {
+      if (event.detail == MenuVisibilityState.INVISIBLE) {
+        that.content.setDisplay("none");
+      } else if (event.detail == MenuVisibilityState.VISIBLE) {
+        that.content.setDisplay("flex");
+      }
+    });
+
+    closeBtn.changed(function () {
+      if (fatherBtn) {
+        fatherBtn.btnUp();
+      }
+      that.setDisplay("none");
+    });
+  }
+
+  addContent(uiObject) {
+    this.content.add(uiObject);
+    let clearElement = document.createElement("br");
+    clearElement.style.clear = "both";
+    this.dom.appendChild(clearElement);
+  }
+}
+
 function smallBtnDown(target) {
   if (target.classList.contains("btUpStyle1"))
     target.classList.remove("btUpStyle1");
@@ -1028,6 +1097,7 @@ export {
   MenuContent,
   MenuCellBtn,
   MenuObject,
+  normalWindow,
   initialToLowercase,
   dragElement,
 };

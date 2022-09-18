@@ -7,23 +7,20 @@
  * @FilePath: \Html5_3D\threeSrc\editor\EditorOperate.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
-import {
-  EventDispatcher,
-  Vector2,
-  Object3D,
-  Raycaster,
-  Sphere,
-  Vector3,
-  Box3,
-} from "three";
+import { EventDispatcher, Sphere, Vector3, Box3, Layers } from "three";
+
+import { Config } from "./Config.js";
 
 import { EditorState } from "./EditorState.js";
+import { SelectState } from "../tools/selectionControl/SelectState.js";
 
 import { DimensionType } from "./DimensionType.js";
 import { SelectionBox } from "../tools/selectionControl/SelectionBox.js";
 import { SelectionHelper } from "../tools/selectionControl/SelectionHelper_Editor.js";
+
+import { Strings } from "./Strings.js";
+import { Storage as _Storage } from "./Storage.js";
 import { History as _History } from "./History.js";
-import { SelectState } from "../tools/selectionControl/SelectState.js";
 
 class EditorOperate extends EventDispatcher {
   constructor(dimType, eState, scene, ort_Camera, per_Camera, renderer) {
@@ -35,17 +32,41 @@ class EditorOperate extends EventDispatcher {
     const Signal = signals.Signal; // eslint-disable-line no-undef
 
     this.signals = {
+      folderInitialized: new Signal(),
+
       editorFocusChange: new Signal(),
 
       objectSelected: new Signal(),
+      objectsChanged: new Signal(),
+      geometryChanged: new Signal(),
+      materialChanged: new Signal(),
+      refreshSidebarObject3D: new Signal(),
       hierarchyChange: new Signal(),
 
       sceneGraphChanged: new Signal(),
 
+      materialAdded: new Signal(),
+      materialChanged: new Signal(),
+      materialRemoved: new Signal(),
+
+      helperAdded: new Signal(),
+      helperRemoved: new Signal(),
+
       historyChanged: new Signal(),
     };
 
+    this.config = new Config();
+    this.defaultLayerChannel = this.config.getKey("defaultLayerChannel");
+    this.helperLayerChannel = this.config.getKey("helperLayerChannel");
+
     this.history = new _History(this);
+    this.storage = new _Storage();
+    this.strings = new Strings(this.config);
+
+    this.materialsRefCounter = new Map();
+
+    this.materials = {};
+    this.helpers = {};
 
     this.clock = new window["THREE"].Clock(); // only used for animations
 
@@ -139,10 +160,59 @@ class EditorOperate extends EventDispatcher {
     this.selectionHelper = new SelectionHelper(selectionBox, that);
 
     this.selectionHelper.addEventListener("end", function () {
-      that.signals.objectSelected.dispatch();
+      that.signals.objectSelected.dispatch(that.selectionHelper.selectedObject);
     });
 
+    this.signals.objectsChanged.add(that.render);
+    this.signals.sceneGraphChanged.add(that.render);
+    this.signals.materialChanged.add(that.render);
+    this.signals.geometryChanged.add(that.render);
+
     this.focus = this.focus.bind(this);
+
+    this.addHelper = (function (self) {
+      let scope = self;
+
+      var geometry = new THREE.SphereGeometry(2, 4, 2);
+      var material = new THREE.MeshBasicMaterial({
+        color: 0xff0000,
+        visible: false,
+      });
+
+      return function (object, helper) {
+        if (helper === undefined) {
+          if (object.isCamera) {
+            helper = new THREE.CameraHelper(object);
+          } else if (object.isPointLight) {
+            helper = new THREE.PointLightHelper(object, 1);
+          } else if (object.isDirectionalLight) {
+            helper = new THREE.DirectionalLightHelper(object, 1);
+          } else if (object.isSpotLight) {
+            helper = new THREE.SpotLightHelper(object);
+          } else if (object.isHemisphereLight) {
+            helper = new THREE.HemisphereLightHelper(object, 1);
+          } else if (object.isSkinnedMesh) {
+            helper = new THREE.SkeletonHelper(object.skeleton.bones[0]);
+          } else if (object.isBone === true && object.parent?.isBone !== true) {
+            helper = new THREE.SkeletonHelper(object);
+          } else {
+            // no helper for this object type
+            return;
+          }
+
+          const picker = new THREE.Mesh(geometry, material);
+          picker.name = "picker";
+          picker.userData.object = object;
+          helper.add(picker);
+        }
+        helper.layersSet(scope.helperLayerChannel);
+
+        scope.scene.add(helper);
+        scope.helpers[object.id] = helper;
+
+        scope.signals.helperAdded.dispatch(helper);
+      };
+    })(this);
   }
 
   //重置窗口尺寸函数
@@ -312,6 +382,87 @@ class EditorOperate extends EventDispatcher {
   //更改编辑器的选择器状态
   changeSelectState(sState) {
     this.dispatchEvent({ type: "changeSelectState", state: sState });
+  }
+
+  getObjectMaterial(object, slot) {
+    var material = object.material;
+
+    if (Array.isArray(material) && slot !== undefined) {
+      material = material[slot];
+    }
+
+    return material;
+  }
+
+  setObjectMaterial(object, slot, newMaterial) {
+    if (Array.isArray(object.material) && slot !== undefined) {
+      object.material[slot] = newMaterial;
+    } else {
+      object.material = newMaterial;
+    }
+  }
+
+  addMaterial(material) {
+    if (Array.isArray(material)) {
+      for (var i = 0, l = material.length; i < l; i++) {
+        this.addMaterialToRefCounter(material[i]);
+      }
+    } else {
+      this.addMaterialToRefCounter(material);
+    }
+
+    this.signals.materialAdded.dispatch();
+  }
+
+  addMaterialToRefCounter(material) {
+    var materialsRefCounter = this.materialsRefCounter;
+
+    var count = materialsRefCounter.get(material);
+
+    if (count === undefined) {
+      materialsRefCounter.set(material, 1);
+      this.materials[material.uuid] = material;
+    } else {
+      count++;
+      materialsRefCounter.set(material, count);
+    }
+  }
+
+  removeMaterial(material) {
+    if (Array.isArray(material)) {
+      for (var i = 0, l = material.length; i < l; i++) {
+        this.removeMaterialFromRefCounter(material[i]);
+      }
+    } else {
+      this.removeMaterialFromRefCounter(material);
+    }
+
+    this.signals.materialRemoved.dispatch();
+  }
+
+  removeMaterialFromRefCounter(material) {
+    var materialsRefCounter = this.materialsRefCounter;
+
+    var count = materialsRefCounter.get(material);
+    count--;
+
+    if (count === 0) {
+      materialsRefCounter.delete(material);
+      delete this.materials[material.uuid];
+    } else {
+      materialsRefCounter.set(material, count);
+    }
+  }
+
+  removeHelper(object) {
+    if (this.helpers[object.id] !== undefined) {
+      var helper = this.helpers[object.id];
+      helper.parent.remove(helper);
+
+      delete this.helpers[object.id];
+
+      this.signals.helperRemoved.dispatch(helper);
+    }
   }
 
   select(objects) {

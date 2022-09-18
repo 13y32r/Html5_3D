@@ -136,6 +136,40 @@
         let ttHSL = new UIHorizontalSplitLine();
         ttDiv.add(ttHSL);
 
+        let autoSize= new UIDiv();
+        let fixedSize = new UIDiv();
+        let buttonArea = new UIDiv();
+        fixedSize.setWidth("150px");
+        fixedSize.setHeight("150px");
+        fixedSize.setBackgroundColor("yellow");
+
+        buttonArea.setBackgroundColor("blue");
+        buttonArea.setDisplay("flex");
+        buttonArea.setWidth("100%");
+        buttonArea.setHeight("50px");
+
+        let closeBtn = new UIDiv();
+        closeBtn.setWidth("10px");
+        closeBtn.setHeight("100%");
+        closeBtn.setBackgroundColor("red");
+
+        let titleArea = new UIDiv();
+        titleArea.setWidth("100%");
+        titleArea.setHeight("100%");
+        titleArea.setBackgroundColor("black");
+
+        buttonArea.add(titleArea);
+        buttonArea.add(closeBtn);
+        
+        autoSize.add(buttonArea);
+        autoSize.add(fixedSize);
+        autoSize.setDisplay("flex");
+        autoSize.setFlexDirection("column");
+        autoSize.setPosition("absolute");
+        autoSize.setTop("25px");
+        autoSize.setLeft("500px");
+        documentBodyAdd(autoSize);
+
     </script>
 </body>
 

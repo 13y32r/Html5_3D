@@ -1,7 +1,8 @@
+import { normalWindow } from "../libs/ui.menu.js";
 import { UIOutliner } from "../libs/ui.three.js";
 import { Layers } from "three";
 
-class HierarchyPanel {
+class HierarchyWindow {
   constructor() {
     let that = this;
 
@@ -30,18 +31,15 @@ class HierarchyPanel {
         timer = setTimeout(() => {
           clearTimeout(timer);
           timer = null;
-          that.editor.signals.hierarchyChange.dispatch();
         }, 180);
       } else if (event.detail == "selectIndex") {
         let ids = that.outliner.getValue();
         that.editor.focusById(ids);
       }
+      that.editor.signals.hierarchyChange.dispatch();
     });
 
-    that.outliner.setLeft("250px");
-    that.outliner.setTop("50px");
-    document.body.appendChild(that.outliner.dom);
-
+    this.mainBody = null;
     this.nodeStates = new WeakMap();
 
     this.buildOption = this.buildOption.bind(this);
@@ -51,14 +49,60 @@ class HierarchyPanel {
     this.getObjectType = this.getObjectType.bind(this);
     this.buildHTML = this.buildHTML.bind(this);
 
-    this.refreshUI();
-    this.editor.signals.objectSelected.add(that.refreshUI);
+    this.editor.signals.objectSelected.add(function () {
+      let objects = that.editor.selectionHelper.selectedObject;
+      for (let i = 0; i < objects.length; i++) {
+        if (objects[i].parent) {
+          if (objects[i].parent.type != "Scene") {
+            if (!that.nodeStates.get(objects[i].parent))
+              that.nodeStates.set(objects[i].parent, true);
+          }
+        }
+
+        objects[i].traverseAncestors(function (element) {
+          if (element.parent) {
+            if (element.parent.type != "Scene") {
+              if (!that.nodeStates.get(element.parent))
+                that.nodeStates.set(element.parent, true);
+            }
+          }
+        });
+      }
+      that.refreshUI();
+    });
     this.editor.signals.sceneGraphChanged.add(that.refreshUI);
+
+    if (window["menuGUI"].folderDictionary["Main-Menu"]) {
+      that.initMainBody();
+    } else {
+      that.editor.signals.folderInitialized.add(function (folderName) {
+        if (folderName == "Main-Menu") {
+          that.initMainBody();
+        }
+      });
+    }
   }
 
-  closePanel() {}
+  initMainBody() {
+    let that = this;
 
-  openPanel() {}
+    this.mainBody = new normalWindow(
+      "层级面板",
+      window["menuGUI"].folderDictionary["Main-Menu"].cellBtns["层级面板"]
+    );
+    this.mainBody.addContent(that.outliner);
+
+    this.refreshUI();
+    this.closePanel();
+  }
+
+  closePanel() {
+    this.mainBody.setDisplay("none");
+  }
+
+  openPanel() {
+    this.mainBody.setDisplay("flex");
+  }
 
   buildOption(object, draggable) {
     let that = this;
@@ -195,4 +239,4 @@ class HierarchyPanel {
   }
 }
 
-export { HierarchyPanel };
+export { HierarchyWindow };

@@ -1,84 +1,100 @@
-import { Command } from './Command.js';
-import { Vector3 } from 'three';
+import { Command } from "./Command.js";
+import { Vector3 } from "three";
 
 /**
  * @param editor Editor
- * @param object THREE.Object3D
- * @param newScale THREE.Vector3
- * @param optionalOldScale THREE.Vector3
+ * @param objects THREE.Object3D
+ * @param newScales THREE.Vector3
+ * @param optionalOldScales THREE.Vector3
  * @constructor
  */
 class SetScaleCommand extends Command {
+  constructor(editor, objects, newScales, optionalOldScales) {
+    super(editor);
 
-	constructor( editor, object, newScale, optionalOldScale ) {
+    this.type = "SetScaleCommand";
+    this.name = "Set Scale";
+    this.updatable = true;
 
-		super( editor );
+    this.objects = objects;
 
-		this.type = 'SetScaleCommand';
-		this.name = 'Set Scale';
-		this.updatable = true;
+    this.oldScales = new Array();
+    this.newScales = new Array();
 
-		this.object = object;
+    if (objects !== undefined && newScales !== undefined) {
+      for (let i = 0; i < objects.length; i++) {
+        this.oldScales[i] = objects[i].scale.clone();
+        this.newScales[i] = newScales[i].clone();
+      }
+    }
 
-		if ( object !== undefined && newScale !== undefined ) {
+    if (optionalOldScales !== undefined) {
+      for (let i = 0; i < optionalOldScales.length; i++) {
+        this.oldScales[i] = optionalOldScales[i].clone();
+      }
+    }
+  }
 
-			this.oldScale = object.scale.clone();
-			this.newScale = newScale.clone();
+  execute() {
+    let that = this;
 
-		}
+    for (let i = 0; i < that.objects.length; i++) {
+      that.objects[i].scale.copy(that.newScales[i]);
+      that.objects[i].updateMatrixWorld(true);
+    }
+    that.editor.signals.objectsChanged.dispatch(that.objects);
+  }
 
-		if ( optionalOldScale !== undefined ) {
+  undo() {
+    let that = this;
 
-			this.oldScale = optionalOldScale.clone();
+    for (let i = 0; i < that.objects.length; i++) {
+      that.objects[i].scale.copy(that.oldScales[i]);
+      that.objects[i].updateMatrixWorld(true);
+    }
 
-		}
+    that.editor.signals.objectsChanged.dispatch(that.objects);
+  }
 
-	}
+  update(command) {
+    let that = this;
 
-	execute() {
+    for (let i = 0; i < command.newScales.length; i++) {
+      that.newScales[i] = new Vector3();
+      that.newScales[i].copy(command.newScales[i]);
+    }
+  }
 
-		this.object.scale.copy( this.newScale );
-		this.object.updateMatrixWorld( true );
-		this.editor.signals.objectChanged.dispatch( this.object );
+  toJSON() {
+    let that = this;
 
-	}
+    const output = super.toJSON(that);
 
-	undo() {
+    for (let i = 0; i < that.objects.length; i++) {
+      output.objectUuid = new Array();
+      output.objectUuid[i] = that.objects[i].uuid;
+      output.oldScales = new Array();
+      output.oldScales[i] = that.oldScales[i].toArray();
+      output.newScales = new Array();
+      output.newScales[i] = that.newScales[i].toArray();
+    }
 
-		this.object.scale.copy( this.oldScale );
-		this.object.updateMatrixWorld( true );
-		this.editor.signals.objectChanged.dispatch( this.object );
+    return output;
+  }
 
-	}
+  fromJSON(json) {
+    let that = this;
 
-	update( command ) {
+    super.fromJSON(json);
 
-		this.newScale.copy( command.newScale );
+    that.objects = new Array();
 
-	}
-
-	toJSON() {
-
-		const output = super.toJSON( this );
-
-		output.objectUuid = this.object.uuid;
-		output.oldScale = this.oldScale.toArray();
-		output.newScale = this.newScale.toArray();
-
-		return output;
-
-	}
-
-	fromJSON( json ) {
-
-		super.fromJSON( json );
-
-		this.object = this.editor.objectByUuid( json.objectUuid );
-		this.oldScale = new Vector3().fromArray( json.oldScale );
-		this.newScale = new Vector3().fromArray( json.newScale );
-
-	}
-
+    for (let i = 0; i < json.objectUuid.length; i++) {
+      that.objects[i] = that.editor.objectByUuid(json.objectUuid[i]);
+      that.oldScales[i] = new Vector3().fromArray(json.oldScales[i]);
+      that.newScales[i] = new Vector3().fromArray(json.newScales[i]);
+    }
+  }
 }
 
 export { SetScaleCommand };

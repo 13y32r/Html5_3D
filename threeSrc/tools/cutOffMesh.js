@@ -10,16 +10,21 @@
 
 import { Tool } from "./tool.js";
 import { SliceBufferGeometry } from "./slice2BG.js";
-import { Raycaster, Vector2, Vector3, Plane } from "three";
-import { SelectNotContainName, SelectNotContainType } from "./selectionControl/selectNotContainTypeAndNotContainName.js";
+import { Raycaster, Vector2, Vector3, Plane, Layers } from "three";
+import {
+  SelectNotContainName,
+  SelectNotContainType,
+} from "./selectionControl/selectNotContainTypeAndNotContainName.js";
 
 const _changeEvent = { type: "change" };
 
 class CutOffMesh extends Tool {
   constructor(camera, scene) {
-
     let domElement = window["editorOperate"].domElement;
     super("CutOff Mesh", domElement);
+
+    this.activeLayer = new Layers();
+    this.activeLayer.set(window["editorOperate"].defaultLayerChannel);
 
     if (arguments.length < 2) {
       this.camera = window["editorOperate"].camera;
@@ -46,8 +51,7 @@ class CutOffMesh extends Tool {
   }
 
   startCut(crackSize = 0.05) {
-
-    if (typeof (crackSize) == "object") {
+    if (typeof crackSize == "object") {
       this.crackSize = crackSize["分裂距离"];
     } else {
       this.crackSize = crackSize;
@@ -77,10 +81,12 @@ class CutOffMesh extends Tool {
     let intersects = that.raycaster.intersectObjects(that.scene.children);
 
     if (intersects.length > 0) {
-
       for (let ele of intersects) {
-        if (ele.object.tag != "No_Selection") {
-          if (!that.selectNotContainType.includes(ele.object.type) && !that.selectNotContainName.includes(ele.object.name)) {
+        if (ele.object.layers.test(that.activeLayer)) {
+          if (
+            !that.selectNotContainType.includes(ele.object.type) &&
+            !that.selectNotContainName.includes(ele.object.name)
+          ) {
             that.planePoints.push(ele.point);
 
             if (that.cutOBJ.length == 0) {
@@ -98,8 +104,6 @@ class CutOffMesh extends Tool {
 
   cutOut() {
     if (this.cutOBJ.length == 0) return;
-
-    console.log(this.cutOBJ);
 
     let that = this;
     let cutVector0 = new Vector3();
@@ -152,11 +156,16 @@ class CutOffMesh extends Tool {
         );
         mesh0.translateOnAxis(plane.normal, that.crackSize);
         mesh1.translateOnAxis(plane.normal, -that.crackSize);
-        that.scene.add(mesh0, mesh1);
-        that.scene.remove(that.cutOBJ[ele]);
+
+        mesh0.name = that.cutOBJ[ele].name + "_1";
+        mesh1.name = that.cutOBJ[ele].name + "_2";
+
+        that.cutOBJ[ele].parent.add(mesh0, mesh1);
+        that.cutOBJ[ele].parent.remove(that.cutOBJ[ele]);
+
         if (that.render != undefined) {
           that.render();
-        };
+        }
 
         mesh0 = null;
         mesh1 = null;
@@ -167,6 +176,7 @@ class CutOffMesh extends Tool {
       that.planePoints.length = 0;
     }
 
+    window["editorOperate"].signals.sceneGraphChanged.dispatch();
     that.dispatchEvent(_changeEvent);
   }
 

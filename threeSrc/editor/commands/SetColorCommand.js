@@ -27,14 +27,14 @@ class SetColorCommand extends Command {
 	execute() {
 
 		this.object[ this.attributeName ].setHex( this.newValue );
-		this.editor.signals.objectChanged.dispatch( this.object );
+		this.editor.signals.objectsChanged.dispatch( this.object );
 
 	}
 
 	undo() {
 
 		this.object[ this.attributeName ].setHex( this.oldValue );
-		this.editor.signals.objectChanged.dispatch( this.object );
+		this.editor.signals.objectsChanged.dispatch( this.object );
 
 	}
 

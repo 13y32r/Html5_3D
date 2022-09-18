@@ -31,7 +31,6 @@ class SetGeometryCommand extends Command {
 		this.object.geometry.computeBoundingSphere();
 
 		this.editor.signals.geometryChanged.dispatch( this.object );
-		this.editor.signals.sceneGraphChanged.dispatch();
 
 	}
 
@@ -42,7 +41,6 @@ class SetGeometryCommand extends Command {
 		this.object.geometry.computeBoundingSphere();
 
 		this.editor.signals.geometryChanged.dispatch( this.object );
-		this.editor.signals.sceneGraphChanged.dispatch();
 
 	}
 

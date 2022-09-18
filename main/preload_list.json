@@ -71,8 +71,8 @@
         "url": "../threeSrc/viewPort/PropertiesWindow.js",
         "inModule": true
     },
-    "HierarchyPanel":{
-        "url": "../threeSrc/viewPort/HierarchyPanel.js",
+    "HierarchyWindow":{
+        "url": "../threeSrc/viewPort/HierarchyWindow.js",
         "inModule": true        
     }
 }

@@ -1,84 +1,101 @@
-import { Command } from './Command.js';
-import { Euler } from 'three';
+import { Command } from "./Command.js";
+import { Euler } from "three";
 
 /**
  * @param editor Editor
- * @param object THREE.Object3D
- * @param newRotation THREE.Euler
- * @param optionalOldRotation THREE.Euler
+ * @param objects THREE.Object3D
+ * @param newRotations THREE.Euler
+ * @param optionalOldRotations THREE.Euler
  * @constructor
  */
 class SetRotationCommand extends Command {
+  constructor(editor, objects, newRotations, optionalOldRotations) {
+    super(editor);
 
-	constructor( editor, object, newRotation, optionalOldRotation ) {
+    let that = this;
 
-		super( editor );
+    this.type = "SetRotationCommand";
+    this.name = "Set Rotation";
+    this.updatable = true;
 
-		this.type = 'SetRotationCommand';
-		this.name = 'Set Rotation';
-		this.updatable = true;
+    this.objects = objects;
 
-		this.object = object;
+    this.oldRotations = new Array();
+    this.newRotations = new Array();
 
-		if ( object !== undefined && newRotation !== undefined ) {
+    if (objects !== undefined && newRotations !== undefined) {
+      for (let i = 0; i < objects.length; i++) {
+        that.oldRotations[i] = objects[i].rotation.clone();
+        that.newRotations[i] = newRotations[i].clone();
+      }
+    }
 
-			this.oldRotation = object.rotation.clone();
-			this.newRotation = newRotation.clone();
+    if (optionalOldRotations !== undefined) {
+      for (let i = 0; i < optionalOldRotations.length; i++) {
+        this.oldRotations[i] = optionalOldRotations[i].clone();
+      }
+    }
+  }
 
-		}
+  execute() {
+    let that = this;
 
-		if ( optionalOldRotation !== undefined ) {
+    for (let i = 0; i < that.objects.length; i++) {
+      that.objects[i].rotation.copy(that.newRotations[i]);
+      that.objects[i].updateMatrixWorld(true);
+    }
+    that.editor.signals.objectsChanged.dispatch(that.objects);
+  }
 
-			this.oldRotation = optionalOldRotation.clone();
+  undo() {
+    let that = this;
 
-		}
+    for (let i = 0; i < that.objects.length; i++) {
+      that.objects[i].rotation.copy(that.oldRotations[i]);
+      that.objects[i].updateMatrixWorld(true);
+    }
+    that.editor.signals.objectsChanged.dispatch(that.objects);
+  }
 
-	}
+  update(command) {
+    let that = this;
 
-	execute() {
+    for (let i = 0; i < command.newRotations.length; i++) {
+      that.newRotations[i] = new Euler();
+      that.newRotations[i].copy(command.newRotations[i]);
+    }
+  }
 
-		this.object.rotation.copy( this.newRotation );
-		this.object.updateMatrixWorld( true );
-		this.editor.signals.objectChanged.dispatch( this.object );
+  toJSON() {
+    let that = this;
 
-	}
+    const output = super.toJSON(that);
 
-	undo() {
+    for (let i = 0; i < that.objects.length; i++) {
+      output.objectUuid = new Array();
+      output.objectUuid.push(that.objects[i].uuid);
+      output.oldRotations = new Array();
+      output.oldRotations.push(that.oldRotations[i].toArray());
+      output.newRotations = new Array();
+      output.newRotations.push(that.newRotations[i].toArray());
+    }
 
-		this.object.rotation.copy( this.oldRotation );
-		this.object.updateMatrixWorld( true );
-		this.editor.signals.objectChanged.dispatch( this.object );
+    return output;
+  }
 
-	}
+  fromJSON(json) {
+    super.fromJSON(json);
 
-	update( command ) {
+    let that = this;
 
-		this.newRotation.copy( command.newRotation );
+    that.objects = new Array();
 
-	}
-
-	toJSON() {
-
-		const output = super.toJSON( this );
-
-		output.objectUuid = this.object.uuid;
-		output.oldRotation = this.oldRotation.toArray();
-		output.newRotation = this.newRotation.toArray();
-
-		return output;
-
-	}
-
-	fromJSON( json ) {
-
-		super.fromJSON( json );
-
-		this.object = this.editor.objectByUuid( json.objectUuid );
-		this.oldRotation = new Euler().fromArray( json.oldRotation );
-		this.newRotation = new Euler().fromArray( json.newRotation );
-
-	}
-
+    for (let i = 0; i < json.objectsUuid.length; i++) {
+      that.objects[i] = that.editor.objectByUuid(json.objectUuid[i]);
+      that.oldRotations[i] = new Euler().fromArray(json.oldRotations[i]);
+      that.newRotations[i] = new Euler().fromArray(json.newRotations[i]);
+    }
+  }
 }
 
 export { SetRotationCommand };

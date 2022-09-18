@@ -35,7 +35,8 @@ class UITexture extends UISpan {
     canvas.height = 16;
     canvas.style.cursor = "pointer";
     canvas.style.marginRight = "5px";
-    canvas.style.border = "1px solid #888";
+    canvas.style.backgroundColor = "#888";
+    canvas.style.border = "1px solid #fff";
     canvas.addEventListener("click", function () {
       input.click();
     });
@@ -328,9 +329,6 @@ class UIOutliner extends UIDiv {
       }
 
       whePressed = true;
-
-      // ArrowUp
-      // ArrowDown
     }
 
     function shortcutUp(event) {

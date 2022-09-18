@@ -32,7 +32,7 @@
             "image_url": "./menuGUI/img/3D-Shape.png"
         },
         "PropertiesWindow": {
-            "name": "对象属性窗",
+            "name": "监视面板",
             "type": "button",
             "class": "PropertiesWindow",
             "btnUp": "closeWindow",
@@ -43,13 +43,13 @@
                 "p"
             ]
         },
-        "HierarchyPanel": {
+        "HierarchyWindow": {
             "name": "层级面板",
             "type": "button",
-            "class": "HierarchyPanel",
+            "class": "HierarchyWindow",
             "btnUp": "closePanel",
             "btnDown": "openPanel",
-            "image_url": "./menuGUI/img/hierarchyPanel.png",
+            "image_url": "./menuGUI/img/hierarchyWindow.png",
             "shortcut": [
                 "H",
                 "h"

@@ -11,6 +11,9 @@
 import { TransformControls } from "../libs/TransformControls.js";
 import { Matrix4, Vector3, Quaternion } from "three";
 import { EditorState } from "../editor/EditorState.js";
+import { SetPositionCommand } from "../editor/commands/SetPositionCommand.js";
+import { SetRotationCommand } from "../editor/commands/SetRotationCommand.js";
+import { SetScaleCommand } from "../editor/commands/SetScaleCommand.js";
 
 class TransformBySelection {
   constructor() {
@@ -56,6 +59,10 @@ class TransformBySelection {
   init() {
     let that = this;
 
+    let objectsPositionOnDown = new Array();
+    let objectsRotationOnDown = new Array();
+    let objectsScaleOnDown = new Array();
+
     that.t_Control = new TransformControls(
       window["editorOperate"].camera,
       window["editorOperate"].renderer.domElement
@@ -69,10 +76,15 @@ class TransformBySelection {
     that.t_Control.addEventListener("mouseDown", function () {
       window["editorOperate"].tempState = window["editorOperate"].state;
       window["editorOperate"].changeEditorState(EditorState.TRANSFORM);
-
       window["editorOperate"].stopKeyEvent();
 
       that.transformStarted = true;
+
+      for (let i = 0; i < that.selectObj.length; i++) {
+        objectsPositionOnDown[i] = that.selectObj[i].position.clone();
+        objectsRotationOnDown[i] = that.selectObj[i].rotation.clone();
+        objectsScaleOnDown[i] = that.selectObj[i].scale.clone();
+      }
 
       for (let i = 0; i < that.selectObj.length; i++) {
         that.selObjsStartQuaternion[i] = new Quaternion();
@@ -92,7 +104,6 @@ class TransformBySelection {
       window["editorOperate"].changeEditorState(
         window["editorOperate"].tempState
       );
-
       window["editorOperate"].reKeyEvent();
 
       that.t_Control.setTranslationSnap(null);
@@ -100,8 +111,79 @@ class TransformBySelection {
       that.t_Control.setScaleSnap(null);
 
       that.keyDownElement.length = 0;
-
       that.transformStarted = false;
+
+      let objects = new Array();
+
+      if (that.selectObj.length > 0) {
+        switch (that.t_Control.getMode()) {
+          case "translate":
+            let sendNewPosition = new Array();
+            let sendOldPosition = new Array();
+
+            for (let i = 0; i < that.selectObj.length; i++) {
+              if (
+                !objectsPositionOnDown[i].equals(that.selectObj[i].position)
+              ) {
+                objects.push(that.selectObj[i]);
+                sendNewPosition.push(objects[i].position);
+                sendOldPosition.push(objectsPositionOnDown[i]);
+              }
+            }
+
+            that.editorOperate.execute(
+              new SetPositionCommand(
+                that.editorOperate,
+                objects,
+                sendNewPosition,
+                sendOldPosition
+              )
+            );
+
+            break;
+
+          case "rotate":
+            let sendNewRotation = new Array();
+            let sendOldRotation = new Array();
+
+            for (let i = 0; i < that.selectObj.length; i++) {
+              if (
+                !objectsRotationOnDown[i].equals(that.selectObj[i].rotation)
+              ) {
+                objects.push(that.selectObj[i]);
+                sendNewRotation.push(that.selectObj[i].rotation);
+                sendOldRotation.push(objectsRotationOnDown[i]);
+              }
+            }
+
+            that.editorOperate.execute(
+              new SetRotationCommand(
+                that.editorOperate,
+                objects,
+                sendNewRotation,
+                sendOldRotation
+              )
+            );
+            break;
+
+          case "scale":
+            let sendNewScale = new Array();
+            let sendOldScale = new Array();
+
+            for (let i = 0; i < that.selectObj.length; i++) {
+              if (!objectsScaleOnDown[i].equals(that.selectObj[i].scale)) {
+                objects.push(that.selectObj[i]);
+                sendNewScale.push(that.selectObj[i].scale);
+                sendOldScale.push(objectsScaleOnDown[i]);
+              }
+            }
+
+            that.editorOperate.execute(
+              new SetScaleCommand(that.editorOperate, objects, sendNewScale, sendOldScale)
+            );
+            break;
+        }
+      }
 
       window["editorOperate"].domElement.removeEventListener(
         "keydown",
@@ -330,7 +412,6 @@ class TransformBySelection {
   }
 
   toTranslateModeUp() {
-    console.log("Translate up now.");
     this.modeState[0] = false;
     this.checkAllModeState();
   }
@@ -342,7 +423,6 @@ class TransformBySelection {
   }
 
   toRotateModeUp() {
-    console.log("Rotate up now.");
     this.modeState[1] = false;
     this.checkAllModeState();
   }
@@ -354,7 +434,6 @@ class TransformBySelection {
   }
 
   toScaleModeUp() {
-    console.log("Scale up now.");
     this.modeState[2] = false;
     this.checkAllModeState();
   }

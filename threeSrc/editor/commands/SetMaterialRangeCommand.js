@@ -33,7 +33,7 @@ class SetMaterialRangeCommand extends Command {
 		this.material[ this.attributeName ] = [ ...this.newRange ];
 		this.material.needsUpdate = true;
 
-		this.editor.signals.objectChanged.dispatch( this.object );
+		this.editor.signals.objectsChanged.dispatch( this.object );
 		this.editor.signals.materialChanged.dispatch( this.material );
 
 	}
@@ -43,7 +43,7 @@ class SetMaterialRangeCommand extends Command {
 		this.material[ this.attributeName ] = [ ...this.oldRange ];
 		this.material.needsUpdate = true;
 
-		this.editor.signals.objectChanged.dispatch( this.object );
+		this.editor.signals.objectsChanged.dispatch( this.object );
 		this.editor.signals.materialChanged.dispatch( this.material );
 
 	}
