@@ -22,12 +22,16 @@ import { Strings } from "./Strings.js";
 import { Storage as _Storage } from "./Storage.js";
 import { History as _History } from "./History.js";
 
+import { RemoveObjectCommand } from "./commands/RemoveObjectCommand.js";
+
 class EditorOperate extends EventDispatcher {
   constructor(dimType, eState, scene, ort_Camera, per_Camera, renderer) {
     super();
 
     let that = this;
     that.keyevent = "";
+
+    this.IS_MAC = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
 
     const Signal = signals.Signal; // eslint-disable-line no-undef
 
@@ -38,12 +42,19 @@ class EditorOperate extends EventDispatcher {
 
       objectSelected: new Signal(),
       objectsChanged: new Signal(),
+      objectNameChanged: new Signal(),
       geometryChanged: new Signal(),
       materialChanged: new Signal(),
       refreshSidebarObject3D: new Signal(),
       hierarchyChange: new Signal(),
 
       sceneGraphChanged: new Signal(),
+
+      cameraRemoved: new Signal(),
+
+      objectAdded: new Signal(),
+      objectStartRemoving: new Signal(),
+      objectRemoved: new Signal(),
 
       materialAdded: new Signal(),
       materialChanged: new Signal(),
@@ -65,6 +76,8 @@ class EditorOperate extends EventDispatcher {
 
     this.materialsRefCounter = new Map();
 
+    this.cameras = {};
+    this.geometries = {};
     this.materials = {};
     this.helpers = {};
 
@@ -298,8 +311,34 @@ class EditorOperate extends EventDispatcher {
 
     let that = this;
 
-    if (e.key == "f" || e.key == "F") {
-      that.focus(that.selectionHelper.selectedObject);
+    switch (e.key.toLowerCase()) {
+      // fall-through
+
+      case "delete":
+        const objects = that.selectionHelper.selectedObject;
+
+        if (objects.length < 1) return;
+        that.execute(new RemoveObjectCommand(that, objects));
+
+        break;
+
+      case that.config.getKey("settings/shortcuts/undo"):
+        if (that.IS_MAC ? e.metaKey : e.ctrlKey) {
+          e.preventDefault(); // Prevent browser specific hotkeys
+
+          if (e.shiftKey) {
+            that.redo();
+          } else {
+            that.undo();
+          }
+        }
+
+        break;
+
+      case that.config.getKey("settings/shortcuts/focus"):
+        that.focus(that.selectionHelper.selectedObject);
+
+        break;
     }
 
     if (that.keyDownElement.includes(e.key)) {
@@ -384,6 +423,10 @@ class EditorOperate extends EventDispatcher {
     this.dispatchEvent({ type: "changeSelectState", state: sState });
   }
 
+  addGeometry(geometry) {
+    this.geometries[geometry.uuid] = geometry;
+  }
+
   getObjectMaterial(object, slot) {
     var material = object.material;
 
@@ -465,8 +508,73 @@ class EditorOperate extends EventDispatcher {
     }
   }
 
+  addCamera(camera) {
+    if (camera.isCamera) {
+      this.cameras[camera.uuid] = camera;
+
+      this.signals.cameraAdded.dispatch(camera);
+    }
+  }
+
+  removeCamera(camera) {
+    if (this.cameras[camera.uuid] !== undefined) {
+      delete this.cameras[camera.uuid];
+
+      this.signals.cameraRemoved.dispatch(camera);
+    }
+  }
+
+  addObject(objects, parents, index) {
+    var scope = this;
+
+    for (let i = 0; i < objects.length; i++) {
+      objects[i].traverse(function (child) {
+        if (child.geometry !== undefined) scope.addGeometry(child.geometry);
+        if (child.material !== undefined) scope.addMaterial(child.material);
+
+        scope.addCamera(child);
+        scope.addHelper(child);
+      });
+
+      if (parents[i] === undefined) {
+        scope.scene.add(objects[i]);
+      } else {
+        parents[i].children.splice(index, 0, objects[i]);
+        objects[i].parent = parents[i];
+      }
+    }
+
+    this.signals.objectAdded.dispatch(objects);
+    this.signals.sceneGraphChanged.dispatch();
+  }
+
+  removeObject(objects) {
+    if (objects.length < 1) return; // avoid deleting the camera or scene
+
+    var scope = this;
+
+    this.signals.objectStartRemoving.dispatch();
+
+    for (let object of objects) {
+      object.traverse(function (child) {
+        scope.removeCamera(child);
+        scope.removeHelper(child);
+
+        if (child.material !== undefined) scope.removeMaterial(child.material);
+      });
+
+      object.parent.remove(object);
+    }
+
+    this.signals.objectRemoved.dispatch(objects);
+    this.signals.sceneGraphChanged.dispatch();
+  }
+
   select(objects) {
-    this.selectionHelper.selectedObject = objects;
+    this.selectionHelper.selectedObject.length = 0;
+    for (let i = 0; i < objects.length; i++) {
+      this.selectionHelper.selectedObject[i] = objects[i];
+    }
     this.selectionHelper.addObjectOutline();
   }
 
@@ -483,6 +591,11 @@ class EditorOperate extends EventDispatcher {
     }
 
     this.select(selectObects);
+  }
+
+  deselect() {
+    this.selectionHelper.selectedObject.length = 0;
+    this.selectionHelper.addObjectOutline();
   }
 
   focus(selObj) {

@@ -51,8 +51,8 @@ class PropertiesWindow extends UIDiv {
     let that = this;
 
     this.mainBody = new normalWindow(
-      "监视面板",
-      window["menuGUI"].folderDictionary["Main-Menu"].cellBtns["监视面板"]
+      "检视面板",
+      window["menuGUI"].folderDictionary["Main-Menu"].cellBtns["检视面板"]
     );
     this.mainBody.addContent(that.container);
 

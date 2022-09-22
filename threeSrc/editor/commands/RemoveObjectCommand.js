@@ -1,81 +1,93 @@
-import { Command } from './Command.js';
+import { Command } from "./Command.js";
 
-import { ObjectLoader } from 'three';
+import { ObjectLoader } from "three";
 
 /**
  * @param editor Editor
- * @param object THREE.Object3D
+ * @param objects THREE.Object3D
  * @constructor
  */
 class RemoveObjectCommand extends Command {
+  constructor(editor, objects) {
+    super(editor);
 
-	constructor( editor, object ) {
+    let that = this;
 
-		super( editor );
+    this.type = "RemoveObjectCommand";
+    this.name = "Remove Object";
 
-		this.type = 'RemoveObjectCommand';
-		this.name = 'Remove Object';
+    this.objects = new Array();
+    for (let i = 0; i < objects.length; i++) {
+      this.objects[i] = objects[i];
+    }
+    this.indexs = new Array();
+    this.parents = new Array();
 
-		this.object = object;
-		this.parent = ( object !== undefined ) ? object.parent : undefined;
-		if ( this.parent !== undefined ) {
+    for (let i = 0; i < objects.length; i++) {
+      this.parents[i] =
+        objects[i] !== undefined ? objects[i].parent : undefined;
+      if (this.parents[i] !== undefined) {
+        this.indexs[i] = this.parents[i].children.indexOf(this.objects[i]);
+      }
+    }
+  }
 
-			this.index = this.parent.children.indexOf( this.object );
+  execute() {
+    this.editor.removeObject(this.objects);
+    this.editor.deselect();
+  }
 
-		}
+  undo() {
+    this.editor.addObject(this.objects, this.parents, this.indexs);
+    this.editor.select(this.objects);
+  }
 
-	}
+  toJSON() {
+    let that = this;
 
-	execute() {
+    const output = super.toJSON(this);
 
-		this.editor.removeObject( this.object );
-		this.editor.deselect();
+    output.objects = new Array();
+    for (let i = 0; i < that.objects.length; i++) {
+      output.objects[i] = that.objects[i].toJSON();
+    }
 
-	}
+    output.indexs = new Array();
+    for (let i = 0; i < that.indexs.length; i++) {
+      output.indexs[i] = that.indexs[i];
+    }
 
-	undo() {
+    output.parentUuid = new Array();
+    for (let i = 0; i < that.parents.length; i++) {
+      output.parentUuid[i] = that.parents[i].uuid;
+    }
 
-		this.editor.addObject( this.object, this.parent, this.index );
-		this.editor.select( this.object );
+    return output;
+  }
 
-	}
+  fromJSON(json) {
+    let that = this;
 
-	toJSON() {
+    super.fromJSON(json);
 
-		const output = super.toJSON( this );
+    for (let i = 0; i < json.parentUuid.length; i++) {
+      that.parents[i] = that.editor.objectByUuid(json.parentUuid[i]);
+      if (that.parents[i] === undefined) {
+        that.parents[i] = that.editor.scene;
+      }
+    }
 
-		output.object = this.object.toJSON();
-		output.index = this.index;
-		output.parentUuid = this.parent.uuid;
+    this.indexs = json.indexs;
 
-		return output;
+    for (let i = 0; i < json.objects.length; i++) {
+      this.objects[i] = this.editor.objectByUuid(json.objects[i].uuid);
 
-	}
-
-	fromJSON( json ) {
-
-		super.fromJSON( json );
-
-		this.parent = this.editor.objectByUuid( json.parentUuid );
-		if ( this.parent === undefined ) {
-
-			this.parent = this.editor.scene;
-
-		}
-
-		this.index = json.index;
-
-		this.object = this.editor.objectByUuid( json.object.object.uuid );
-
-		if ( this.object === undefined ) {
-
-			const loader = new ObjectLoader();
-			this.object = loader.parse( json.object );
-
-		}
-
-	}
-
+      if (this.objects[i] === undefined) {
+        const loader = new ObjectLoader();
+        this.objects[i] = loader.parse(json.objects[i]);
+      }
+    }
+  }
 }
 
 export { RemoveObjectCommand };

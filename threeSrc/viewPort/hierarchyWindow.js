@@ -71,6 +71,7 @@ class HierarchyWindow {
       that.refreshUI();
     });
     this.editor.signals.sceneGraphChanged.add(that.refreshUI);
+    this.editor.signals.objectNameChanged.add(that.refreshUI);
 
     if (window["menuGUI"].folderDictionary["Main-Menu"]) {
       that.initMainBody();
@@ -221,7 +222,7 @@ class HierarchyWindow {
 
     let html = `<span class="type ${that.getObjectType(
       object
-    )}"></span> ${that.escapeHTML(object.type)}`;
+    )}"></span> ${that.escapeHTML(object.name)}`;
 
     if (object.isMesh) {
       const geometry = object.geometry;

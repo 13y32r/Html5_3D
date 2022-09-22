@@ -105,6 +105,7 @@ function SidebarMaterial(editor) {
           currentMaterialSlot
         )
       );
+      editor.signals.objectNameChanged.dispatch();
     });
 
   materialNameRow.add(
@@ -658,22 +659,22 @@ function SidebarMaterial(editor) {
         // attach the current material to other objects.
       }
 
-      try {
-        const userData = JSON.parse(materialUserData.getValue());
-        if (JSON.stringify(material.userData) != JSON.stringify(userData)) {
-          editor.execute(
-            new SetMaterialValueCommand(
-              editor,
-              currentObject,
-              "userData",
-              userData,
-              currentMaterialSlot
-            )
-          );
-        }
-      } catch (exception) {
-        console.warn(exception);
-      }
+      // try {
+      //   const userData = JSON.parse(materialUserData.getValue());
+      //   if (JSON.stringify(material.userData) != JSON.stringify(userData)) {
+      //     editor.execute(
+      //       new SetMaterialValueCommand(
+      //         editor,
+      //         currentObject,
+      //         "userData",
+      //         userData,
+      //         currentMaterialSlot
+      //       )
+      //     );
+      //   }
+      // } catch (exception) {
+      //   console.warn(exception);
+      // }
 
       refreshUI();
     }

@@ -179,7 +179,12 @@ class TransformBySelection {
             }
 
             that.editorOperate.execute(
-              new SetScaleCommand(that.editorOperate, objects, sendNewScale, sendOldScale)
+              new SetScaleCommand(
+                that.editorOperate,
+                objects,
+                sendNewScale,
+                sendOldScale
+              )
             );
             break;
         }
@@ -200,6 +205,7 @@ class TransformBySelection {
       that.getSelObj
     );
     window["editorOperate"].signals.hierarchyChange.add(that.getSelObj);
+    window["editorOperate"].signals.objectStartRemoving.add(that.toEmptyMode);
 
     window["editorOperate"].addEventListener(
       "changeEditorState",

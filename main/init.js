@@ -37,10 +37,12 @@ async function init() {
 
   //初始化场景
   let scene = new window["THREE"].Scene();
+  scene.name = "场景";
   scene.background = new window["THREE"].Color(0xacacac);
 
   //初始化环境光
   var ambient = new window["THREE"].AmbientLight(0x444444);
+  ambient.name = "环境光";
   scene.add(ambient);
 
   const geometry = new window["THREE"].PlaneGeometry(10, 10);
@@ -50,6 +52,7 @@ async function init() {
   });
   const plane = new window["THREE"].Mesh(geometry, material);
   plane.position.set(5, 5, 5);
+  plane.name = "平面_1";
   scene.add(plane);
 
   const bgeometry = new window["THREE"].BoxGeometry(5, 5, 5);
@@ -58,18 +61,22 @@ async function init() {
     side: window["THREE"].DoubleSide,
   });
   const cube = new window["THREE"].Mesh(bgeometry, bmaterial);
+  cube.name = "方盒_1";
   scene.add(cube);
 
   const cube2 = new window["THREE"].Mesh(bgeometry, bmaterial);
   cube2.position.set(-5, 10, -5);
+  cube2.name = "方盒_2";
 
   const cube3 = new window["THREE"].Mesh(bgeometry, bmaterial);
+  cube3.name = "方盒_3";
   cube3.position.set(5, 10, -5);
 
   const group = new window["THREE"].Group();
+  group.name = "群组_1";
   group.add(cube2);
   group.add(cube3);
-  group.layersSet(3);
+  // group.layersSet(3);
   scene.add(group);
 
   //初始化摄像机
@@ -85,7 +92,9 @@ async function init() {
     1,
     1000
   );
+  ort_Camera.name = "正交相机";
   var per_Camera = new window["THREE"].PerspectiveCamera(60, k, 1, 1000);
+  per_Camera.name = "透视相机";
 
   //初始化渲染器
   var renderer = new window["THREE"].WebGLRenderer();

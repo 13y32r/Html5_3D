@@ -283,6 +283,24 @@ class UIInput extends UIElement {
       event.stopPropagation();
     });
 
+    let tempEditorState = null;
+
+    this.dom.addEventListener("focus", function (event) {
+      if (tempEditorState == null) {
+        tempEditorState = window["editorOperate"].state;
+        window["editorOperate"].changeEditorState(EditorState.INPUT);
+        window["editorOperate"].stopKeyEvent();
+      }
+    });
+
+    this.dom.addEventListener("blur", function (event) {
+      if (tempEditorState != null) {
+        window["editorOperate"].changeEditorState(tempEditorState);
+        window["editorOperate"].reKeyEvent();
+        tempEditorState = null;
+      }
+    });
+
     this.setValue(text);
   }
 

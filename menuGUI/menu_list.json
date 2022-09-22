@@ -32,7 +32,7 @@
             "image_url": "./menuGUI/img/3D-Shape.png"
         },
         "PropertiesWindow": {
-            "name": "监视面板",
+            "name": "检视面板",
             "type": "button",
             "class": "PropertiesWindow",
             "btnUp": "closeWindow",

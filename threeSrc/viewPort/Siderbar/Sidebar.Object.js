@@ -130,6 +130,7 @@ function SidebarObject(editor) {
           objectName.getValue()
         )
       );
+      editor.signals.objectNameChanged.dispatch();
     });
 
   objectNameRow.add(
@@ -808,16 +809,16 @@ function SidebarObject(editor) {
         }
       }
 
-      try {
-        const userData = JSON.parse(objectUserData.getValue());
-        if (JSON.stringify(object.userData) != JSON.stringify(userData)) {
-          editor.execute(
-            new SetValueCommand(editor, object, "userData", userData)
-          );
-        }
-      } catch (exception) {
-        console.warn(exception);
-      }
+      // try {
+      //   const userData = JSON.parse(objectUserData.getValue());
+      //   if (JSON.stringify(object.userData) != JSON.stringify(userData)) {
+      //     editor.execute(
+      //       new SetValueCommand(editor, object, "userData", userData)
+      //     );
+      //   }
+      // } catch (exception) {
+      //   console.warn(exception);
+      // }
     }
   }
 

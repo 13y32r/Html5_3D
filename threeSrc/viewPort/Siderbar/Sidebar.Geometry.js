@@ -148,6 +148,7 @@ function SidebarGeometry(editor) {
           geometryName.getValue()
         )
       );
+      editor.signals.objectNameChanged.dispatch();
     });
 
   geometryNameRow.add(
