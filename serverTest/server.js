@@ -46,7 +46,7 @@ function httpServer(request, response) {
   });
 }
 
-app.post("/saveModel", bodyParserJson, function (req, res) {
+app.post("/saveModelOrScene", bodyParserJson, function (req, res) {
   writeData(req.body.obj, req.body.path + "\\", req.body.name);
   res.send("已成功上传模型。");
 });
@@ -54,7 +54,12 @@ app.post("/saveModel", bodyParserJson, function (req, res) {
 //写入文件，会完全替换之前JSON文件中的内容,如果不想替换可以先读取然后在写入
 function writeData(value, path, filename) {
   var str = JSON.stringify(value, "", "\t");
-  let solvePath = __rootdirname + "Resource\\Model\\" + path;
+  let solvePath;
+  if (value.object.type == "Scene") {
+    solvePath = __rootdirname + "Resource\\Scene\\" + path;
+  } else {
+    solvePath = __rootdirname + "Resource\\Model\\" + path;
+  }
   let fileWholeName = filename + ".json";
 
   fs.stat(solvePath, function (err, stats) {
@@ -85,6 +90,15 @@ function writeData(value, path, filename) {
 
 app.get("/getModel", function (req, res) {
   let solvePath = __rootdirname + "Resource\\Model\\" + req.query.path;
+
+  jsonfile.readFile(solvePath, function (err, jsonData) {
+    if (err) throw err;
+    res.json(jsonData);
+  });
+});
+
+app.get("/getScene", function (req, res) {
+  let solvePath = __rootdirname + "Resource\\Scene\\" + req.query.path;
 
   jsonfile.readFile(solvePath, function (err, jsonData) {
     if (err) throw err;

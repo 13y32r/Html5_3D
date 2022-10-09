@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-04-27 10:13:00
- * @LastEditTime: 2022-07-30 11:41:59
+ * @LastEditTime: 2022-10-09 18:26:02
  * @LastEditors: your name
  * @Description: 这是一个用于编辑器根据传来的“状态”指令，来具体操作的代码
  * @FilePath: \Html5_3D\threeSrc\editor\EditorOperate.js
@@ -53,6 +53,7 @@ class EditorOperate extends EventDispatcher {
       hierarchyChange: new Signal(),
 
       sceneGraphChanged: new Signal(),
+      loadNewScene: new Signal(),
 
       cameraRemoved: new Signal(),
 
@@ -184,6 +185,11 @@ class EditorOperate extends EventDispatcher {
     this.signals.sceneGraphChanged.add(that.render);
     this.signals.materialChanged.add(that.render);
     this.signals.geometryChanged.add(that.render);
+    this.signals.loadNewScene.add(function () {
+      that.render();
+      that.selectionHelper.selectionBox.scene = null;
+      that.selectionHelper.selectionBox.scene = that.scene;
+    });
 
     this.focus = this.focus.bind(this);
 

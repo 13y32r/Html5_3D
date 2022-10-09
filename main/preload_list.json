@@ -75,8 +75,8 @@
         "url": "../threeSrc/viewPort/HierarchyWindow.js",
         "inModule": true
     },
-    "UpLoadModel": {
-        "url": "../threeSrc/tools/cloudInteractive/uploadModel.js",
+    "UpLoadModelOrScene": {
+        "url": "../threeSrc/tools/cloudInteractive/upLoadModelOrScene.js",
         "inModule": true
     },
     "DownModel": {

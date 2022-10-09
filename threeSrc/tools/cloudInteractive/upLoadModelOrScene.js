@@ -1,5 +1,14 @@
+/*******
+ * @Author: your name
+ * @Date: 2022-10-09 17:18:30
+ * @LastEditTime: 2022-10-09 18:08:40
+ * @LastEditors: your name
+ * @Description: 
+ * @FilePath: \Html5_3D\threeSrc\tools\cloudInteractive\uploadModel.js
+ * @可以输入预定的版权声明、个性签名、空行等
+ */
 import { UpOrDownFile } from "./upOrDownFile.js";
-class UpLoadModel {
+class UpLoadModelOrScene {
   constructor() {
     this.editor = editorOperate;
     this.uploadTool = new UpOrDownFile();
@@ -19,7 +28,7 @@ class UpLoadModel {
     this.uploadTool.uploadModel(obj, "BBQ");
   }
 
-  stop() {}
+  stop() { }
 }
 
-export { UpLoadModel };
+export { UpLoadModelOrScene };

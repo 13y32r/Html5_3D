@@ -66,10 +66,10 @@
                 "F11"
             ]
         },
-        "UpLoadModel": {
+        "UpLoadModelOrScene": {
             "name": "上传模型",
             "type": "button",
-            "class": "UpLoadModel",
+            "class": "UpLoadModelOrScene",
             "btnUp": "stop",
             "btnDown": "start",
             "image_url": "./menuGUI/img/upLoad.png",
