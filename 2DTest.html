@@ -41,6 +41,10 @@
 	</script>
 
     <script type="module">
+        window["GaoDaShang"] = "Hello World!直接访问的全局变量。";
+        alert(GaoDaShang);
+        // import { initSignals } from "./threeSrc/libs/signals.dynamic.js";
+        // initSignals(window);
         // var Signal = signals.Signal;
         // var mySignal = new Signal();
         // var myObject = {
@@ -54,6 +58,7 @@
         // myObject.started.add(onStarted); //添加监听器
         // myObject.started.dispatch('foo', 'bar'); //给 started 信号绑定的事件传送参数(param1, param2)，即('foo', 'bar')
         // myObject.started.remove(onStarted);
+        // myObject.started.dispatch('hello ', 'world');
 
         import GeometryShow from "./threeSrc/dataToWebShape.js"
         import { EditorState } from "./threeSrc/editor/EditorState.js"
@@ -243,8 +248,8 @@
         // const selectionBox = new SelectionBox(camera, scene);
         // const helper = new SelectionHelper(selectionBox, renderer);
 
-        import { Ruler } from './threeSrc/tools/ruler.js';
-        const ruler = new Ruler(1, editorOperate, textIn3D);
+        // import { Ruler } from './threeSrc/tools/ruler.js';
+        // const ruler = new Ruler(1, editorOperate, textIn3D);
         editorOperate.changeEditorState(EditorState.Edit);
 
         // editorOperate.changeEditorState(EditorState.HALT);
@@ -257,7 +262,7 @@
         document.oncontextmenu = function (e) {
             return false;
         };
-        ruler.measure();
+        // ruler.measure();
         window.addEventListener('mousedown', pointStar, false);
         // window.addEventListener('pointermove', pointStar);
         // window.addEventListener('pointerdown', pointStar);
@@ -270,16 +275,16 @@
         let that = this;
 
         function pointStar(event) {
-            ruler.measure();
-            // if (!importedFile) {
-            //     import("./assist/removefile.js").then(module => {
-            //         console.log(module['removejscssfile']);
-            //         removejscssfile = module.removejscssfile;
-            //         removejscssfile("SelectionHelper.js", "js");
-            //     }
-            //     );
-            //     importedFile = true;
-            // }
+            // ruler.measure();
+            if (!importedFile) {
+                import("./assist/removefile.js").then(module => {
+                    console.log(module['removejscssfile']);
+                    removejscssfile = module.removejscssfile;
+                    removejscssfile("SelectionHelper.js", "js");
+                }
+                );
+                importedFile = true;
+            }
             // if (removejscssfile != undefined) {
             //     removejscssfile("SelectionHelper.js", "js");
             // }

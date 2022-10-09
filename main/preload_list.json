@@ -67,12 +67,20 @@
         "url": "../threeSrc/viewPort/fullScreen.js",
         "inModule": true
     },
-    "PropertiesWindow":{
+    "PropertiesWindow": {
         "url": "../threeSrc/viewPort/PropertiesWindow.js",
         "inModule": true
     },
-    "HierarchyWindow":{
+    "HierarchyWindow": {
         "url": "../threeSrc/viewPort/HierarchyWindow.js",
-        "inModule": true        
+        "inModule": true
+    },
+    "UpLoadModel": {
+        "url": "../threeSrc/tools/cloudInteractive/uploadModel.js",
+        "inModule": true
+    },
+    "DownModel": {
+        "url": "../threeSrc/tools/cloudInteractive/downModel.js",
+        "inModule": true
     }
 }

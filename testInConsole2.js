@@ -353,19 +353,36 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 //   console.log(testObj[ele]);
 // }
 
-class Test{
-    aa = 123;
-    bb = "sadf";
+// class Test{
+//     aa = 123;
+//     bb = "sadf";
+// }
+
+// let test = new Test();
+
+// test["kk"]={fun:function(param){
+//     param++;
+//     console.log(param);
+// }};
+
+// let test2 = new Test();
+
+// console.log(test);
+// console.log(test2);
+
+async function waitTest() {
+  console.log("In the wait test.");
+  return "Jelly";
 }
 
-let test = new Test();
-
-test["kk"]={fun:function(param){
-    param++;
-    console.log(param);
-}};
-
-let test2 = new Test();
-
-console.log(test);
-console.log(test2);
+waitTest()
+  .then((res) => {
+    console.log(res, "Hell world!");
+    return new Error("error!!!");
+  })
+  .catch((err) => {
+    console.log(err);
+    return "Catch erro!";
+  })
+  .then((res) => console.log(res))
+  .finally(() => console.log("It's over."));

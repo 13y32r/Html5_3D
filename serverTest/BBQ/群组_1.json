@@ -1,0 +1,119 @@
+{
+	"metadata": {
+		"version": 4.5,
+		"type": "Object",
+		"generator": "Object3D.toJSON"
+	},
+	"geometries": [
+		{
+			"uuid": "7014BE8C-E46A-42D8-B574-466EE6060DC5",
+			"type": "BoxGeometry",
+			"width": 5,
+			"height": 5,
+			"depth": 5,
+			"widthSegments": 1,
+			"heightSegments": 1,
+			"depthSegments": 1
+		}
+	],
+	"materials": [
+		{
+			"uuid": "F0E5D253-4BAE-45B3-90F3-BB28A4E5D049",
+			"type": "MeshBasicMaterial",
+			"color": 65280,
+			"reflectivity": 1,
+			"refractionRatio": 0.98,
+			"side": 2,
+			"depthFunc": 3,
+			"depthTest": true,
+			"depthWrite": true,
+			"colorWrite": true,
+			"stencilWrite": false,
+			"stencilWriteMask": 255,
+			"stencilFunc": 519,
+			"stencilRef": 0,
+			"stencilFuncMask": 255,
+			"stencilFail": 7680,
+			"stencilZFail": 7680,
+			"stencilZPass": 7680
+		}
+	],
+	"object": {
+		"uuid": "EF35E1BC-08B7-4508-A1A2-FDC4C61F992F",
+		"type": "Group",
+		"name": "群组_1",
+		"layers": 1,
+		"matrix": [
+			1,
+			0,
+			0,
+			0,
+			0,
+			1,
+			0,
+			0,
+			0,
+			0,
+			1,
+			0,
+			0,
+			0,
+			0,
+			1
+		],
+		"children": [
+			{
+				"uuid": "9F6C9C41-92FA-4209-B6E8-BE3394DA6870",
+				"type": "Mesh",
+				"name": "方盒_2",
+				"layers": 1,
+				"matrix": [
+					1,
+					0,
+					0,
+					0,
+					0,
+					1,
+					0,
+					0,
+					0,
+					0,
+					1,
+					0,
+					-5,
+					10,
+					-5,
+					1
+				],
+				"geometry": "7014BE8C-E46A-42D8-B574-466EE6060DC5",
+				"material": "F0E5D253-4BAE-45B3-90F3-BB28A4E5D049"
+			},
+			{
+				"uuid": "EC629E35-CC11-41A3-85A3-DD74CE513330",
+				"type": "Mesh",
+				"name": "方盒_3",
+				"layers": 1,
+				"matrix": [
+					1,
+					0,
+					0,
+					0,
+					0,
+					1,
+					0,
+					0,
+					0,
+					0,
+					1,
+					0,
+					5,
+					10,
+					-5,
+					1
+				],
+				"geometry": "7014BE8C-E46A-42D8-B574-466EE6060DC5",
+				"material": "F0E5D253-4BAE-45B3-90F3-BB28A4E5D049"
+			}
+		]
+	}
+}

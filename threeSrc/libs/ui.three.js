@@ -369,7 +369,7 @@ class UIOutliner extends UIDiv {
       const changeEvent = new CustomEvent("change", {
         bubbles: true,
         cancelable: true,
-        detail:"selectIndex"
+        detail: "selectIndex",
       });
       this.dom.dispatchEvent(changeEvent);
     }
@@ -401,7 +401,7 @@ class UIOutliner extends UIDiv {
       const changeEvent = new CustomEvent("change", {
         bubbles: true,
         cancelable: true,
-        detail:"click"
+        detail: "click",
       });
       scope.dom.dispatchEvent(changeEvent);
     }
@@ -496,7 +496,7 @@ class UIOutliner extends UIDiv {
       const changeEvent = new CustomEvent("change", {
         bubbles: true,
         cancelable: true,
-        detail:"moveObject"
+        detail: "moveObject",
       });
       scope.dom.dispatchEvent(changeEvent);
     }

@@ -24,6 +24,8 @@ import { History as _History } from "./History.js";
 
 import { RemoveObjectCommand } from "./commands/RemoveObjectCommand.js";
 
+import * as initSignals from "../libs/signals.dynamic.js";
+
 class EditorOperate extends EventDispatcher {
   constructor(dimType, eState, scene, ort_Camera, per_Camera, renderer) {
     super();
@@ -32,6 +34,8 @@ class EditorOperate extends EventDispatcher {
     that.keyevent = "";
 
     this.IS_MAC = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+
+    // initSignals(window);
 
     const Signal = signals.Signal; // eslint-disable-line no-undef
 

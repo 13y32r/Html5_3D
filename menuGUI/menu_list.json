@@ -65,6 +65,30 @@
             "shortcut": [
                 "F11"
             ]
+        },
+        "UpLoadModel": {
+            "name": "上传模型",
+            "type": "button",
+            "class": "UpLoadModel",
+            "btnUp": "stop",
+            "btnDown": "start",
+            "image_url": "./menuGUI/img/upLoad.png",
+            "shortcut": [
+                "U",
+                "u"
+            ]
+        },
+        "DownModel": {
+            "name": "下载模型",
+            "type": "button",
+            "class": "DownModel",
+            "btnUp": "stop",
+            "btnDown": "start",
+            "image_url": "./menuGUI/img/downLoad.png",
+            "shortcut": [
+                "D",
+                "d"
+            ]
         }
     },
     "EditorMode": {

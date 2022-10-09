@@ -430,8 +430,15 @@
         mesh3.layers.set(4);
         mesh4.layers.set(5);
 
+        console.log("mesh1 is:");
+        console.log(mesh1);
+        let jsonObject = mesh2.toJSON();
+        console.log("Json object is:");
+        console.log(jsonObject);
+
+
         camera.layers.enable(2);
-        camera.layers.toggle(5);
+        camera.layers.toggle(3);
 
         // let newQ = new THREE.Quaternion();
         // console.log("New Quaternion is:");
@@ -625,6 +632,8 @@
         // renderer.domElement.focus();
         window.addEventListener('pointerdown', selObject);
         function selObject(event) {
+            event.preventDefault();
+
             // document.body.setPointerCapture(event.pointerId);
 
             // console.log(clock.getDelta());
@@ -676,6 +685,41 @@
                     getNormal.sub(getObj.position);
                     console.log(getNormal);
                 }
+
+                // let url = "http://localhost:3000/postJson";
+                // var httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
+                // httpRequest.open('POST', url, true); //第二步：打开连接
+                // httpRequest.setRequestHeader("Content-type", "application/json");//设置请求头 注：post方式必须设置请求头（在建立连接后设置请求头）
+                // httpRequest.send(JSON.stringify(jsonObject));//发送请求 将情头体写在send中vz
+                // httpRequest.onreadystatechange = function () {
+                //     if (httpRequest.readyState == 4) {
+                //         if (httpRequest.status == 200 || httpRequest.state == 0) {
+                //             let info = httpRequest.responseText;
+                //             alert(info);
+                //         }
+                //     }
+                // }
+
+                // let url = "http://localhost:3000/getJson";
+                // var httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
+                // httpRequest.open("GET", url, true);
+                // httpRequest.send();
+
+                // httpRequest.onreadystatechange = function () {  //绑定响应状态事件监听函数
+                //     if (httpRequest.readyState == 4) {  //监听readyState状态
+                //         console.log(httpRequest.status);
+                //         if (httpRequest.status == 200 || httpRequest.state == 0) {  //监听HTTP状态码
+                //             var info = httpRequest.responseText;
+                //             var o = eval("(" + info + ")");  //调用eval()把字符串转换为本地脚本
+                //             // console.log(info);  //显示JSON对象字符串
+                //             console.log(o);  //读取对象属性值，返回字符串“css8”
+
+                //             const loader = new THREE.ObjectLoader();
+                //             let newOBJ = loader.parse(o);
+                //             scene.add(newOBJ);
+                //         }
+                //     }
+                // }
             }
 
             // for (let i = 0; i < intersects.length; i++) {

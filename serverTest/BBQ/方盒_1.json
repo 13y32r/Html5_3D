@@ -1,0 +1,67 @@
+{
+	"metadata": {
+		"version": 4.5,
+		"type": "Object",
+		"generator": "Object3D.toJSON"
+	},
+	"geometries": [
+		{
+			"uuid": "E619C7BA-2557-441B-B5AD-BA7B3A90597D",
+			"type": "BoxGeometry",
+			"width": 5,
+			"height": 5,
+			"depth": 5,
+			"widthSegments": 1,
+			"heightSegments": 1,
+			"depthSegments": 1
+		}
+	],
+	"materials": [
+		{
+			"uuid": "E09D56F6-137A-4182-8205-3795343D958D",
+			"type": "MeshBasicMaterial",
+			"color": 65280,
+			"reflectivity": 1,
+			"refractionRatio": 0.98,
+			"side": 2,
+			"depthFunc": 3,
+			"depthTest": true,
+			"depthWrite": true,
+			"colorWrite": true,
+			"stencilWrite": false,
+			"stencilWriteMask": 255,
+			"stencilFunc": 519,
+			"stencilRef": 0,
+			"stencilFuncMask": 255,
+			"stencilFail": 7680,
+			"stencilZFail": 7680,
+			"stencilZPass": 7680
+		}
+	],
+	"object": {
+		"uuid": "3DE35586-184B-4F87-9BE2-0E4FA4E0199A",
+		"type": "Mesh",
+		"name": "方盒_1",
+		"layers": 1,
+		"matrix": [
+			1,
+			0,
+			0,
+			0,
+			0,
+			1,
+			0,
+			0,
+			0,
+			0,
+			1,
+			0,
+			0,
+			0,
+			0,
+			1
+		],
+		"geometry": "E619C7BA-2557-441B-B5AD-BA7B3A90597D",
+		"material": "E09D56F6-137A-4182-8205-3795343D958D"
+	}
+}

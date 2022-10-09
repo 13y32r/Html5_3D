@@ -1,0 +1,252 @@
+{
+	"metadata": {
+		"version": 4.5,
+		"type": "Object",
+		"generator": "Object3D.toJSON"
+	},
+	"geometries": [
+		{
+			"uuid": "E4EF576A-886A-4518-89F5-52D7E6F35B3C",
+			"type": "PlaneGeometry",
+			"width": 10,
+			"height": 10,
+			"widthSegments": 1,
+			"heightSegments": 1
+		},
+		{
+			"uuid": "E619C7BA-2557-441B-B5AD-BA7B3A90597D",
+			"type": "BoxGeometry",
+			"width": 5,
+			"height": 5,
+			"depth": 5,
+			"widthSegments": 1,
+			"heightSegments": 1,
+			"depthSegments": 1
+		}
+	],
+	"materials": [
+		{
+			"uuid": "03061AE9-0CBF-4B53-8203-597B4A21028D",
+			"type": "MeshBasicMaterial",
+			"color": 16711680,
+			"reflectivity": 1,
+			"refractionRatio": 0.98,
+			"side": 2,
+			"depthFunc": 3,
+			"depthTest": true,
+			"depthWrite": true,
+			"colorWrite": true,
+			"stencilWrite": false,
+			"stencilWriteMask": 255,
+			"stencilFunc": 519,
+			"stencilRef": 0,
+			"stencilFuncMask": 255,
+			"stencilFail": 7680,
+			"stencilZFail": 7680,
+			"stencilZPass": 7680
+		},
+		{
+			"uuid": "E09D56F6-137A-4182-8205-3795343D958D",
+			"type": "MeshBasicMaterial",
+			"color": 65280,
+			"reflectivity": 1,
+			"refractionRatio": 0.98,
+			"side": 2,
+			"depthFunc": 3,
+			"depthTest": true,
+			"depthWrite": true,
+			"colorWrite": true,
+			"stencilWrite": false,
+			"stencilWriteMask": 255,
+			"stencilFunc": 519,
+			"stencilRef": 0,
+			"stencilFuncMask": 255,
+			"stencilFail": 7680,
+			"stencilZFail": 7680,
+			"stencilZPass": 7680
+		}
+	],
+	"object": {
+		"uuid": "187CE3A5-CBF2-480F-AC7C-6ABC26E2E0A0",
+		"type": "Scene",
+		"name": "场景",
+		"layers": 1,
+		"matrix": [
+			1,
+			0,
+			0,
+			0,
+			0,
+			1,
+			0,
+			0,
+			0,
+			0,
+			1,
+			0,
+			0,
+			0,
+			0,
+			1
+		],
+		"background": 11316396,
+		"children": [
+			{
+				"uuid": "28471088-BB8E-4A75-800A-5B9D36CAAAF3",
+				"type": "AmbientLight",
+				"name": "环境光",
+				"layers": 1,
+				"matrix": [
+					1,
+					0,
+					0,
+					0,
+					0,
+					1,
+					0,
+					0,
+					0,
+					0,
+					1,
+					0,
+					0,
+					0,
+					0,
+					1
+				],
+				"color": 4473924,
+				"intensity": 1
+			},
+			{
+				"uuid": "3C4293E8-A40A-4537-8B91-507AFDD4C933",
+				"type": "Mesh",
+				"name": "平面_1",
+				"layers": 1,
+				"matrix": [
+					1,
+					0,
+					0,
+					0,
+					0,
+					1,
+					0,
+					0,
+					0,
+					0,
+					1,
+					0,
+					5,
+					5,
+					5,
+					1
+				],
+				"geometry": "E4EF576A-886A-4518-89F5-52D7E6F35B3C",
+				"material": "03061AE9-0CBF-4B53-8203-597B4A21028D"
+			},
+			{
+				"uuid": "3DE35586-184B-4F87-9BE2-0E4FA4E0199A",
+				"type": "Mesh",
+				"name": "方盒_1",
+				"layers": 1,
+				"matrix": [
+					1,
+					0,
+					0,
+					0,
+					0,
+					1,
+					0,
+					0,
+					0,
+					0,
+					1,
+					0,
+					0,
+					0,
+					0,
+					1
+				],
+				"geometry": "E619C7BA-2557-441B-B5AD-BA7B3A90597D",
+				"material": "E09D56F6-137A-4182-8205-3795343D958D"
+			},
+			{
+				"uuid": "41C3493C-5DDB-47B6-84E1-0648EE17FB09",
+				"type": "Group",
+				"name": "群组_1",
+				"layers": 1,
+				"matrix": [
+					1,
+					0,
+					0,
+					0,
+					0,
+					1,
+					0,
+					0,
+					0,
+					0,
+					1,
+					0,
+					0,
+					0,
+					0,
+					1
+				],
+				"children": [
+					{
+						"uuid": "EC1698A3-78D3-4B85-98D2-BC2ADC9BCC41",
+						"type": "Mesh",
+						"name": "方盒_2",
+						"layers": 1,
+						"matrix": [
+							1,
+							0,
+							0,
+							0,
+							0,
+							1,
+							0,
+							0,
+							0,
+							0,
+							1,
+							0,
+							-5,
+							10,
+							-5,
+							1
+						],
+						"geometry": "E619C7BA-2557-441B-B5AD-BA7B3A90597D",
+						"material": "E09D56F6-137A-4182-8205-3795343D958D"
+					},
+					{
+						"uuid": "A57D4FB8-D1DC-4F90-A2C3-79B9174CC925",
+						"type": "Mesh",
+						"name": "方盒_3",
+						"layers": 1,
+						"matrix": [
+							1,
+							0,
+							0,
+							0,
+							0,
+							1,
+							0,
+							0,
+							0,
+							0,
+							1,
+							0,
+							5,
+							10,
+							-5,
+							1
+						],
+						"geometry": "E619C7BA-2557-441B-B5AD-BA7B3A90597D",
+						"material": "E09D56F6-137A-4182-8205-3795343D958D"
+					}
+				]
+			}
+		]
+	}
+}
