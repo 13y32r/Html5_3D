@@ -7,7 +7,6 @@ import jsonfile from "jsonfile";
 import path from "path";
 import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
-import { Console } from "console";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

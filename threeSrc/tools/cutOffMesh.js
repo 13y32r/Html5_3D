@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-09 20:49:54
- * @LastEditTime: 2022-07-27 15:30:56
+ * @LastEditTime: 2022-10-10 19:53:07
  * @LastEditors: your name
  * @Description:
  * @FilePath: \Html5_3D\threeSrc\tools\cutOffMesh.js
@@ -34,6 +34,13 @@ class CutOffMesh extends Tool {
       this.camera = camera;
       this.scene = scene;
     }
+
+    let that = this;
+
+    editorOperate.signals.loadNewScene.add(function () {
+      that.scene = null;
+      that.scene = editorOperate.scene;
+    })
 
     this.selectNotContainType = SelectNotContainType;
     this.selectNotContainName = SelectNotContainName;
