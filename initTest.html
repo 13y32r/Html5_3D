@@ -28,8 +28,19 @@
     </script>
 
     <script type="module">
-        import { init } from "../main/init.js";
-        init();
+        let loadButton = document.createElement("button");
+        loadButton.setAttribute("style", "position:absolute;top: 150px;left: 150px;");
+        loadButton.innerHTML = "加载";
+        loadButton.onclick = initFun;
+        document.body.appendChild(loadButton);
+
+        function initFun() {
+            import("../main/init.js").then(module => {
+                document.body.removeChild(loadButton);
+                loadButton = null;
+                module.init();
+            });
+        };
     </script>
 </body>
 
