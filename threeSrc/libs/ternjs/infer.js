@@ -19,7 +19,7 @@
   if (typeof define == "function" && define.amd) // AMD
     return define(["exports", "acorn/dist/acorn", "acorn/dist/acorn_loose", "acorn/dist/walk", "./def", "./signal"], mod);
   mod(root.tern || (root.tern = {}), acorn, acorn, acorn.walk, tern.def, tern.signal); // Plain browser env
-})(this, function(exports, acorn, acorn_loose, walk, def, signal) {
+})(window, function(exports, acorn, acorn_loose, walk, def, signal) {
   "use strict";
 
   var toString = exports.toString = function(type, maxDepth, parent) {
