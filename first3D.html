@@ -79,6 +79,7 @@
 
     <!-- <button style="position: absolute;top: 150px;left: 150px;">高大上</button> -->
     <script type="module">
+        // import { } from "./threeSrc/libs/html2canvas.js";
         import * as THREE from "./threeSrc/three.module.js";
         import { OrbitControls } from "./threeSrc/libs/OrbitControls.js";
         import { TransformControls } from "./threeSrc/libs/TransformControls.js";
@@ -647,7 +648,7 @@
                 scale: 0.5
             }).then(canvas => {
                 // var aa = document.body.appendChild(canvas);
-                document.getElementById("aaa").src = canvas.toDataURL();
+                document.getElementById("aaa").src = canvas.toDataURL("image/png");
             });
         }
 

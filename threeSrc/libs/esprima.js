@@ -9,7 +9,7 @@
 		exports["esprima"] = factory();
 	else
 		root["esprima"] = factory();
-})(this, function() {
+})(window, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};

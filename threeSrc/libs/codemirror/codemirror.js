@@ -8646,7 +8646,8 @@
         signal(this, "refresh", this);
       }),
 
-      operation: function(f){return runInOp(this, f)},
+      operation: function(f){
+        return runInOp(this, f)},
       startOperation: function(){return startOperation(this)},
       endOperation: function(){return endOperation(this)},
 
