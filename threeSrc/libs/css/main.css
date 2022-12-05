@@ -77,7 +77,7 @@ input {
 }
 
 .TabbedPanel .Tabs .Tab {
-  flex:1;
+  flex: 1;
   padding: 5px;
   text-align: center;
   text-transform: uppercase;
@@ -528,6 +528,27 @@ select:hover {
   border-right: 1px solid #6a6a6a;
 }
 
+.VerticalPromptLine {
+  position:absolute;
+  width: 1px;
+  height: 100%;
+  margin: 0px;
+  background-color: rgb(127, 255, 212, 0.5);
+  z-index: 0;
+}
+
+.TimeLine {
+  position: absolute;
+  box-shadow: 2px 2px 5px #000 inset;
+  background-color: #ddd;
+}
+
+.TimeLine.Frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(255, 244, 244);
+}
 /* */
 
 /* @media all and (max-width: 600px) {

@@ -17,6 +17,8 @@
     <title>Geometry Test</title>
     <script src="../threeSrc/three.js"></script>
     <script src="./defultTemplate.js"></script>
+    <link type="text/css" rel="styleSheet" href="../menuGUI/menuGUI.css">
+    <!-- <link type="text/css" rel="styleSheet" href="../threeSrc/libs/css/main.css"> -->
 </head>
 
 <body>
@@ -29,15 +31,47 @@
     </script>
 
     <script type="module">
+        // let linkFile;
+        // function linkCSS(url) {
+        //     var link = document.createElement("link");
+        //     link.rel = "stylesheet";
+        //     link.type = "text/css";
+        //     link.href = url;
+        //     document.getElementsByTagName("head")[0].appendChild(link);
+        //     linkFile = link;
+        // }
+
+        // linkCSS("../threeSrc/libs/css/main.css");
+        // document.getElementsByTagName("head")[0].removeChild(linkFile);
+
+        import("../assist/dynamicCssFile.js").then(model =>{
+            let cssFile = new model.dynamicCssFile("../threeSrc/libs/css/main.css");
+            // cssFile.dispose();
+        });
+
+        import("../threeSrc/libs/P_AnimationSystem/P_AnimationSystem_GUI/p_AnimationSystem_GUI_TimeLine.js").then(model => {
+            let timeLine = new model.p_AnimationSystem_GUI_TimeLine(10, 1);
+        });
+
+        import("../threeSrc/libs/P_AnimationSystem/P_AnimationSystem_GUI/p_AnimationSystem_GUI_Frame.js").then(model => {
+            console.log("Loaded.");
+            let frameObject = new model.p_AnimationSystem_GUI_Frame(10, 1);
+        });
+        
         document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
 
         let clock = new THREE.Clock();
         clock.start();
 
         let num = 0;
+        let time = Date.now();
+        let timeTemp = 0;
         let myInterval = setInterval(function () {
             num++;
-            console.log("Hello world!");
+            timeTemp = Date.now() - time;
+            time = Date.now();
+            console.log(timeTemp);
+            console.log(clock.getElapsedTime());
             if (num > 9) {
                 // num = 0;
                 console.log(num);

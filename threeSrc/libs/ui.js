@@ -879,6 +879,14 @@ class UIVerticalSplitLine extends UIElement {
   }
 }
 
+class UIVerticalPromptLine extends UIElement {
+  constructor() {
+    super(document.createElement("div"));
+
+    this.dom.className = "VerticalPromptLine";
+  }
+}
+
 class UIButton extends UIElement {
   constructor(value) {
     super(document.createElement("button"));
@@ -1124,5 +1132,6 @@ export {
   ListboxItem,
   UIHorizontalSplitLine,
   UIVerticalSplitLine,
+  UIVerticalPromptLine,
   documentBodyAdd,
 };
