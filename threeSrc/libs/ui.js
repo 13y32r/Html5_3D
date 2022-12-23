@@ -884,6 +884,7 @@ class UIVerticalPromptLine extends UIElement {
     super(document.createElement("div"));
 
     this.dom.className = "VerticalPromptLine";
+    this.setAttribute("name", "VerticalPromptLine");
   }
 }
 

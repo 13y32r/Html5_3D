@@ -41,6 +41,9 @@
         //     linkFile = link;
         // }
 
+        let date = new Date();
+        console.log(date.toUTCString());
+
         // linkCSS("../threeSrc/libs/css/main.css");
         // document.getElementsByTagName("head")[0].removeChild(linkFile);
 
@@ -58,7 +61,7 @@
             let frameObject = new model.p_AnimationSystem_GUI_Frame(10, 1);
         });
         
-        document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
+        // document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
 
         let clock = new THREE.Clock();
         clock.start();
