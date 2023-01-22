@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-04-12 20:55:07
- * @LastEditTime: 2022-10-13 19:27:38
+ * @LastEditTime: 2023-01-17 12:09:02
  * @LastEditors: your name
  * @Description:
  * @FilePath: \Html5_3D\testInConsole.js
@@ -180,3 +180,5 @@ tt.sayMessage("王大发！");
 //     if (key == "one") continue;
 //     console.log(test[key]);
 // }
+
+console.log(9%9);

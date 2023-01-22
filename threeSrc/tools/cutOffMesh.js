@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-09 20:49:54
- * @LastEditTime: 2022-10-10 19:53:07
+ * @LastEditTime: 2022-12-28 12:59:26
  * @LastEditors: your name
  * @Description:
  * @FilePath: \Html5_3D\threeSrc\tools\cutOffMesh.js
@@ -11,6 +11,7 @@
 import { Tool } from "./tool.js";
 import { SliceBufferGeometry } from "./slice2BG.js";
 import { Raycaster, Vector2, Vector3, Plane, Layers } from "three";
+import { SliceObjectCommand } from "../editor/commands/SliceObjectCommand.js";
 import {
   SelectNotContainName,
   SelectNotContainType,
@@ -167,15 +168,16 @@ class CutOffMesh extends Tool {
         mesh0.name = that.cutOBJ[ele].name + "_1";
         mesh1.name = that.cutOBJ[ele].name + "_2";
 
-        that.cutOBJ[ele].parent.add(mesh0, mesh1);
-        that.cutOBJ[ele].parent.remove(that.cutOBJ[ele]);
+        // that.cutOBJ[ele].parent.add(mesh0, mesh1);
+        // that.cutOBJ[ele].parent.remove(that.cutOBJ[ele]);
+        editorOperate.execute(new SliceObjectCommand(editorOperate, that.cutOBJ[ele], [mesh0, mesh1]));
 
         if (that.render != undefined) {
           that.render();
         }
 
-        mesh0 = null;
-        mesh1 = null;
+        // mesh0 = null;
+        // mesh1 = null;
         returnGeometrys.length = 0;
         slice = null;
       }
@@ -183,7 +185,7 @@ class CutOffMesh extends Tool {
       that.planePoints.length = 0;
     }
 
-    window["editorOperate"].signals.sceneGraphChanged.dispatch();
+    // window["editorOperate"].signals.sceneGraphChanged.dispatch();
     that.dispatchEvent(_changeEvent);
   }
 

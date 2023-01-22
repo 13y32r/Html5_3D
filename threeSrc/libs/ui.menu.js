@@ -923,6 +923,7 @@ class normalWindow extends UIDiv {
 
     this.dom.className = "normalWindow";
     this.dom.setAttribute("name", name);
+    addResizeEventListener(that.dom);
     documentBodyAdd(this);
 
     let initX = document.body.clientWidth - 100;
@@ -986,6 +987,85 @@ class normalWindow extends UIDiv {
     clearElement.style.clear = "both";
     this.dom.appendChild(clearElement);
   }
+
+  resizeEventStart(fn) {
+    this.dom.addEventListener("resizeEventStart", fn);
+  }
+
+  resizeEventing(fn) {
+    this.dom.addEventListener("resizeEventing", fn);
+  }
+}
+
+function addResizeEventListener(dom) {
+  dom.addEventListener("pointerdown", pointerDown);
+
+  function pointerDown(event) {
+    event.stopPropagation();
+
+    let domAbsolutePosition = docuemntHtmlPageXY(dom);
+    let relativeX = event.pageX - domAbsolutePosition.left;
+    let relativeY = event.pageY - domAbsolutePosition.top;
+    // console.log(relativeX + " : " + relativeY);
+
+    if (relativeX < (dom.offsetWidth - 15) || relativeY < (dom.offsetHeight - 15))
+      return;
+    else {
+      const resizeEventStart = new CustomEvent("resizeEventStart", {
+        bubbles: true,
+        cancelable: true,
+      });
+      dom.dispatchEvent(resizeEventStart);
+
+      document.addEventListener("pointermove", pointerMove);
+    }
+  }
+
+  function pointerMove() {
+
+    const resizeEventing = new CustomEvent("resizeEventing", {
+      bubbles: true,
+      cancelable: true,
+      detail: {
+        newWidth: dom.offsetWidth,
+        newHeight: dom.offsetHeight
+      }
+    });
+
+    dom.dispatchEvent(resizeEventing);
+    document.addEventListener("pointerup", pointerUp);
+  }
+
+  function pointerUp() {
+    document.removeEventListener("pointermove", pointerMove);
+    document.removeEventListener("pointerup", pointerUp);
+  }
+}
+
+function docuemntHtmlPageXY(elem) {
+
+  var rect = elem.getBoundingClientRect();
+
+  var scrollTop = window.scrollTop || (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop || 0;
+  var scrollLeft = window.scrollLeft || (document.documentElement && document.documentElement.scrollLeft) || document.body.scrollLeft || 0;
+  var html = document.documentElement || document.getElementsByTagName_r('html')[0];
+
+  //修复ie6 7 下的浏览器边框也被算在 boundingClientRect 内的 bug
+
+  var deviation = html.getBoundingClientRect();
+
+  //修复 ie8 返回 -2 的 bug
+
+  deviation = { //FF 不允许修改返回的对象
+    left: deviation.left < 0 ? 0 : deviation.left,
+    top: deviation.top < 0 ? 0 : deviation.top
+  };
+
+  return {
+    left: rect.left + scrollLeft - deviation.left,
+    top: rect.top + scrollTop - deviation.top
+  };
+
 }
 
 function smallBtnDown(target) {
@@ -1100,4 +1180,5 @@ export {
   normalWindow,
   initialToLowercase,
   dragElement,
+  addResizeEventListener
 };

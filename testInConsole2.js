@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-05-08 15:55:52
- * @LastEditTime: 2022-06-19 13:02:38
+ * @LastEditTime: 2022-12-28 21:32:16
  * @LastEditors: your name
  * @Description:
  * @FilePath: \Html5_3D\testInConsole2.js
@@ -370,19 +370,27 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 // console.log(test);
 // console.log(test2);
 
-async function waitTest() {
-  console.log("In the wait test.");
-  return "Jelly";
-}
+// async function waitTest() {
+//   console.log("In the wait test.");
+//   return "Jelly";
+// }
 
-waitTest()
-  .then((res) => {
-    console.log(res, "Hell world!");
-    return new Error("error!!!");
-  })
-  .catch((err) => {
-    console.log(err);
-    return "Catch erro!";
-  })
-  .then((res) => console.log(res))
-  .finally(() => console.log("It's over."));
+// waitTest()
+//   .then((res) => {
+//     console.log(res, "Hell world!");
+//     return new Error("error!!!");
+//   })
+//   .catch((err) => {
+//     console.log(err);
+//     return "Catch erro!";
+//   })
+//   .then((res) => console.log(res))
+//   .finally(() => console.log("It's over."));
+
+let stringFun = "console.log('Hello world:'+this)";
+function sayHello() {
+  console.log(this);
+  let newFun = new Function(stringFun).bind(this);
+  newFun();
+}
+sayHello();

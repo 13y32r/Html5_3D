@@ -1,37 +1,53 @@
-import { UITabbedPanel, documentBodyAdd, UIDiv } from "../../../libs/ui.js";
+/*******
+ * @Author: your name
+ * @Date: 2022-12-23 10:21:34
+ * @LastEditTime: 2023-01-15 18:03:27
+ * @LastEditors: your name
+ * @Description: 
+ * @FilePath: \Html5_3D\threeSrc\libs\P_AnimationSystem\P_AnimationSystem_GUI\p_AnimationSystem_GUI_Frame.js
+ * @可以输入预定的版权声明、个性签名、空行等
+ */
+import { UITabbedPanel, documentBodyAdd, UIDiv, UIElement } from "../../../libs/ui.js";
 
-class p_AnimationSystem_GUI_Frame extends UIDiv {
-  constructor(width, height) {
-    super("TimeFrame");
+class GUIFrameLabel extends UIDiv {
+  constructor(preDistance, height, showNumber) {
+    super("FrameAndLabel");
     let that = this;
 
-    this.setId("TimeFrame");
-    this.width = width;
-    this.height = height;
-    this.type;
-
-    this.createGUI();
+    if (showNumber) {
+      that.isLabelKey = true;
+    } else {
+      that.isLabelKey = false;
+    }
+    this.createGUI(preDistance, height, showNumber);
   }
 
-  createGUI() {
+  createGUI(preDistance, height, showNumber) {
     let that = this;
 
-    this.setWidth("30px");
-    this.setHeight("30px");
-    this.setBackgroundColor("red");
-    this.setPosition("absolute");
-    this.setTop("120px");
-    this.setLeft("120px");
-    this.setAttribute("title","王阳明");
-    this.setInnerHTML("e");
-    this.setUserSelect("none");
-    this.setClass("TimeLine");
-    this.addClass("Frame");
-    // this.setTouchAction("none");
+    this.addClass("GUIFrameLabel");
 
-    // this.closeWindow();
-    documentBodyAdd(this);
+    let tickMark = new UIDiv();
+    tickMark.setPosition("absolute");
+    tickMark.setWidth("1px");
+    tickMark.setHeight(height + "px");
+    tickMark.setBottom("0px");
+    tickMark.setBackgroundColor("#b4b4b4");
+    tickMark.dom.style.opacity = height / 10;
+    this.add(tickMark);
+
+    this.setPosition("absolute");
+    this.setBottom("0px");
+    this.setLeft(preDistance + "px");
+
+    if (showNumber) {
+      let title = document.createElement("label");
+      title.innerHTML = showNumber;
+      this.dom.appendChild(title);
+    }
   }
 }
 
-export { p_AnimationSystem_GUI_Frame };
+class GUIFrameNotLabel extends UIDiv { }
+
+export { GUIFrameLabel, GUIFrameNotLabel };

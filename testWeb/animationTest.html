@@ -1,3 +1,12 @@
+<!--
+ * @Author: your name
+ * @Date: 2022-08-29 19:32:38
+ * @LastEditTime: 2022-12-30 13:43:45
+ * @LastEditors: your name
+ * @Description: 
+ * @FilePath: \Html5_3D\testWeb\animationTest.html
+ * 可以输入预定的版权声明、个性签名、空行等
+-->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,7 +22,7 @@
 </head>
 
 <body>
-    <input id="test" type="range"/> 
+    <input id="test" type="range" />
 
     <script>
         document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
@@ -66,27 +75,36 @@
 
         let clock = new THREE.Clock();
 
-        // function animate() {
-        //     // mixer.update(clock.getDelta());
-        //     // if (clock.getElapsedTime() > 5 && !isStart) {
-        //     //     tween.start();
-        //     //     isStart = true;
-        //     // }
+        function animate() {
+            // mixer.update(clock.getDelta());
+            if (clock.getElapsedTime() > 5 && !isStart) {
+                tween.start();
+                isStart = true;
+            }
 
-        //     // if (clock.getElapsedTime() > 25 && !isEnd) {
-        //     //     tween.stop();
-        //     //     clock.stop();
-        //     //     isEnd = true;
-        //     //     console.log("Time's up.");
-        //     // }
+            if (clock.getElapsedTime() > 25 && !isEnd) {
+                tween.stop();
+                // clock.stop();
+                isEnd = true;
+                console.log("Time's up.");
+                return;
+            }
 
-        //     TWEEN.update();
-        //     render();
-        //     requestAnimationFrame(animate);
-        // }
-        // animate();
+            // TWEEN.update();
+            // render();
+            console.log("Hi!");
+            requestAnimationFrame(animate);
+        }
+        animate();
 
-        renderer.setAnimationLoop(function(){
+        let reStart = false
+        renderer.setAnimationLoop(function () {
+            if (clock.getElapsedTime() > 30 && !reStart) {
+                clock.stop();
+                console.log("Tween is restart!");
+                tween.start();
+                reStart = 1;
+            }
             TWEEN.update();
             render();
         })
