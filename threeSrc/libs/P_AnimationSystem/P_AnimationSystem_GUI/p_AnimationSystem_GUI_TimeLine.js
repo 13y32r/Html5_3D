@@ -289,7 +289,8 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
         that.sampleInput.setValue(tempValue);
       }
 
-      that.refreshFrame();
+      let newSample = that.sampleInput.getValue();
+      that.sampleChangeReCalFrameSpace(newSample, that.sampleNumber);
     });
 
     that.objColumnCells = new UIDiv();
@@ -604,6 +605,47 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.refreshFrame(rp);
   }
 
+  sampleChangeReCalFrameSpace(newSample, oldSample) {
+    let that = this;
+    console.log("oldSample is:" + oldSample);
+    console.log("newSample is:" + newSample);
+
+    console.log("that.secondUnitWidth before is:" + that.secondUnitWidth);
+    console.log("that.secondUnit is:" + that.secondUnit);
+
+    that.secondUnitWidth = that.secondUnitWidth * oldSample / (newSample * that.secondUnit);
+    that.secondUnit = 1;
+
+    console.log("that.secondUnitWidth behind is:" + that.secondUnitWidth);
+
+    function updateUnit() {
+
+      //判断缩放量是否达到临界值
+      if (that.secondUnitWidth <= 20) {
+        if (that.secondUnit * 2 < newSample) {
+          that.secondUnit *= 2;
+          that.secondUnitWidth *= 2;
+          updateUnit();
+        } else {
+          that.myUnitType = UnitType.Minute;
+        }
+      }
+    }
+
+    //判断单位模式为“秒”再执行，否则不执行
+    if (that.myUnitType == UnitType.Second) {
+      updateUnit();
+    }
+
+    console.log("that.secondUnitWidth in end is:" + that.secondUnitWidth);
+    console.log("that.secondUnit in end is:" + that.secondUnit);
+
+    that.sampleNumber = that.sampleInput.getValue();
+    that.sampleNumber = parseInt(that.sampleNumber);
+
+    that.refreshFrame();
+  }
+
   //当尺寸改变时，重新计算帧的间隙函数
   sizeChangeReCalFrameSpace(scale) {
     let that = this;
@@ -676,9 +718,12 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
 
       for (let i = 1; i < totalNumber; i++) {
         let sTimesWidth = i * that.secondUnitWidth;
-        if (sTimesWidth % that.minuteUnitWidth != 0) {
-          let minuteNumber = Math.floor(sTimesWidth / that.minuteUnitWidth);
+        console.log("(i * that.secondUnit) is:" + (i * that.secondUnit));
+        console.log("that.sampleNumber is:" + that.sampleNumber);
+        if ((i * that.secondUnit) % that.sampleNumber != 0) {
+          let minuteNumber = Math.floor((i * that.secondUnit) / that.sampleNumber);
           let showedSecondNumber = i * that.secondUnit - minuteNumber * that.sampleNumber;
+          console.log("showedSecondNumber is:" + showedSecondNumber);
           showText = minuteNumber + ":" + showedSecondNumber;
           let guiFrameLabel = new GUIFrameLabel(
             40 + Math.floor(sTimesWidth),
