@@ -786,6 +786,7 @@ input::-webkit-inner-spin-button {
   transform: perspective(1px) scale(0.8);
   left: 4px;
   bottom: 2px;
+  user-select: none;
 }
 
 .ClipSelect {
