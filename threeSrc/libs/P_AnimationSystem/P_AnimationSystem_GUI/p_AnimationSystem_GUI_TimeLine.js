@@ -206,13 +206,16 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
     //时间轴的滚轮增量，默认是零
     that.markIncrement = 0;
 
-    //时间轴的默认采样频率，默认是“3”
-    that.sampleNumber = 3;
+    //时间轴的默认采样频率，默认是“60”
+    that.sampleNumber = 60;
 
     //分的单位宽度
     that.minuteUnitWidth;
     //秒的单位宽度
     that.secondUnitWidth;
+
+    //带有文本的标签数组
+    that.labelFrameArray = new Array();
 
     //分的单位倍数
     that.minuteUnit = 1;
@@ -276,7 +279,7 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.sampleArea = new UIDiv();
     that.sampleText = new UISpan();
     that.sampleInput = new AnimationPannelInput();
-    that.sampleInput.setValue(3);
+    that.sampleInput.setValue(that.sampleNumber);
     that.sampleInput.changed(function () {
       let tempValue = that.sampleInput.getValue();
       if (!tempValue || tempValue < 1) {
@@ -326,18 +329,9 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.timeScaleBar.setClass("TimeScaleBar");
     that.eventShowArea.setClass("EventShowArea");
     that.keyShowArea.setClass("KeyShowArea");
-    // that.guiFrameLabel1 = new GUIFrameLabel(40, 10, "0:00");
-    // that.guiFrameLabel2 = new GUIFrameLabel(100, 4, "1:00");
-    // that.guiFrameLabel3 = new GUIFrameLabel(150, 8);
-    // that.guiFrameLabel4 = new GUIFrameLabel(200, 4, "3:00");
-    // that.guiFrameLabel5 = new GUIFrameLabel(250, 10, "4:00");
-    // that.timeScaleBar.add(that.guiFrameLabel1, that.guiFrameLabel2, that.guiFrameLabel3, that.guiFrameLabel4, that.guiFrameLabel5);
 
     that.eventColumnCells.setClass("TimeLineContainer");
     that.eventColumnCells.addClass("EventColumnCells");
-    // that.eventColumnCells.setInnerHTML(
-    //   "alsdkjflakjflkjwl<br>sdfkljwlekhgjkwjh<br>sdkfjhwkjhgkjhwer<br>sdkajfhwkjhekjhwer"
-    // );
 
     that.verticalSplitLine = new UIVerticalSplitLine();
     that.horizontalSplitLine = new UIHorizontalSplitLine();
@@ -546,6 +540,19 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.minuteUnitWidth = totalWidthIncrement;
     that.secondUnitWidth = totalWidthIncrement / that.sampleNumber;
 
+
+    while (that.secondUnitWidth <= 20) {
+      if (that.secondUnit * 2 < that.sampleNumber) {
+        that.secondUnit *= 2;
+        that.secondUnitWidth *= 2;
+      } else {
+        that.myUnitType = UnitType.Minute;
+        break;
+      }
+    }
+
+    console.log("that.secondUnitWidth is:" + that.secondUnitWidth);
+
     that.refreshFrame();
   }
 
@@ -586,7 +593,6 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
         if (that.minuteUnitWidth <= 20) {
           that.minuteUnit *= 2;
           that.minuteUnitWidth *= 2;
-        } else {
         }
       } else {
         if (that.minuteUnit > 1) {
@@ -605,18 +611,43 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.refreshFrame(rp);
   }
 
+  calKeyFrameOfPromptLine(pl_position) {
+    let that = this;
+
+    //首先算出关键帧所在的位置属于哪一个“分”
+    let minuteID = 0;
+    //判断所在“分”的长度是否超过了关键帧提示线的位置，如果超过了就退出循环。
+    while (minuteID * that.minuteUnitWidth < pl_position) {
+      minuteID++;
+    }
+    //由于上面的判断依据是长度超过关键帧提示线的位置，所以这里要做减“1”操作
+    minuteID--;
+
+    //接着在判断属于哪一个“秒”
+    let lotWidth = pl_position - minuteID * that.minuteUnitWidth;
+    let secondID = 0;
+    let suWidth = that.secondUnitWidth / that.secondUnit;
+    while (secondID * suWidth < lotWidth) {
+      secondID++;
+    }
+    //这里“秒”的判断有点特殊，只有在关键帧提示线的位置小于中间位置时，才让secondID归属于小的那个，否则不变属于大的那个
+    let medianPos = ((secondID - 1) * that.secondUnitWidth + secondID * that.secondUnitWidth) / 2;
+    if (lotWidth < medianPos) {
+      secondID--;
+    }
+
+    that.keyPosition = minuteID * that.sampleNumber + secondID;
+    that.keyPositionInput.setValue(that.keyPosition);
+  }
+
   sampleChangeReCalFrameSpace(newSample, oldSample) {
     let that = this;
-    console.log("oldSample is:" + oldSample);
-    console.log("newSample is:" + newSample);
 
-    console.log("that.secondUnitWidth before is:" + that.secondUnitWidth);
-    console.log("that.secondUnit is:" + that.secondUnit);
+    console.log("newSample is:" + newSample);
+    console.log("oldSample is:" + oldSample);
 
     that.secondUnitWidth = that.secondUnitWidth * oldSample / (newSample * that.secondUnit);
     that.secondUnit = 1;
-
-    console.log("that.secondUnitWidth behind is:" + that.secondUnitWidth);
 
     function updateUnit() {
 
@@ -636,9 +667,6 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
     if (that.myUnitType == UnitType.Second) {
       updateUnit();
     }
-
-    console.log("that.secondUnitWidth in end is:" + that.secondUnitWidth);
-    console.log("that.secondUnit in end is:" + that.secondUnit);
 
     that.sampleNumber = that.sampleInput.getValue();
     that.sampleNumber = parseInt(that.sampleNumber);
@@ -710,21 +738,25 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
 
     showText = "0:00";
     let guiFrameLabel = new GUIFrameLabel(40, 10, showText);
+    that.labelFrameArray.push(guiFrameLabel);
     that.timeScaleBar.add(guiFrameLabel);
 
     if (that.myUnitType == UnitType.Second) {
       let totalNumber = (that.eventColumns.dom.offsetWidth - 60) / that.secondUnitWidth;
       let oddJudge;
 
+      let secondNUmber = Math.floor(that.minuteUnitWidth / that.secondUnitWidth);
+      console.log("secondNUmber is:" + secondNUmber);
+
       for (let i = 1; i < totalNumber; i++) {
         let sTimesWidth = i * that.secondUnitWidth;
-        console.log("(i * that.secondUnit) is:" + (i * that.secondUnit));
-        console.log("that.sampleNumber is:" + that.sampleNumber);
+
         if ((i * that.secondUnit) % that.sampleNumber != 0) {
           let minuteNumber = Math.floor((i * that.secondUnit) / that.sampleNumber);
           let showedSecondNumber = i * that.secondUnit - minuteNumber * that.sampleNumber;
-          console.log("showedSecondNumber is:" + showedSecondNumber);
+
           showText = minuteNumber + ":" + showedSecondNumber;
+
           let guiFrameLabel = new GUIFrameLabel(
             40 + Math.floor(sTimesWidth),
             7,
@@ -799,7 +831,6 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
         if (!that.isPointerEnter) {
           that.eventColumns.add(that.promptLine);
           that.promptLine.setHeight(that.eventColumns.dom.offsetHeight + "px");
-          // document.body.appendChild(that.promptLine.dom);
           that.isPointerEnter = true;
         }
         break;
