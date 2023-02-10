@@ -772,6 +772,7 @@ input::-webkit-inner-spin-button {
 }
 
 .GUIFrameLabel {
+  pointer-events: none;
   width: auto;
   height: auto;
 }
