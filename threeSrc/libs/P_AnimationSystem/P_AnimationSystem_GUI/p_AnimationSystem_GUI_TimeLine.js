@@ -61,8 +61,8 @@ function addResizerHandle(fDom, dom1, dom2, dom3, rootDom, changeFN) {
       clientX < offsetX + minLeftMargin
         ? offsetX + minLeftMargin
         : clientX > offsetWidth + offsetX - maxRightMargin
-          ? offsetWidth + offsetX - maxRightMargin
-          : clientX;
+        ? offsetWidth + offsetX - maxRightMargin
+        : clientX;
     // const cX = clientX;
 
     const x = cX - rootDom.offsetLeft;
@@ -349,7 +349,10 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.resizeChange = that.resizeChange.bind(this);
 
     that.setPLPositionByPoint = that.setPLPositionByPoint.bind(this);
-    that.timeScaleBar.dom.addEventListener("pointerdown", that.setPLPositionByPoint);
+    that.timeScaleBar.dom.addEventListener(
+      "pointerdown",
+      that.setPLPositionByPoint
+    );
 
     that.calPromptLinePosition = that.calPromptLinePosition.bind(this);
     that.calKeyFrameOfPromptLine = that.calKeyFrameOfPromptLine.bind(this);
@@ -357,6 +360,26 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
 
     that.wheelEventInWindow = that.wheelEventInWindow.bind(this);
     that.eventColumns.dom.addEventListener("wheel", that.wheelEventInWindow);
+
+    that.eventColumnsPointerDown = that.eventColumnsPointerDown.bind(this);
+    that.eventColumns.dom.addEventListener(
+      "pointerdown",
+      that.eventColumnsPointerDown
+    );
+
+    that.eventAreaScrollEvent = that.eventAreaScrollEvent.bind(this);
+
+    that.eventAreaScrollPointerDown =
+      that.eventAreaScrollPointerDown.bind(this);
+    that.eventAreaScroll.dom.addEventListener(
+      "pointerdown",
+      that.eventAreaScrollPointerDown
+    );
+    that.eventAreaScrollPointerUp = that.eventAreaScrollPointerUp.bind(this);
+    that.eventAreaScroll.dom.addEventListener(
+      "pointerup",
+      that.eventAreaScrollPointerUp
+    );
   }
 
   createGUI() {
@@ -420,7 +443,7 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
       ) {
         that.eventColumns.setWidth(
           (that.eventAreaScroll.dom.offsetWidth * oldEventColumnsWidth) /
-          oldEventAreaScrollWidth
+            oldEventAreaScrollWidth
         );
       } else {
         that.eventColumns.setWidth(
@@ -531,7 +554,6 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.minuteUnitWidth = totalWidthIncrement;
     that.secondUnitWidth = totalWidthIncrement / that.sampleNumber;
 
-
     while (that.secondUnitWidth <= 5) {
       if (that.secondUnit * 2 < that.sampleNumber) {
         that.secondUnit *= 2;
@@ -550,7 +572,8 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
     let that = this;
 
     //这里先计算能显示的最大帧数，防止溢出
-    let maxNumOfFrame = (that.eventColumns.dom.offsetWidth - 60) / that.minuteUnitWidth;
+    let maxNumOfFrame =
+      (that.eventColumns.dom.offsetWidth - 60) / that.minuteUnitWidth;
     maxNumOfFrame = maxNumOfFrame * that.minuteUnit * that.sampleNumber;
 
     //这里判断，如果是在that.markIncrement为正（即最大显示帧数在不断增长的状态下），最大显示帧数是否超过阈值，如果超过了，将返回而不进行任何操作
@@ -560,11 +583,12 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
       }
     }
 
-    let frameOfRp = that.calKeyFrameOfPL_Position(rp + that.eventAreaScroll.dom.scrollLeft);
-    console.log("frameOfRp is:" + frameOfRp);
-    let oldFrontLength = frameOfRp * that.secondUnitWidth / that.secondUnit;
+    let frameOfRp = that.calKeyFrameOfPL_Position(
+      rp + that.eventAreaScroll.dom.scrollLeft
+    );
+
+    let oldFrontLength = (frameOfRp * that.secondUnitWidth) / that.secondUnit;
     let fixedFrontLength = oldFrontLength - that.eventAreaScroll.dom.scrollLeft;
-    console.log("fixedFrontLength is:" + fixedFrontLength);
 
     //判断最小单位类型是“秒”还是“分”
     if (that.myUnitType == UnitType.Second) {
@@ -589,11 +613,11 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
         }
       }
 
-      that.minuteUnitWidth = that.sampleNumber * that.secondUnitWidth / that.secondUnit;
+      that.minuteUnitWidth =
+        (that.sampleNumber * that.secondUnitWidth) / that.secondUnit;
       if (that.minuteUnitWidth <= 40) {
         that.myUnitType = UnitType.Minute;
       }
-
     } else {
       //如果单位类型是“分”，就计算分的最小宽度
       that.minuteUnitWidth -= that.markIncrement;
@@ -616,14 +640,16 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
           }
         }
       }
-      that.secondUnitWidth = that.minuteUnitWidth / that.minuteUnit / that.sampleNumber * that.secondUnit;
+      that.secondUnitWidth =
+        (that.minuteUnitWidth / that.minuteUnit / that.sampleNumber) *
+        that.secondUnit;
     }
 
-    console.log("rp is:" + rp);
-    let incrementLength = frameOfRp * that.secondUnitWidth / that.secondUnit - oldFrontLength;
+    let incrementLength =
+      (frameOfRp * that.secondUnitWidth) / that.secondUnit - oldFrontLength;
     let oldWidth = that.eventColumns.dom.offsetWidth;
     let newWidth = oldWidth + incrementLength;
-    let newFrontLength = frameOfRp * that.secondUnitWidth / that.secondUnit;
+    let newFrontLength = (frameOfRp * that.secondUnitWidth) / that.secondUnit;
     let scrollLeft = newFrontLength - fixedFrontLength;
     // let newRP = rp + incrementLength + 40;
     // let pointerPosition = (newWidth * (rp + 40)) / (oldWidth);
@@ -691,7 +717,10 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
       secondID++;
     }
     //这里“秒”的判断有点特殊，只有在关键帧提示线的位置小于中间位置时，才让secondID归属于小的那个，否则不变属于大的那个
-    let medianPos = ((secondID - 1) * that.secondUnitWidth + secondID * that.secondUnitWidth) / 2;
+    let medianPos =
+      ((secondID - 1) * that.secondUnitWidth +
+        secondID * that.secondUnitWidth) /
+      2;
     if (lotWidth < medianPos) {
       secondID--;
     }
@@ -717,11 +746,11 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
   sampleChangeReCalFrameSpace(newSample, oldSample) {
     let that = this;
 
-    that.secondUnitWidth = that.secondUnitWidth * oldSample / (newSample * that.secondUnit);
+    that.secondUnitWidth =
+      (that.secondUnitWidth * oldSample) / (newSample * that.secondUnit);
     that.secondUnit = 1;
 
     function updateUnit() {
-
       //判断缩放量是否达到临界值
       if (that.secondUnitWidth <= 5) {
         if (that.secondUnit * 2 < newSample) {
@@ -749,6 +778,45 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.refreshFrame();
   }
 
+  eventColumnsPointerDown(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    console.log("eventColumnsPointerDown");
+  }
+
+  eventAreaScrollPointerDown(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    let that = this;
+
+    that.eventAreaScroll.dom.addEventListener(
+      "scroll",
+      that.eventAreaScrollEvent
+    );
+  }
+
+  eventAreaScrollPointerUp(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    let that = this;
+
+    that.eventAreaScroll.dom.removeEventListener(
+      "scroll",
+      that.eventAreaScrollEvent
+    );
+  }
+
+  eventAreaScrollEvent(event) {
+    event = event || window.event;
+    event.preventDefault();
+    event.stopPropagation();
+
+    console.log(this.eventAreaScroll.dom.scrollLeft);
+  }
+
   //当尺寸改变时，重新计算帧的间隙函数
   sizeChangeReCalFrameSpace(scale) {
     let that = this;
@@ -774,7 +842,8 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
         }
       }
 
-      that.minuteUnitWidth = that.sampleNumber * that.secondUnitWidth / that.secondUnit;
+      that.minuteUnitWidth =
+        (that.sampleNumber * that.secondUnitWidth) / that.secondUnit;
     } else {
       //如果单位类型是“分”，就计算分的最小宽度
       that.minuteUnitWidth *= scale;
@@ -823,49 +892,43 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.labelFrameArray.length = 0;
 
     showText = "0" + ":00";
-    let guiFrameLabel = new GUIFrameLabel(
-      40,
-      10,
-      showText
-    );
+    let guiFrameLabel = new GUIFrameLabel(40, 10, showText);
     that.timeScaleBar.add(guiFrameLabel);
     that.labelFrameArray.push(guiFrameLabel);
 
     if (that.myUnitType == UnitType.Second) {
-
       let oddJudge = false;
-      let secondNUmber = Math.floor((that.minuteUnitWidth - 4) / that.secondUnitWidth) + 1;
+      let secondNUmber =
+        Math.floor((that.minuteUnitWidth - 4) / that.secondUnitWidth) + 1;
 
       if (secondNUmber % 2 == 0) {
         oddJudge = true;
       }
 
-      let showMinuteNumber = (that.eventColumns.dom.offsetWidth - 60) / that.minuteUnitWidth;
+      let showMinuteNumber =
+        (that.eventColumns.dom.offsetWidth - 60) / that.minuteUnitWidth;
       let showText;
 
       for (let j = 1; j < showMinuteNumber; j++) {
-
         //先添加上“分”的单位
         let mTimesWidth = j * that.minuteUnitWidth;
         let theMinuteOffSet = 40 + Math.floor(mTimesWidth);
         showText = j + ":00";
-        let guiFrameLabel = new GUIFrameLabel(
-          theMinuteOffSet,
-          10,
-          showText
-        );
+        let guiFrameLabel = new GUIFrameLabel(theMinuteOffSet, 10, showText);
         that.timeScaleBar.add(guiFrameLabel);
 
         //这里将前面“秒”的单位先添加到刻度条中
         for (let i = 1; i < secondNUmber; i++) {
           let minuteNumber = j - 1;
-          let sTimesWidth = i * that.secondUnitWidth + minuteNumber * that.minuteUnitWidth;
+          let sTimesWidth =
+            i * that.secondUnitWidth + minuteNumber * that.minuteUnitWidth;
           let showedSecondNumber = i * that.secondUnit;
 
           let theSecondOffSet = 40 + Math.floor(sTimesWidth);
           let guiFrameLabel;
 
-          let labelOffSetLeft = theSecondOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
+          let labelOffSetLeft =
+            theSecondOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
 
           if (labelOffSetLeft > 40 && theMinuteOffSet - theSecondOffSet > 40) {
             showText = minuteNumber + ":" + showedSecondNumber;
@@ -876,7 +939,6 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
             );
             that.labelFrameArray.push(guiFrameLabel);
           } else {
-
             guiFrameLabel = new GUIFrameLabel(
               theSecondOffSet,
               that.secondUnitWidth / 5
@@ -890,15 +952,20 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
       }
 
       //这里计算超出“分”单位的溢出部分可容纳多少个“秒”单位
-      let overSecondUnite = Math.floor((that.eventColumns.dom.offsetWidth - 60) % that.minuteUnitWidth / that.secondUnitWidth);
+      let overSecondUnite = Math.floor(
+        ((that.eventColumns.dom.offsetWidth - 60) % that.minuteUnitWidth) /
+          that.secondUnitWidth
+      );
       let minuteNumber = Math.floor(showMinuteNumber);
 
       for (let k = 1; k < overSecondUnite + 1; k++) {
-        let sTimesWidth = k * that.secondUnitWidth + minuteNumber * that.minuteUnitWidth;
+        let sTimesWidth =
+          k * that.secondUnitWidth + minuteNumber * that.minuteUnitWidth;
         let showedSecondNumber = k * that.secondUnit;
 
         let theSecondOffSet = 40 + Math.floor(sTimesWidth);
-        let labelOffSetLeft = theSecondOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
+        let labelOffSetLeft =
+          theSecondOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
 
         let guiFrameLabel;
 
@@ -920,7 +987,8 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
         that.timeScaleBar.add(guiFrameLabel);
       }
     } else {
-      let totalNumber = (that.eventColumns.dom.offsetWidth - 60) / that.minuteUnitWidth;
+      let totalNumber =
+        (that.eventColumns.dom.offsetWidth - 60) / that.minuteUnitWidth;
 
       let oddJudge;
 
@@ -929,7 +997,8 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
         let theMinuteOffSet = 40 + Math.floor(mTimesWidth);
         let guiFrameLabel;
 
-        let labelOffSetLeft = theMinuteOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
+        let labelOffSetLeft =
+          theMinuteOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
 
         if (labelOffSetLeft > 40) {
           showText = i * that.minuteUnit + ":0";
@@ -1001,7 +1070,7 @@ class ScaleOfTimeLine extends UIDiv {
     }
   }
 
-  refresh() { }
+  refresh() {}
 }
 
 export { p_AnimationSystem_GUI_TimeLine };
