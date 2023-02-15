@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-05-08 15:55:52
- * @LastEditTime: 2022-12-28 21:32:16
+ * @LastEditTime: 2023-02-12 11:37:40
  * @LastEditors: your name
  * @Description:
  * @FilePath: \Html5_3D\testInConsole2.js
@@ -387,10 +387,12 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 //   .then((res) => console.log(res))
 //   .finally(() => console.log("It's over."));
 
-let stringFun = "console.log('Hello world:'+this)";
-function sayHello() {
-  console.log(this);
-  let newFun = new Function(stringFun).bind(this);
-  newFun();
-}
-sayHello();
+// let stringFun = "console.log('Hello world:'+this)";
+// function sayHello() {
+//   console.log(this);
+//   let newFun = new Function(stringFun).bind(this);
+//   newFun();
+// }
+// sayHello();
+
+console.log(5 % 3);

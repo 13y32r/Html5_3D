@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-18 14:28:01
- * @LastEditTime: 2022-07-29 21:57:53
+ * @LastEditTime: 2023-02-13 22:25:13
  * @LastEditors: your name
  * @Description:这时新版本的菜单类，已经将类的初始化放在了init.js文件中。
  * @FilePath: \Html5_3D\menuGUI\menuGUI.js
@@ -69,7 +69,7 @@ class MenuGUI {
               ] = new window[jsonFile[ele1][ele2][ele3]]();
               that.class4Menu[jsonFile[ele1][ele2][ele3]] =
                 window[
-                  jsonFile[ele1]["Title"] + "_" + jsonFile[ele1][ele2][ele3]
+                jsonFile[ele1]["Title"] + "_" + jsonFile[ele1][ele2][ele3]
                 ];
             }
           }

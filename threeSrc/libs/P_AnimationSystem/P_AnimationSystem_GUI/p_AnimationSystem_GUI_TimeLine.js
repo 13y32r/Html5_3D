@@ -61,8 +61,8 @@ function addResizerHandle(fDom, dom1, dom2, dom3, rootDom, changeFN) {
       clientX < offsetX + minLeftMargin
         ? offsetX + minLeftMargin
         : clientX > offsetWidth + offsetX - maxRightMargin
-        ? offsetWidth + offsetX - maxRightMargin
-        : clientX;
+          ? offsetWidth + offsetX - maxRightMargin
+          : clientX;
     // const cX = clientX;
 
     const x = cX - rootDom.offsetLeft;
@@ -193,8 +193,8 @@ const UnitType = {
   Minute: 1,
 };
 
-class p_AnimationSystem_GUI_TimeLine extends UIDiv {
-  constructor(startTime, scale) {
+class P_AnimationSystem_GUI_TimeLine extends UIDiv {
+  constructor() {
     super("TimeLine");
     let that = this;
 
@@ -226,7 +226,6 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
 
     that.container = new UIDiv();
 
-    that.tickMark = new UIDiv();
     that.objColumn = new UIDiv();
     that.eventColumns = new UIDiv();
     that.eventAreaScroll = new UIDiv();
@@ -298,19 +297,18 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
     });
 
     that.objColumnCells = new UIDiv();
+    that.addPropertyButton = new AddPropertyButton("增加属性");
 
     that.timeScaleBar = new UIDiv();
     that.eventShowArea = new UIDiv();
     that.keyShowArea = new UIDiv();
     that.eventColumnCells = new UIDiv();
 
-    this.startTime = startTime;
-    this.scale = scale;
-
     that.container.setClass("TimeLineDisplayArea");
 
     that.objColumn.setClass("ObjectColumn");
     that.eventColumns.addClass("EventColumn");
+
     that.eventAreaScroll.addClass("EventAreaScroll");
 
     that.buttonArea.setClass("ButtonArea");
@@ -323,9 +321,6 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
 
     that.objColumnCells.setClass("TimeLineContainer");
     that.objColumnCells.addClass("ObjectColumnCells");
-    that.objColumnCells.setInnerHTML(
-      "alsdkjflakjflkjwl<br>sdfkljwlekhgjkwjh<br>sdkfjhwkjhgkjhwer<br>sdkajfhwkjhekjhwer"
-    );
 
     that.timeScaleBar.setClass("TimeScaleBar");
     that.eventShowArea.setClass("EventShowArea");
@@ -339,10 +334,9 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
 
     that.promptLine = new UIVerticalPromptLine();
 
-    this.createGUI();
-
-    that.eventColumns.add(that.promptLine);
-    that.promptLine.setHeight(that.eventColumns.dom.offsetHeight + "px");
+    setTimeout(() => {
+      this.createGUI();
+    }, 200);
 
     that.isPointerEnter = false;
 
@@ -380,12 +374,15 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
       "pointerup",
       that.eventAreaScrollPointerUp
     );
+
+    that.openPanel = that.openPanel.bind(this);
+    that.closePanel = that.closePanel.bind(this);
   }
 
   createGUI() {
     let that = this;
 
-    this.mainBody = new normalWindow("时间轴", null);
+    this.mainBody = new normalWindow("时间轴", window["menuGUI"].folderDictionary["Main-Menu"].cellBtns["动画面板"]);
     this.mainBody.addContent(that.container);
     this.mainBody.resizeEventStart(resizeEventStart);
     this.mainBody.resizeEventing(resizeEventing);
@@ -443,7 +440,7 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
       ) {
         that.eventColumns.setWidth(
           (that.eventAreaScroll.dom.offsetWidth * oldEventColumnsWidth) /
-            oldEventAreaScrollWidth
+          oldEventAreaScrollWidth
         );
       } else {
         that.eventColumns.setWidth(
@@ -475,6 +472,12 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
     let horizontalSplitLine_2 = new UIHorizontalSplitLine();
     that.objColumn.add(horizontalSplitLine_2);
     that.objColumn.add(that.objColumnCells);
+
+    let placeHolderCell = new UIDiv();
+    placeHolderCell.setHeight("16px");
+    placeHolderCell.setWidth("100%");
+    that.objColumnCells.add(placeHolderCell);
+    that.objColumnCells.add(that.addPropertyButton);
 
     let verticalSplitLine_1 = new UIVerticalSplitLine();
     that.buttonArea.add(verticalSplitLine_1);
@@ -527,6 +530,8 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
     horizontalSplitLine_5.setPosition("sticky");
     that.eventColumns.add(horizontalSplitLine_5);
     that.eventColumns.add(that.eventColumnCells);
+    that.eventColumns.add(that.promptLine);
+    that.promptLine.setHeight("110px");
 
     addResizerHandle.bind(this)(
       that.container.dom,
@@ -564,7 +569,9 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
       }
     }
 
-    that.refreshFrame();
+    setTimeout(() => {
+      that.refreshFrame();
+    }, 200);
   }
 
   //滚轮控制帧间隙的函数
@@ -645,8 +652,7 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
         that.secondUnit;
     }
 
-    let incrementLength =
-      (frameOfRp * that.secondUnitWidth) / that.secondUnit - oldFrontLength;
+    let incrementLength = (frameOfRp * that.secondUnitWidth) / that.secondUnit - oldFrontLength;
     let oldWidth = that.eventColumns.dom.offsetWidth;
     let newWidth = oldWidth + incrementLength;
     let newFrontLength = (frameOfRp * that.secondUnitWidth) / that.secondUnit;
@@ -690,8 +696,13 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
       suWidth = that.minuteUnitWidth / that.minuteUnit / that.sampleNumber;
     }
 
-    let relPosition = suWidth * keyFrameValue;
-    let absolutePosition = that.eventColumns.dom.offsetLeft + relPosition + 40;
+    let relPosition = Math.floor(suWidth * keyFrameValue);
+    let absolutePosition = that.eventColumns.dom.offsetLeft + relPosition + 40 - that.eventAreaScroll.dom.scrollLeft;
+    if (absolutePosition < (that.objColumn.dom.offsetWidth + 2)) {
+      that.promptLine.setDisplay("none");
+    } else if (that.promptLine.dom.display != "flex") {
+      that.promptLine.setDisplay("flex");
+    }
 
     that.promptLine.setLeft(absolutePosition + "px");
   }
@@ -791,10 +802,13 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
 
     let that = this;
 
-    that.eventAreaScroll.dom.addEventListener(
-      "scroll",
-      that.eventAreaScrollEvent
-    );
+    if (!that.eventAreaScrolling) {
+      that.eventAreaScroll.dom.addEventListener(
+        "scroll",
+        that.eventAreaScrollEvent
+      );
+      that.eventAreaScrolling = true;
+    }
   }
 
   eventAreaScrollPointerUp(event) {
@@ -803,10 +817,13 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
 
     let that = this;
 
-    that.eventAreaScroll.dom.removeEventListener(
-      "scroll",
-      that.eventAreaScrollEvent
-    );
+    setTimeout(() => {
+      that.eventAreaScroll.dom.removeEventListener(
+        "scroll",
+        that.eventAreaScrollEvent
+      );
+      that.eventAreaScrolling = false
+    }, 300);
   }
 
   eventAreaScrollEvent(event) {
@@ -814,7 +831,10 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
     event.preventDefault();
     event.stopPropagation();
 
-    console.log(this.eventAreaScroll.dom.scrollLeft);
+    let that = this;
+    console.log("eventAreaScrollEvent!!!!!!!!!!");
+
+    that.refreshFrame();
   }
 
   //当尺寸改变时，重新计算帧的间隙函数
@@ -881,7 +901,7 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
   }
 
   //刷新时间轴上的显示帧
-  refreshFrame(rp) {
+  async refreshFrame(rp) {
     let that = this;
     let refPoint = 0;
     if (rp) {
@@ -891,132 +911,124 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.timeScaleBar.clear();
     that.labelFrameArray.length = 0;
 
+    let showText;
+
     showText = "0" + ":00";
-    let guiFrameLabel = new GUIFrameLabel(40, 10, showText);
+    let guiFrameLabel = new GUIFrameLabel(40, 10, showText, that.eventColumnCells.dom.offsetHeight);
     that.timeScaleBar.add(guiFrameLabel);
     that.labelFrameArray.push(guiFrameLabel);
 
+    let frontIgnoredMinuteNumber;
+    if (that.eventAreaScroll.dom.scrollLeft - 40 > 0) {
+      frontIgnoredMinuteNumber = Math.floor((that.eventAreaScroll.dom.scrollLeft - 40) / that.minuteUnitWidth);
+      frontIgnoredMinuteNumber *= that.minuteUnit;
+    } else {
+      frontIgnoredMinuteNumber = 0;
+    }
+
+    let areaShowNumber;
+    if ((that.eventAreaScroll.dom.scrollLeft < 40)) {
+      let offsetWidth = 40 - that.eventAreaScroll.dom.scrollLeft;
+      areaShowNumber = Math.floor((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) * that.secondUnit / that.secondUnitWidth);
+    } else {
+      areaShowNumber = Math.floor((that.eventAreaScroll.dom.offsetWidth - 16) * that.secondUnit / that.secondUnitWidth);
+    }
+
     if (that.myUnitType == UnitType.Second) {
-      let oddJudge = false;
-      let secondNUmber =
-        Math.floor((that.minuteUnitWidth - 4) / that.secondUnitWidth) + 1;
 
-      if (secondNUmber % 2 == 0) {
-        oddJudge = true;
+      let frontIgnoredSecondNumber;
+      if ((that.eventAreaScroll.dom.scrollLeft - 40 > that.secondUnitWidth)) {
+        frontIgnoredSecondNumber = Math.floor((that.eventAreaScroll.dom.scrollLeft - 40) / that.secondUnitWidth);
+        frontIgnoredSecondNumber *= that.secondUnit;
+      } else {
+        frontIgnoredSecondNumber = 0;
       }
 
-      let showMinuteNumber =
-        (that.eventColumns.dom.offsetWidth - 60) / that.minuteUnitWidth;
-      let showText;
+      for (let i = frontIgnoredSecondNumber + that.secondUnit; i < frontIgnoredSecondNumber + areaShowNumber; i++) {
+        if (i % that.sampleNumber == 0) {
+          frontIgnoredMinuteNumber++;
 
-      for (let j = 1; j < showMinuteNumber; j++) {
-        //先添加上“分”的单位
-        let mTimesWidth = j * that.minuteUnitWidth;
-        let theMinuteOffSet = 40 + Math.floor(mTimesWidth);
-        showText = j + ":00";
-        let guiFrameLabel = new GUIFrameLabel(theMinuteOffSet, 10, showText);
-        that.timeScaleBar.add(guiFrameLabel);
-
-        //这里将前面“秒”的单位先添加到刻度条中
-        for (let i = 1; i < secondNUmber; i++) {
-          let minuteNumber = j - 1;
-          let sTimesWidth =
-            i * that.secondUnitWidth + minuteNumber * that.minuteUnitWidth;
-          let showedSecondNumber = i * that.secondUnit;
-
-          let theSecondOffSet = 40 + Math.floor(sTimesWidth);
-          let guiFrameLabel;
-
-          let labelOffSetLeft =
-            theSecondOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
-
-          if (labelOffSetLeft > 40 && theMinuteOffSet - theSecondOffSet > 40) {
-            showText = minuteNumber + ":" + showedSecondNumber;
-            guiFrameLabel = new GUIFrameLabel(
-              theSecondOffSet,
-              labelOffSetLeft / 8,
-              showText
-            );
-            that.labelFrameArray.push(guiFrameLabel);
-          } else {
-            guiFrameLabel = new GUIFrameLabel(
-              theSecondOffSet,
-              that.secondUnitWidth / 5
-            );
-          }
-
-          that.timeScaleBar.add(guiFrameLabel);
-        }
-
-        that.labelFrameArray.push(guiFrameLabel);
-      }
-
-      //这里计算超出“分”单位的溢出部分可容纳多少个“秒”单位
-      let overSecondUnite = Math.floor(
-        ((that.eventColumns.dom.offsetWidth - 60) % that.minuteUnitWidth) /
-          that.secondUnitWidth
-      );
-      let minuteNumber = Math.floor(showMinuteNumber);
-
-      for (let k = 1; k < overSecondUnite + 1; k++) {
-        let sTimesWidth =
-          k * that.secondUnitWidth + minuteNumber * that.minuteUnitWidth;
-        let showedSecondNumber = k * that.secondUnit;
-
-        let theSecondOffSet = 40 + Math.floor(sTimesWidth);
-        let labelOffSetLeft =
-          theSecondOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
-
-        let guiFrameLabel;
-
-        if (labelOffSetLeft > 40) {
-          showText = minuteNumber + ":" + showedSecondNumber;
-          guiFrameLabel = new GUIFrameLabel(
-            theSecondOffSet,
-            labelOffSetLeft / 8,
-            showText
-          );
+          let mTimesWidth = frontIgnoredMinuteNumber * that.minuteUnitWidth;
+          let theMinuteOffSet = 40 + Math.floor(mTimesWidth);
+          showText = frontIgnoredMinuteNumber + ":00";
+          let guiFrameLabel = new GUIFrameLabel(theMinuteOffSet, 10, showText, that.eventColumnCells.dom.offsetHeight);
           that.labelFrameArray.push(guiFrameLabel);
+          that.timeScaleBar.add(guiFrameLabel);
         } else {
-          guiFrameLabel = new GUIFrameLabel(
-            theSecondOffSet,
-            that.secondUnitWidth / 5
-          );
-        }
+          if (i % that.secondUnit == 0) {
+            let sTimesWidth = i * that.secondUnitWidth / that.secondUnit;
+            let showedSecondNumber = i - (frontIgnoredMinuteNumber * that.sampleNumber);
 
-        that.timeScaleBar.add(guiFrameLabel);
+            let theSecondOffSet = 40 + Math.floor(sTimesWidth);
+            // console.log("theSecondOffSet is:" + theSecondOffSet);
+            let guiFrameLabel;
+
+            let labelOffSetLeft = theSecondOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
+            let theMinuteOffSet = 40 + Math.floor((frontIgnoredMinuteNumber + 1) * that.minuteUnitWidth);
+            // console.log("theMinuteOffSet is:" + theMinuteOffSet);
+
+            if (labelOffSetLeft > 40 && theMinuteOffSet - theSecondOffSet > 40) {
+              showText = frontIgnoredMinuteNumber + ":" + showedSecondNumber;
+              guiFrameLabel = new GUIFrameLabel(
+                theSecondOffSet,
+                labelOffSetLeft / 8,
+                showText,
+                that.eventColumnCells.dom.offsetHeight
+              );
+              that.labelFrameArray.push(guiFrameLabel);
+            } else {
+              guiFrameLabel = new GUIFrameLabel(
+                theSecondOffSet,
+                that.secondUnitWidth / 5,
+                undefined,
+                that.eventColumnCells.dom.offsetHeight
+              );
+            }
+
+            that.timeScaleBar.add(guiFrameLabel);
+          }
+        }
       }
     } else {
-      let totalNumber =
-        (that.eventColumns.dom.offsetWidth - 60) / that.minuteUnitWidth;
+      let minuteShowNumber;
 
-      let oddJudge;
+      if ((that.eventAreaScroll.dom.scrollLeft < 40)) {
+        let offsetWidth = 40 - that.eventAreaScroll.dom.scrollLeft;
+        minuteShowNumber = Math.floor((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) * that.minuteUnit / that.minuteUnitWidth);
+      } else {
+        minuteShowNumber = Math.floor((that.eventAreaScroll.dom.offsetWidth - 16) * that.minuteUnit / that.minuteUnitWidth);
+      }
 
-      for (let i = 1; i < totalNumber; i++) {
-        let mTimesWidth = i * that.minuteUnitWidth;
+      for (let i = frontIgnoredMinuteNumber + that.minuteUnit; i < frontIgnoredMinuteNumber + minuteShowNumber; i += that.minuteUnit) {
+        let mTimesWidth = i * that.minuteUnitWidth / that.minuteUnit;
         let theMinuteOffSet = 40 + Math.floor(mTimesWidth);
         let guiFrameLabel;
 
-        let labelOffSetLeft =
-          theMinuteOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
+        let labelOffSetLeft = theMinuteOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
 
         if (labelOffSetLeft > 40) {
-          showText = i * that.minuteUnit + ":0";
+          showText = i + ":0";
           guiFrameLabel = new GUIFrameLabel(
             theMinuteOffSet,
             labelOffSetLeft / 8,
-            showText
+            showText,
+            that.eventColumnCells.dom.offsetHeight
           );
           that.labelFrameArray.push(guiFrameLabel);
         } else {
           guiFrameLabel = new GUIFrameLabel(
             theMinuteOffSet,
-            that.minuteUnitWidth / 5
+            that.minuteUnitWidth / 5,
+            undefined,
+            that.eventColumnCells.dom.offsetHeight
           );
         }
         that.timeScaleBar.add(guiFrameLabel);
       }
     }
+
+    let reEventColumnsWidth = that.eventAreaScroll.dom.scrollLeft + that.eventAreaScroll.dom.offsetWidth - 16;
+    that.eventColumns.setWidth(reEventColumnsWidth + "px");
 
     that.calPromptLinePosition(that.keyPosition);
   }
@@ -1039,26 +1051,43 @@ class p_AnimationSystem_GUI_TimeLine extends UIDiv {
       that.objColumn.dom.offsetWidth -
       2;
 
-    // let oldWidth = this.eventColumns.dom.offsetWidth;
-    // let newWidth = oldWidth - event.deltaY / 50;
-
-    // if (event.deltaY < 0) {
-    //   if (newWidth < that.eventAreaScroll.dom.offsetWidth - 15) {
-    //     return;
-    //   }
-    // }
-
-    // let pointerPosition = (newWidth * pointer_X) / (that.eventAreaScroll.dom.offsetWidth - 16);
-
-    // if (newWidth > that.eventAreaScroll.dom.offsetWidth - 16) {
-    //   this.eventAreaScroll.dom.scrollLeft = pointerPosition;
-    //   this.eventColumns.setWidth(newWidth + "px");
-    // }
-
     that.markIncrement = Math.sign(event.deltaY) * 2;
-
     that.wheelFrameSpace(pointer_X - 40);
     that.markIncrement = 0;
+  }
+
+
+  closePanel() {
+    this.mainBody.setDisplay("none");
+  }
+
+  openPanel() {
+    this.mainBody.setDisplay("flex");
+  }
+}
+
+class AddPropertyButton extends UIElement {
+  constructor(value) {
+    super(document.createElement("button"));
+    let that = this;
+
+    this.dom.className = "AddPropertyButton";
+    this.dom.textContent = value;
+
+    this.dom.setAttribute("name", "AddPropertyButton");
+    this.dom.setAttribute("title", "添加动画属性");
+    this.dom.onpointerdown = function () {
+      if (that.dom.classList.contains("AddPropertyButton_UP"))
+        that.dom.classList.remove("AddPropertyButton_UP");
+      if (!that.dom.classList.contains("AddPropertyButton_DOWN"))
+        that.dom.classList.add("AddPropertyButton_DOWN");
+    };
+    this.dom.onpointerup = function () {
+      if (that.dom.classList.contains("AddPropertyButton_DOWN"))
+        that.dom.classList.remove("AddPropertyButton_DOWN");
+      if (!that.dom.classList.contains("AddPropertyButton_UP"))
+        that.dom.classList.add("AddPropertyButton_UP");
+    };
   }
 }
 
@@ -1069,8 +1098,6 @@ class ScaleOfTimeLine extends UIDiv {
       case "small":
     }
   }
-
-  refresh() {}
 }
 
-export { p_AnimationSystem_GUI_TimeLine };
+export { P_AnimationSystem_GUI_TimeLine };

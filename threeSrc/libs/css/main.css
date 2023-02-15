@@ -617,6 +617,9 @@ input::-webkit-inner-spin-button {
 .ObjectColumn .ObjectColumnCells {
   width: 100%;
   height: 89px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .EventAreaScroll {
@@ -807,6 +810,26 @@ input::-webkit-inner-spin-button {
 .SampleText {
   font-size: 12px;
   color: #b4b4b4;
+}
+
+.AddPropertyButton {
+  font-size: 12px;
+  color: #b4b4b4;
+  border: 1px solid #808080;
+  border-radius: 3px;
+  width: 228px;
+  height: 20px;
+  box-shadow: 2px 2px 5px #242424;
+  margin-top: 10px;
+  background-image: linear-gradient(#5d5d5d, #444444);
+}
+
+.AddPropertyButton_UP {
+  background-image: linear-gradient(#5d5d5d, #444444);
+}
+
+.AddPropertyButton_DOWN {
+  background-image: linear-gradient(#4d4d4d, #5a5a5a);
 }
 
 /* */

@@ -82,5 +82,9 @@
     "DownModel": {
         "url": "../threeSrc/tools/cloudInteractive/downModel.js",
         "inModule": true
+    },
+    "P_AnimationSystem_GUI_TimeLine": {
+        "url": "../threeSrc/libs/P_AnimationSystem/P_AnimationSystem_GUI/p_AnimationSystem_GUI_TimeLine.js",
+        "inModule": true
     }
 }

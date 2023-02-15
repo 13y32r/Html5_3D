@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-13 19:20:28
- * @LastEditTime: 2022-07-25 19:16:54
+ * @LastEditTime: 2023-02-14 20:39:58
  * @LastEditors: your name
  * @Description: 这是引擎的启动主函数
  * @FilePath: \Html5_3D\main\init.js
@@ -156,9 +156,9 @@ function initOrbitControls() {
       if (window["editorOperate"].state == EditorState.EDIT) {
         if (
           window["editorOperate"].selectionHelper.selectState ==
-            SelectState.IDLE ||
+          SelectState.IDLE ||
           window["editorOperate"].selectionHelper.selectState ==
-            SelectState.HALT
+          SelectState.HALT
         ) {
           window["orbitControls"].enabled = true;
           window["editorOperate"].changeSelectState(SelectState.HALT);

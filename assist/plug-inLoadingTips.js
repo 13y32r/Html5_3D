@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-04-30 15:34:18
- * @LastEditTime: 2022-07-09 12:52:03
+ * @LastEditTime: 2023-02-13 22:24:49
  * @LastEditors: your name
  * @Description: 这是一个用于提示正在动态加载外部JS插件的代码。
  * @FilePath: \Html5_3D\assist\plug-inLoadingTips.js

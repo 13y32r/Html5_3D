@@ -89,6 +89,14 @@
                 "D",
                 "d"
             ]
+        },
+        "AnimationPannel": {
+            "name": "动画面板",
+            "type": "button",
+            "class": "P_AnimationSystem_GUI_TimeLine",
+            "btnUp": "closePanel",
+            "btnDown": "openPanel",
+            "image_url": "./menuGUI/img/animation.png"
         }
     },
     "EditorMode": {

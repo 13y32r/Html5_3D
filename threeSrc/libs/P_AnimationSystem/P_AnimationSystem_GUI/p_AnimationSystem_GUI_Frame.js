@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2022-12-23 10:21:34
- * @LastEditTime: 2023-01-15 18:03:27
+ * @LastEditTime: 2023-02-13 11:41:13
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\threeSrc\libs\P_AnimationSystem\P_AnimationSystem_GUI\p_AnimationSystem_GUI_Frame.js
@@ -10,7 +10,7 @@
 import { UITabbedPanel, documentBodyAdd, UIDiv, UIElement } from "../../../libs/ui.js";
 
 class GUIFrameLabel extends UIDiv {
-  constructor(preDistance, height, showNumber) {
+  constructor(preDistance, height, showNumber, height2) {
     super("FrameAndLabel");
     let that = this;
 
@@ -19,10 +19,10 @@ class GUIFrameLabel extends UIDiv {
     } else {
       that.isLabelKey = false;
     }
-    this.createGUI(preDistance, height, showNumber);
+    this.createGUI(preDistance, height, showNumber, height2);
   }
 
-  createGUI(preDistance, height, showNumber) {
+  createGUI(preDistance, height, showNumber, height2) {
     let that = this;
 
     this.addClass("GUIFrameLabel");
@@ -35,6 +35,15 @@ class GUIFrameLabel extends UIDiv {
     tickMark.setBackgroundColor("#b4b4b4");
     tickMark.dom.style.opacity = height / 10;
     this.add(tickMark);
+
+    let tickMark2 = new UIDiv();
+    tickMark2.setPosition("absolute");
+    tickMark2.setWidth("1px");
+    tickMark2.setHeight(height2 + "px");
+    tickMark2.setTop("38px");
+    tickMark2.setBackgroundColor("#b4b4b4");
+    tickMark2.dom.style.opacity = height / 10;
+    this.add(tickMark2);
 
     this.setPosition("absolute");
     this.setBottom("0px");
