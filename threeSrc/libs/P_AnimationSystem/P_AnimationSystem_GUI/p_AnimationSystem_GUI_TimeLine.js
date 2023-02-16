@@ -193,12 +193,29 @@ const UnitType = {
   Minute: 1,
 };
 
+const AnimationEditorState = {
+  NORMAL: 0,
+  EDITING: 1
+}
+
 class P_AnimationSystem_GUI_TimeLine extends UIDiv {
   constructor() {
     super("TimeLine");
     let that = this;
 
     this.setId("TimeLine");
+
+    //面板状态
+    that.animatedState = AnimationEditorState.NORMAL;
+
+    //接收来自编辑器的信号
+    that.signals = editorOperate.signals;
+
+    //动画面板所编辑的动画对象
+    that.animatedObject = null;
+
+    //展示的属性
+    that.displayedProperties = [];
 
     //时间轴的最小单位，默认是“秒”
     that.myUnitType = UnitType.Second;
@@ -375,8 +392,18 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       that.eventAreaScrollPointerUp
     );
 
+    that.updateAnimatedObject = that.updateAnimatedObject.bind(this);
+
     that.openPanel = that.openPanel.bind(this);
     that.closePanel = that.closePanel.bind(this);
+
+    that.signals.objectSelected.add(that.updateAnimatedObject);
+    that.signals.hierarchyChange.add(that.updateAnimatedObject);
+    that.signals.objectsChanged.add(function (objects) {
+      if (objects[0] !== editorOperate.selectionHelper.selectedObject[0]) return;
+      console.log("The selected object be changed.");
+      // updateUI(objects[0]);
+    });
   }
 
   createGUI() {
@@ -571,7 +598,15 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
 
     setTimeout(() => {
       that.refreshFrame();
+      that.closePanel();
     }, 200);
+  }
+
+  //更新动画面板对象
+  updateAnimatedObject(objects) {
+    if (objects.length) {
+      console.log(objects[0].material);
+    }
   }
 
   //滚轮控制帧间隙的函数
@@ -901,7 +936,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
   }
 
   //刷新时间轴上的显示帧
-  async refreshFrame(rp) {
+  refreshFrame(rp) {
     let that = this;
     let refPoint = 0;
     if (rp) {
