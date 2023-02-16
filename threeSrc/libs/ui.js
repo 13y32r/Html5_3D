@@ -132,6 +132,7 @@ const properties = [
   "width",
   "height",
   "display",
+  "visibility",
   "verticalAlign",
   "overflow",
   "color",

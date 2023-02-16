@@ -61,8 +61,8 @@ function addResizerHandle(fDom, dom1, dom2, dom3, rootDom, changeFN) {
       clientX < offsetX + minLeftMargin
         ? offsetX + minLeftMargin
         : clientX > offsetWidth + offsetX - maxRightMargin
-          ? offsetWidth + offsetX - maxRightMargin
-          : clientX;
+        ? offsetWidth + offsetX - maxRightMargin
+        : clientX;
     // const cX = clientX;
 
     const x = cX - rootDom.offsetLeft;
@@ -195,8 +195,8 @@ const UnitType = {
 
 const AnimationEditorState = {
   NORMAL: 0,
-  EDITING: 1
-}
+  EDITING: 1,
+};
 
 class P_AnimationSystem_GUI_TimeLine extends UIDiv {
   constructor() {
@@ -246,6 +246,10 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.objColumn = new UIDiv();
     that.eventColumns = new UIDiv();
     that.eventAreaScroll = new UIDiv();
+    that.noObjectTips = new UIDiv();
+    that.noObjectTips.setInnerHTML(
+      "还没有对象被选中欧~，请先在场景中选择一个对象。"
+    );
 
     that.buttonArea = new UIDiv();
     that.recordButton = new AnimationButton(
@@ -327,6 +331,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.eventColumns.addClass("EventColumn");
 
     that.eventAreaScroll.addClass("EventAreaScroll");
+    that.noObjectTips.addClass("NoObjectTips");
 
     that.buttonArea.setClass("ButtonArea");
     that.selectSettingArea.setClass("SelectSettingArea");
@@ -393,23 +398,23 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     );
 
     that.updateAnimatedObject = that.updateAnimatedObject.bind(this);
+    that.updateAttributeParam = that.updateAttributeParam.bind(this);
 
     that.openPanel = that.openPanel.bind(this);
     that.closePanel = that.closePanel.bind(this);
 
     that.signals.objectSelected.add(that.updateAnimatedObject);
     that.signals.hierarchyChange.add(that.updateAnimatedObject);
-    that.signals.objectsChanged.add(function (objects) {
-      if (objects[0] !== editorOperate.selectionHelper.selectedObject[0]) return;
-      console.log("The selected object be changed.");
-      // updateUI(objects[0]);
-    });
+    that.signals.objectsChanged.add(that.updateAttributeParam);
   }
 
   createGUI() {
     let that = this;
 
-    this.mainBody = new normalWindow("时间轴", window["menuGUI"].folderDictionary["Main-Menu"].cellBtns["动画面板"]);
+    this.mainBody = new normalWindow(
+      "时间轴",
+      window["menuGUI"].folderDictionary["Main-Menu"].cellBtns["动画面板"]
+    );
     this.mainBody.addContent(that.container);
     this.mainBody.resizeEventStart(resizeEventStart);
     this.mainBody.resizeEventing(resizeEventing);
@@ -467,7 +472,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       ) {
         that.eventColumns.setWidth(
           (that.eventAreaScroll.dom.offsetWidth * oldEventColumnsWidth) /
-          oldEventAreaScrollWidth
+            oldEventAreaScrollWidth
         );
       } else {
         that.eventColumns.setWidth(
@@ -539,6 +544,8 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
 
     that.container.add(that.verticalSplitLine);
     that.container.add(that.eventAreaScroll);
+    // that.container.add(that.noObjectTips);
+
     that.eventAreaScroll.add(that.eventColumns);
 
     that.eventColumns.add(that.timeScaleBar);
@@ -596,17 +603,36 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       }
     }
 
+    that.refreshFrame();
     setTimeout(() => {
-      that.refreshFrame();
+      that.updateAnimatedObject([]);
       that.closePanel();
-    }, 200);
+    }, 500);
   }
 
   //更新动画面板对象
   updateAnimatedObject(objects) {
+    let that = this;
+
     if (objects.length) {
-      console.log(objects[0].material);
+      if (that.container.getIndexOfChild(that.eventAreaScroll) == -1) {
+        that.container.add(that.eventAreaScroll);
+      }
+      if (that.container.getIndexOfChild(that.noObjectTips) != -1) {
+        that.container.remove(that.noObjectTips);
+      }
+    } else {
+      if (that.container.getIndexOfChild(that.eventAreaScroll) != -1) {
+        that.container.remove(that.eventAreaScroll);
+      }
+      if (that.container.getIndexOfChild(that.noObjectTips) == -1) {
+        that.container.add(that.noObjectTips);
+      }
     }
+  }
+
+  updateAttributeParam() {
+    let that = this;
   }
 
   //滚轮控制帧间隙的函数
@@ -687,13 +713,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         that.secondUnit;
     }
 
-    let incrementLength = (frameOfRp * that.secondUnitWidth) / that.secondUnit - oldFrontLength;
+    let incrementLength =
+      (frameOfRp * that.secondUnitWidth) / that.secondUnit - oldFrontLength;
     let oldWidth = that.eventColumns.dom.offsetWidth;
     let newWidth = oldWidth + incrementLength;
     let newFrontLength = (frameOfRp * that.secondUnitWidth) / that.secondUnit;
     let scrollLeft = newFrontLength - fixedFrontLength;
-    // let newRP = rp + incrementLength + 40;
-    // let pointerPosition = (newWidth * (rp + 40)) / (oldWidth);
 
     if (newWidth > that.eventAreaScroll.dom.offsetWidth - 16) {
       that.eventColumns.setWidth(newWidth + "px");
@@ -732,8 +757,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     }
 
     let relPosition = Math.floor(suWidth * keyFrameValue);
-    let absolutePosition = that.eventColumns.dom.offsetLeft + relPosition + 40 - that.eventAreaScroll.dom.scrollLeft;
-    if (absolutePosition < (that.objColumn.dom.offsetWidth + 2)) {
+    let absolutePosition =
+      that.eventColumns.dom.offsetLeft +
+      relPosition +
+      40 -
+      that.eventAreaScroll.dom.scrollLeft;
+    if (absolutePosition < that.objColumn.dom.offsetWidth + 2) {
       that.promptLine.setDisplay("none");
     } else if (that.promptLine.dom.display != "flex") {
       that.promptLine.setDisplay("flex");
@@ -857,7 +886,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         "scroll",
         that.eventAreaScrollEvent
       );
-      that.eventAreaScrolling = false
+      that.eventAreaScrolling = false;
     }, 300);
   }
 
@@ -949,60 +978,91 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     let showText;
 
     showText = "0" + ":00";
-    let guiFrameLabel = new GUIFrameLabel(40, 10, showText, that.eventColumnCells.dom.offsetHeight);
+    let guiFrameLabel = new GUIFrameLabel(
+      40,
+      10,
+      showText,
+      that.eventColumnCells.dom.offsetHeight
+    );
     that.timeScaleBar.add(guiFrameLabel);
     that.labelFrameArray.push(guiFrameLabel);
 
     let frontIgnoredMinuteNumber;
     if (that.eventAreaScroll.dom.scrollLeft - 40 > 0) {
-      frontIgnoredMinuteNumber = Math.floor((that.eventAreaScroll.dom.scrollLeft - 40) / that.minuteUnitWidth);
+      frontIgnoredMinuteNumber = Math.floor(
+        (that.eventAreaScroll.dom.scrollLeft - 40) / that.minuteUnitWidth
+      );
       frontIgnoredMinuteNumber *= that.minuteUnit;
     } else {
       frontIgnoredMinuteNumber = 0;
     }
 
     let areaShowNumber;
-    if ((that.eventAreaScroll.dom.scrollLeft < 40)) {
+    if (that.eventAreaScroll.dom.scrollLeft < 40) {
       let offsetWidth = 40 - that.eventAreaScroll.dom.scrollLeft;
-      areaShowNumber = Math.floor((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) * that.secondUnit / that.secondUnitWidth);
+      areaShowNumber = Math.floor(
+        ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
+          that.secondUnit) /
+          that.secondUnitWidth
+      );
     } else {
-      areaShowNumber = Math.floor((that.eventAreaScroll.dom.offsetWidth - 16) * that.secondUnit / that.secondUnitWidth);
+      areaShowNumber = Math.floor(
+        ((that.eventAreaScroll.dom.offsetWidth - 16) * that.secondUnit) /
+          that.secondUnitWidth
+      );
     }
 
     if (that.myUnitType == UnitType.Second) {
-
       let frontIgnoredSecondNumber;
-      if ((that.eventAreaScroll.dom.scrollLeft - 40 > that.secondUnitWidth)) {
-        frontIgnoredSecondNumber = Math.floor((that.eventAreaScroll.dom.scrollLeft - 40) / that.secondUnitWidth);
+      if (that.eventAreaScroll.dom.scrollLeft - 40 > that.secondUnitWidth) {
+        frontIgnoredSecondNumber = Math.floor(
+          (that.eventAreaScroll.dom.scrollLeft - 40) / that.secondUnitWidth
+        );
         frontIgnoredSecondNumber *= that.secondUnit;
       } else {
         frontIgnoredSecondNumber = 0;
       }
 
-      for (let i = frontIgnoredSecondNumber + that.secondUnit; i < frontIgnoredSecondNumber + areaShowNumber; i++) {
+      for (
+        let i = frontIgnoredSecondNumber + that.secondUnit;
+        i < frontIgnoredSecondNumber + areaShowNumber;
+        i++
+      ) {
         if (i % that.sampleNumber == 0) {
           frontIgnoredMinuteNumber++;
 
           let mTimesWidth = frontIgnoredMinuteNumber * that.minuteUnitWidth;
           let theMinuteOffSet = 40 + Math.floor(mTimesWidth);
           showText = frontIgnoredMinuteNumber + ":00";
-          let guiFrameLabel = new GUIFrameLabel(theMinuteOffSet, 10, showText, that.eventColumnCells.dom.offsetHeight);
+          let guiFrameLabel = new GUIFrameLabel(
+            theMinuteOffSet,
+            10,
+            showText,
+            that.eventColumnCells.dom.offsetHeight
+          );
           that.labelFrameArray.push(guiFrameLabel);
           that.timeScaleBar.add(guiFrameLabel);
         } else {
           if (i % that.secondUnit == 0) {
-            let sTimesWidth = i * that.secondUnitWidth / that.secondUnit;
-            let showedSecondNumber = i - (frontIgnoredMinuteNumber * that.sampleNumber);
+            let sTimesWidth = (i * that.secondUnitWidth) / that.secondUnit;
+            let showedSecondNumber =
+              i - frontIgnoredMinuteNumber * that.sampleNumber;
 
             let theSecondOffSet = 40 + Math.floor(sTimesWidth);
             // console.log("theSecondOffSet is:" + theSecondOffSet);
             let guiFrameLabel;
 
-            let labelOffSetLeft = theSecondOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
-            let theMinuteOffSet = 40 + Math.floor((frontIgnoredMinuteNumber + 1) * that.minuteUnitWidth);
+            let labelOffSetLeft =
+              theSecondOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
+            let theMinuteOffSet =
+              40 +
+              Math.floor((frontIgnoredMinuteNumber + 1) * that.minuteUnitWidth);
             // console.log("theMinuteOffSet is:" + theMinuteOffSet);
 
-            if (labelOffSetLeft > 40 && theMinuteOffSet - theSecondOffSet > 40) {
+            if (
+              labelOffSetLeft > 40 &&
+              theMinuteOffSet - theSecondOffSet > 40
+            ) {
               showText = frontIgnoredMinuteNumber + ":" + showedSecondNumber;
               guiFrameLabel = new GUIFrameLabel(
                 theSecondOffSet,
@@ -1027,19 +1087,31 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     } else {
       let minuteShowNumber;
 
-      if ((that.eventAreaScroll.dom.scrollLeft < 40)) {
+      if (that.eventAreaScroll.dom.scrollLeft < 40) {
         let offsetWidth = 40 - that.eventAreaScroll.dom.scrollLeft;
-        minuteShowNumber = Math.floor((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) * that.minuteUnit / that.minuteUnitWidth);
+        minuteShowNumber = Math.floor(
+          ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
+            that.minuteUnit) /
+            that.minuteUnitWidth
+        );
       } else {
-        minuteShowNumber = Math.floor((that.eventAreaScroll.dom.offsetWidth - 16) * that.minuteUnit / that.minuteUnitWidth);
+        minuteShowNumber = Math.floor(
+          ((that.eventAreaScroll.dom.offsetWidth - 16) * that.minuteUnit) /
+            that.minuteUnitWidth
+        );
       }
 
-      for (let i = frontIgnoredMinuteNumber + that.minuteUnit; i < frontIgnoredMinuteNumber + minuteShowNumber; i += that.minuteUnit) {
-        let mTimesWidth = i * that.minuteUnitWidth / that.minuteUnit;
+      for (
+        let i = frontIgnoredMinuteNumber + that.minuteUnit;
+        i < frontIgnoredMinuteNumber + minuteShowNumber;
+        i += that.minuteUnit
+      ) {
+        let mTimesWidth = (i * that.minuteUnitWidth) / that.minuteUnit;
         let theMinuteOffSet = 40 + Math.floor(mTimesWidth);
         let guiFrameLabel;
 
-        let labelOffSetLeft = theMinuteOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
+        let labelOffSetLeft =
+          theMinuteOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
 
         if (labelOffSetLeft > 40) {
           showText = i + ":0";
@@ -1062,7 +1134,10 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       }
     }
 
-    let reEventColumnsWidth = that.eventAreaScroll.dom.scrollLeft + that.eventAreaScroll.dom.offsetWidth - 16;
+    let reEventColumnsWidth =
+      that.eventAreaScroll.dom.scrollLeft +
+      that.eventAreaScroll.dom.offsetWidth -
+      16;
     that.eventColumns.setWidth(reEventColumnsWidth + "px");
 
     that.calPromptLinePosition(that.keyPosition);
@@ -1090,7 +1165,6 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.wheelFrameSpace(pointer_X - 40);
     that.markIncrement = 0;
   }
-
 
   closePanel() {
     this.mainBody.setDisplay("none");
