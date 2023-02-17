@@ -61,8 +61,8 @@ function addResizerHandle(fDom, dom1, dom2, dom3, rootDom, changeFN) {
       clientX < offsetX + minLeftMargin
         ? offsetX + minLeftMargin
         : clientX > offsetWidth + offsetX - maxRightMargin
-        ? offsetWidth + offsetX - maxRightMargin
-        : clientX;
+          ? offsetWidth + offsetX - maxRightMargin
+          : clientX;
     // const cX = clientX;
 
     const x = cX - rootDom.offsetLeft;
@@ -472,7 +472,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       ) {
         that.eventColumns.setWidth(
           (that.eventAreaScroll.dom.offsetWidth * oldEventColumnsWidth) /
-            oldEventAreaScrollWidth
+          oldEventAreaScrollWidth
         );
       } else {
         that.eventColumns.setWidth(
@@ -617,11 +617,15 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     if (objects.length) {
       if (that.container.getIndexOfChild(that.eventAreaScroll) == -1) {
         that.container.add(that.eventAreaScroll);
+        if (that.tempScrollLeft) {
+          that.eventAreaScroll.dom.scrollLeft = that.tempScrollLeft;
+        }
       }
       if (that.container.getIndexOfChild(that.noObjectTips) != -1) {
         that.container.remove(that.noObjectTips);
       }
     } else {
+      that.tempScrollLeft = that.eventAreaScroll.dom.scrollLeft;
       if (that.container.getIndexOfChild(that.eventAreaScroll) != -1) {
         that.container.remove(that.eventAreaScroll);
       }
@@ -1003,12 +1007,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
           that.secondUnit) /
-          that.secondUnitWidth
+        that.secondUnitWidth
       );
     } else {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16) * that.secondUnit) /
-          that.secondUnitWidth
+        that.secondUnitWidth
       );
     }
 
@@ -1092,12 +1096,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
             that.minuteUnit) /
-            that.minuteUnitWidth
+          that.minuteUnitWidth
         );
       } else {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16) * that.minuteUnit) /
-            that.minuteUnitWidth
+          that.minuteUnitWidth
         );
       }
 
