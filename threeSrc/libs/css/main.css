@@ -604,9 +604,16 @@ select:hover {
   height: 12px;
   margin-left: 5px;
   margin-right: 5px;
-  /* box-shadow: "1px 1px 2px #000 inset"; */
+}
+
+.AnimationPannelInput.Enabled {
   background-color: #404040;
   color: #cccccc;
+}
+
+.AnimationPannelInput.Disabled {
+  background-color: #404040;
+  color: #626262;
 }
 
 .AnimationPannelInput input::-webkit-outer-spin-button,

@@ -26,6 +26,12 @@
     overflow: auto;" onresize="dadada()" onclick="dadada()">
     </div>
 
+    <button type="button" name="AnimationButton" title="关闭菜单栏" disabled=""
+        style="background-repeat:no-repeat;background-image: url(../menuGUI/img/recordButton.png);width: 125px; height: 80px;"
+        onpointerdown="dadada()">
+        来点我试试看呀！
+    </button>
+
     <script>
         let testArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
         console.log("testArray at last is:" + testArray.at(-1));
@@ -107,9 +113,9 @@
             // cssFile.dispose();
         });
 
-        import("../threeSrc/libs/P_AnimationSystem/P_AnimationSystem_GUI/p_AnimationSystem_GUI_TimeLine.js").then(model => {
-            let timeLine = new model.P_AnimationSystem_GUI_TimeLine();
-        });
+        // import("../threeSrc/libs/P_AnimationSystem/P_AnimationSystem_GUI/p_AnimationSystem_GUI_TimeLine.js").then(model => {
+        //     let timeLine = new model.P_AnimationSystem_GUI_TimeLine();
+        // });
 
         import("../threeSrc/libs/P_AnimationSystem/P_AnimationSystem_GUI/p_AnimationSystem_GUI_Frame.js").then(model => {
             console.log("Loaded.");

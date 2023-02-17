@@ -61,8 +61,8 @@ function addResizerHandle(fDom, dom1, dom2, dom3, rootDom, changeFN) {
       clientX < offsetX + minLeftMargin
         ? offsetX + minLeftMargin
         : clientX > offsetWidth + offsetX - maxRightMargin
-          ? offsetWidth + offsetX - maxRightMargin
-          : clientX;
+        ? offsetWidth + offsetX - maxRightMargin
+        : clientX;
     // const cX = clientX;
 
     const x = cX - rootDom.offsetLeft;
@@ -93,8 +93,37 @@ class AnimationPannelInput extends UIElement {
 
     that.dom.type = "Number";
     that.setClass("AnimationPannelInput");
+    that.addClass("Enabled");
     that.setStyle("boxShadow", ["1px 1px 2px #000 inset"]);
     that.dom.value = 0;
+
+    that.dom.addEventListener("keydown", function (event) {
+      event.stopPropagation();
+    });
+
+    that.changeAbility = that.changeAbility.bind(this);
+  }
+
+  changeAbility(param) {
+    let that = this;
+
+    if (param) {
+      if (that.dom.classList.contains("Disabled")) {
+        that.removeClass("Disabled");
+      }
+      if (!that.dom.classList.contains("Enabled")) {
+        that.addClass("Enabled");
+      }
+    } else {
+      if (that.dom.classList.contains("Enabled")) {
+        that.removeClass("Enabled");
+      }
+      if (!that.dom.classList.contains("Disabled")) {
+        that.addClass("Disabled");
+      }
+    }
+
+    that.setDisabled(param.toString());
   }
 
   setValue(num) {
@@ -167,20 +196,22 @@ class AnimationButton extends UIElement {
     this.setWidth(width);
     this.setHeight(height);
 
+    this.dom.setAttribute("type", "button");
     this.dom.setAttribute("name", "AnimationButton");
-    this.dom.setAttribute("title", "关闭菜单栏");
-    this.dom.onpointerdown = function () {
-      if (that.dom.classList.contains("AnimationButton_UP"))
-        that.dom.classList.remove("AnimationButton_UP");
-      if (!that.dom.classList.contains("AnimationButton_DOWN"))
-        that.dom.classList.add("AnimationButton_DOWN");
-    };
-    this.dom.onpointerup = function () {
-      if (that.dom.classList.contains("AnimationButton_DOWN"))
-        that.dom.classList.remove("AnimationButton_DOWN");
-      if (!that.dom.classList.contains("AnimationButton_UP"))
-        that.dom.classList.add("AnimationButton_UP");
-    };
+    // this.dom.setAttribute("title", "关闭菜单栏");
+    // this.dom.onpointerdown = function () {
+    //   console.log("Hello world!");
+    //   if (that.dom.classList.contains("AnimationButton_UP"))
+    //     that.dom.classList.remove("AnimationButton_UP");
+    //   if (!that.dom.classList.contains("AnimationButton_DOWN"))
+    //     that.dom.classList.add("AnimationButton_DOWN");
+    // };
+    // this.dom.onpointerup = function () {
+    //   if (that.dom.classList.contains("AnimationButton_DOWN"))
+    //     that.dom.classList.remove("AnimationButton_DOWN");
+    //   if (!that.dom.classList.contains("AnimationButton_UP"))
+    //     that.dom.classList.add("AnimationButton_UP");
+    // };
   }
 
   changed(fun) {
@@ -472,7 +503,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       ) {
         that.eventColumns.setWidth(
           (that.eventAreaScroll.dom.offsetWidth * oldEventColumnsWidth) /
-          oldEventAreaScrollWidth
+            oldEventAreaScrollWidth
         );
       } else {
         that.eventColumns.setWidth(
@@ -586,6 +617,9 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.sampleNumber = that.sampleInput.getValue();
     that.sampleNumber = parseInt(that.sampleNumber);
 
+    // window["editorOperate"].changeEditorState(4);
+    // window["editorOperate"].stopKeyEvent();
+
     let pixelTotalWidth = that.eventColumns.dom.offsetWidth - 70;
 
     let totalWidthIncrement = pixelTotalWidth - that.markIncrement;
@@ -619,20 +653,43 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         that.container.add(that.eventAreaScroll);
         if (that.tempScrollLeft) {
           that.eventAreaScroll.dom.scrollLeft = that.tempScrollLeft;
+          that.tempScrollLeft = null;
         }
       }
       if (that.container.getIndexOfChild(that.noObjectTips) != -1) {
         that.container.remove(that.noObjectTips);
       }
+      that.recordButton.setDisabled("value");
+      that.playButton.setDisabled("true");
+      that.previousKeyButton.setDisabled("true");
+      that.nextKeyButton.setDisabled("true");
+      that.keyPositionInput.changeAbility(true);
+      that.addKeyButton.setDisabled("true");
+      that.addEventButton.setDisabled("true");
+      that.clipSelect.setDisabled(false);
+      that.sampleInput.changeAbility(true);
     } else {
-      that.tempScrollLeft = that.eventAreaScroll.dom.scrollLeft;
+      if (!that.tempScrollLeft) {
+        that.tempScrollLeft = that.eventAreaScroll.dom.scrollLeft;
+      }
       if (that.container.getIndexOfChild(that.eventAreaScroll) != -1) {
         that.container.remove(that.eventAreaScroll);
       }
       if (that.container.getIndexOfChild(that.noObjectTips) == -1) {
         that.container.add(that.noObjectTips);
       }
+      that.recordButton.setAttribute("disabled", "disabled");
+      that.playButton.setDisabled("false");
+      that.previousKeyButton.setDisabled("false");
+      that.nextKeyButton.setDisabled("false");
+      that.keyPositionInput.changeAbility(false);
+      that.addKeyButton.setDisabled("false");
+      that.addEventButton.setDisabled("false");
+      that.clipSelect.setDisabled(true);
+      that.sampleInput.changeAbility(false);
     }
+
+    console.log(that.recordButton.dom.disabled);
   }
 
   updateAttributeParam() {
@@ -1007,12 +1064,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
           that.secondUnit) /
-        that.secondUnitWidth
+          that.secondUnitWidth
       );
     } else {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16) * that.secondUnit) /
-        that.secondUnitWidth
+          that.secondUnitWidth
       );
     }
 
@@ -1096,12 +1153,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
             that.minuteUnit) /
-          that.minuteUnitWidth
+            that.minuteUnitWidth
         );
       } else {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16) * that.minuteUnit) /
-          that.minuteUnitWidth
+            that.minuteUnitWidth
         );
       }
 
