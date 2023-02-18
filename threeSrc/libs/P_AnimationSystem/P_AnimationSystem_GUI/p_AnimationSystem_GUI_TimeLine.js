@@ -61,8 +61,8 @@ function addResizerHandle(fDom, dom1, dom2, dom3, rootDom, changeFN) {
       clientX < offsetX + minLeftMargin
         ? offsetX + minLeftMargin
         : clientX > offsetWidth + offsetX - maxRightMargin
-        ? offsetWidth + offsetX - maxRightMargin
-        : clientX;
+          ? offsetWidth + offsetX - maxRightMargin
+          : clientX;
     // const cX = clientX;
 
     const x = cX - rootDom.offsetLeft;
@@ -114,6 +114,7 @@ class AnimationPannelInput extends UIElement {
       if (!that.dom.classList.contains("Enabled")) {
         that.addClass("Enabled");
       }
+      that.dom.removeAttribute('disabled');
     } else {
       if (that.dom.classList.contains("Enabled")) {
         that.removeClass("Enabled");
@@ -121,9 +122,8 @@ class AnimationPannelInput extends UIElement {
       if (!that.dom.classList.contains("Disabled")) {
         that.addClass("Disabled");
       }
+      that.setDisabled(true);
     }
-
-    that.setDisabled(param.toString());
   }
 
   setValue(num) {
@@ -190,32 +190,73 @@ class AnimationButton extends UIElement {
 
     let that = this;
 
+    that.downFun = null;
+    that.upFun = null;
+
+    that.imgURL = imgURL;
+
     this.setClass("AnimationButton_UP");
     this.setBackgroundRepeat("no-repeat");
-    this.setBackgroundImage(imgURL);
     this.setWidth(width);
     this.setHeight(height);
 
     this.dom.setAttribute("type", "button");
     this.dom.setAttribute("name", "AnimationButton");
-    // this.dom.setAttribute("title", "关闭菜单栏");
-    // this.dom.onpointerdown = function () {
-    //   console.log("Hello world!");
-    //   if (that.dom.classList.contains("AnimationButton_UP"))
-    //     that.dom.classList.remove("AnimationButton_UP");
-    //   if (!that.dom.classList.contains("AnimationButton_DOWN"))
-    //     that.dom.classList.add("AnimationButton_DOWN");
-    // };
-    // this.dom.onpointerup = function () {
-    //   if (that.dom.classList.contains("AnimationButton_DOWN"))
-    //     that.dom.classList.remove("AnimationButton_DOWN");
-    //   if (!that.dom.classList.contains("AnimationButton_UP"))
-    //     that.dom.classList.add("AnimationButton_UP");
-    // };
+    this.dom.setAttribute("title", "关闭菜单栏");
+
+    that.enable = that.enable.bind(this);
+    that.disable = that.disable.bind(this);
+    that.setDownFun = that.setDownFun.bind(this);
+    that.setUpFun = that.setUpFun.bind(this);
+
+    that.enable();
   }
 
-  changed(fun) {
-    this.dom.addEventListener("closeMenu", fun);
+  enable() {
+    let that = this;
+
+    this.setBackgroundImage(that.imgURL);
+
+    this.dom.onpointerdown = function () {
+      if (that.dom.classList.contains("AnimationButton_UP"))
+        that.dom.classList.remove("AnimationButton_UP");
+      if (!that.dom.classList.contains("AnimationButton_DOWN"))
+        that.dom.classList.add("AnimationButton_DOWN");
+
+      if (that.downFun) {
+        that.downFun();
+      }
+    };
+    this.dom.onpointerup = function () {
+      if (that.dom.classList.contains("AnimationButton_DOWN"))
+        that.dom.classList.remove("AnimationButton_DOWN");
+      if (!that.dom.classList.contains("AnimationButton_UP"))
+        that.dom.classList.add("AnimationButton_UP");
+
+      if (that.upFun) {
+        that.upFun();
+      }
+    };
+  }
+
+  disable() {
+    let that = this;
+
+    let disableImg = that.imgURL.slice(0, (that.imgURL.length - 5));
+    disableImg += "_Disabled.png)";
+
+    this.setBackgroundImage(disableImg);
+
+    this.dom.onpointerdown = null;
+    this.dom.onpointerup = null;
+  }
+
+  setDownFun(downFun) {
+    that.downFun = downFun;
+  }
+
+  setUpFun(upFun) {
+    that.upFun = upFun;
   }
 }
 
@@ -439,6 +480,80 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.signals.objectsChanged.add(that.updateAttributeParam);
   }
 
+
+  resizeEventStart() {
+    let that = this;
+
+    that.oldObjColumnWidth;
+
+    that.oldEventAreaScrollWidth;
+
+    that.oldEventColumnsWidth;
+
+    that.oldTotalWidth;
+    that.oldTotalHeight;
+
+    that.oldObjColumnWidth = that.objColumn.dom.offsetWidth;
+
+    that.oldEventAreaScrollWidth = that.eventAreaScroll.dom.offsetWidth;
+
+    that.oldEventColumnsWidth = that.eventColumns.dom.offsetWidth;
+
+    that.oldTotalWidth = that.mainBody.dom.offsetWidth;
+    that.oldTotalHeight = that.mainBody.dom.offsetHeight;
+  }
+
+  resizeEventing(e) {
+    let that = this;
+
+    let minLeftMargin = 248;
+    let maxRightMargin = 200;
+
+    let scaleFactorW = e.detail.newWidth / that.oldTotalWidth;
+    let scaleFactorH = e.detail.newHeight / that.oldTotalHeight;
+
+    let newObjColumnWidth = that.oldObjColumnWidth * scaleFactorW;
+
+    let oldScaleDomWidth = that.eventColumns.dom.offsetWidth;
+
+    if (minLeftMargin < newObjColumnWidth) {
+      that.objColumn.setWidth(newObjColumnWidth + "px");
+    }
+    that.objColumnCells.setHeight(e.detail.newHeight - 72 + "px");
+
+    that.eventAreaScroll.setHeight(e.detail.newHeight - 36 + "px");
+    that.eventAreaScroll.setWidth(
+      e.detail.newWidth - newObjColumnWidth - 2 + "px"
+    );
+
+    if (
+      that.eventColumns.dom.offsetWidth > that.eventAreaScroll.dom.offsetWidth
+    ) {
+      that.eventColumns.setWidth(
+        (that.eventAreaScroll.dom.offsetWidth * that.oldEventColumnsWidth) /
+        that.oldEventAreaScrollWidth
+      );
+    } else {
+      that.eventColumns.setWidth(
+        that.eventAreaScroll.dom.offsetWidth - 15 + "px"
+      );
+    }
+
+    let newEventColumnCellsHeight =
+      that.eventAreaScroll.dom.offsetHeight - 69;
+    if (newEventColumnCellsHeight > 350) {
+      that.eventColumnCells.setHeight(newEventColumnCellsHeight + "px");
+    } else {
+      that.eventColumnCells.setHeight(350 + "px");
+    }
+
+    that.promptLine.setHeight(e.detail.newHeight - 51 + "px");
+
+    that.resizeEventStart();
+    let scale = that.eventColumns.dom.offsetWidth / oldScaleDomWidth;
+    that.sizeChangeReCalFrameSpace(scale);
+  }
+
   createGUI() {
     let that = this;
 
@@ -446,85 +561,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       "时间轴",
       window["menuGUI"].folderDictionary["Main-Menu"].cellBtns["动画面板"]
     );
+    that.resizeEventStart = that.resizeEventStart.bind(this);
+    that.resizeEventing = that.resizeEventing.bind(this);
     this.mainBody.addContent(that.container);
-    this.mainBody.resizeEventStart(resizeEventStart);
-    this.mainBody.resizeEventing(resizeEventing);
+    this.mainBody.resizeEventStart(that.resizeEventStart);
+    this.mainBody.resizeEventing(that.resizeEventing);
     this.mainBody.setOverflow("hidden");
-
-    let oldObjColumnWidth;
-    let oldObjColumnHeight;
-
-    let oldEventAreaScrollWidth;
-    let oldEventAreaScrollHeight;
-
-    let oldEventColumnsWidth;
-    let oldEventColumnsHeight;
-
-    let oldTotalWidth;
-    let oldTotalHeight;
-
-    let minLeftMargin = 248;
-    let maxRightMargin = 200;
-
-    function resizeEventStart() {
-      oldObjColumnWidth = that.objColumn.dom.offsetWidth;
-      oldObjColumnHeight = that.objColumn.dom.offsetHeight;
-
-      oldEventAreaScrollWidth = that.eventAreaScroll.dom.offsetWidth;
-      oldEventAreaScrollHeight = that.eventAreaScroll.dom.offsetHeight;
-
-      oldEventColumnsWidth = that.eventColumns.dom.offsetWidth;
-      oldEventColumnsHeight = that.eventColumns.dom.offsetHeight;
-
-      oldTotalWidth = that.mainBody.dom.offsetWidth;
-      oldTotalHeight = that.mainBody.dom.offsetHeight;
-    }
-
-    function resizeEventing(e) {
-      let scaleFactorW = e.detail.newWidth / oldTotalWidth;
-      let scaleFactorH = e.detail.newHeight / oldTotalHeight;
-
-      let newObjColumnWidth = oldObjColumnWidth * scaleFactorW;
-
-      let oldScaleDomWidth = that.eventColumns.dom.offsetWidth;
-
-      if (minLeftMargin < newObjColumnWidth) {
-        that.objColumn.setWidth(newObjColumnWidth + "px");
-      }
-      that.objColumnCells.setHeight(e.detail.newHeight - 72 + "px");
-
-      that.eventAreaScroll.setHeight(e.detail.newHeight - 36 + "px");
-      that.eventAreaScroll.setWidth(
-        e.detail.newWidth - newObjColumnWidth - 2 + "px"
-      );
-
-      if (
-        that.eventColumns.dom.offsetWidth > that.eventAreaScroll.dom.offsetWidth
-      ) {
-        that.eventColumns.setWidth(
-          (that.eventAreaScroll.dom.offsetWidth * oldEventColumnsWidth) /
-            oldEventAreaScrollWidth
-        );
-      } else {
-        that.eventColumns.setWidth(
-          that.eventAreaScroll.dom.offsetWidth - 15 + "px"
-        );
-      }
-
-      let newEventColumnCellsHeight =
-        that.eventAreaScroll.dom.offsetHeight - 69;
-      if (newEventColumnCellsHeight > 350) {
-        that.eventColumnCells.setHeight(newEventColumnCellsHeight + "px");
-      } else {
-        that.eventColumnCells.setHeight(350 + "px");
-      }
-
-      that.promptLine.setHeight(e.detail.newHeight - 51 + "px");
-
-      resizeEventStart();
-      let scale = that.eventColumns.dom.offsetWidth / oldScaleDomWidth;
-      that.sizeChangeReCalFrameSpace(scale);
-    }
 
     that.container.add(that.objColumn);
 
@@ -659,15 +701,16 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       if (that.container.getIndexOfChild(that.noObjectTips) != -1) {
         that.container.remove(that.noObjectTips);
       }
-      that.recordButton.setDisabled("value");
-      that.playButton.setDisabled("true");
-      that.previousKeyButton.setDisabled("true");
-      that.nextKeyButton.setDisabled("true");
-      that.keyPositionInput.changeAbility(true);
-      that.addKeyButton.setDisabled("true");
-      that.addEventButton.setDisabled("true");
-      that.clipSelect.setDisabled(false);
-      that.sampleInput.changeAbility(true);
+
+      that.resizeEventStart();
+      let tempEvent = {
+        detail: {
+          newHeight: that.mainBody.dom.offsetHeight,
+          newWidth: that.mainBody.dom.offsetWidth
+        }
+      };
+      that.resizeEventing(tempEvent);
+      that.enableAllButtonAndInput();
     } else {
       if (!that.tempScrollLeft) {
         that.tempScrollLeft = that.eventAreaScroll.dom.scrollLeft;
@@ -678,18 +721,37 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       if (that.container.getIndexOfChild(that.noObjectTips) == -1) {
         that.container.add(that.noObjectTips);
       }
-      that.recordButton.setAttribute("disabled", "disabled");
-      that.playButton.setDisabled("false");
-      that.previousKeyButton.setDisabled("false");
-      that.nextKeyButton.setDisabled("false");
-      that.keyPositionInput.changeAbility(false);
-      that.addKeyButton.setDisabled("false");
-      that.addEventButton.setDisabled("false");
-      that.clipSelect.setDisabled(true);
-      that.sampleInput.changeAbility(false);
-    }
 
-    console.log(that.recordButton.dom.disabled);
+      that.disableAllButtonAndInput();
+    }
+  }
+
+  enableAllButtonAndInput() {
+    let that = this;
+
+    that.recordButton.enable();
+    that.playButton.enable();
+    that.previousKeyButton.enable();
+    that.nextKeyButton.enable();
+    that.keyPositionInput.changeAbility(true);
+    that.addKeyButton.enable();
+    that.addEventButton.enable();
+    that.clipSelect.setDisabled(false);
+    that.sampleInput.changeAbility(true);
+  }
+
+  disableAllButtonAndInput() {
+    let that = this;
+
+    that.recordButton.disable();
+    that.playButton.disable();
+    that.previousKeyButton.disable();
+    that.nextKeyButton.disable();
+    that.keyPositionInput.changeAbility(false);
+    that.addKeyButton.disable();
+    that.addEventButton.disable();
+    that.clipSelect.setDisabled(true);
+    that.sampleInput.changeAbility(false);
   }
 
   updateAttributeParam() {
@@ -1064,12 +1126,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
           that.secondUnit) /
-          that.secondUnitWidth
+        that.secondUnitWidth
       );
     } else {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16) * that.secondUnit) /
-          that.secondUnitWidth
+        that.secondUnitWidth
       );
     }
 
@@ -1153,12 +1215,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
             that.minuteUnit) /
-            that.minuteUnitWidth
+          that.minuteUnitWidth
         );
       } else {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16) * that.minuteUnit) /
-            that.minuteUnitWidth
+          that.minuteUnitWidth
         );
       }
 
