@@ -61,8 +61,8 @@ function addResizerHandle(fDom, dom1, dom2, dom3, rootDom, changeFN) {
       clientX < offsetX + minLeftMargin
         ? offsetX + minLeftMargin
         : clientX > offsetWidth + offsetX - maxRightMargin
-          ? offsetWidth + offsetX - maxRightMargin
-          : clientX;
+        ? offsetWidth + offsetX - maxRightMargin
+        : clientX;
     // const cX = clientX;
 
     const x = cX - rootDom.offsetLeft;
@@ -114,7 +114,7 @@ class AnimationPannelInput extends UIElement {
       if (!that.dom.classList.contains("Enabled")) {
         that.addClass("Enabled");
       }
-      that.dom.removeAttribute('disabled');
+      that.dom.removeAttribute("disabled");
     } else {
       if (that.dom.classList.contains("Enabled")) {
         that.removeClass("Enabled");
@@ -242,7 +242,7 @@ class AnimationButton extends UIElement {
   disable() {
     let that = this;
 
-    let disableImg = that.imgURL.slice(0, (that.imgURL.length - 5));
+    let disableImg = that.imgURL.slice(0, that.imgURL.length - 5);
     disableImg += "_Disabled.png)";
 
     this.setBackgroundImage(disableImg);
@@ -266,8 +266,10 @@ const UnitType = {
 };
 
 const AnimationEditorState = {
-  NORMAL: 0,
-  EDITING: 1,
+  NOOBJSELECTED: 0,
+  SELECTEDOBJNOANIMATION: 1,
+  NORMAL: 2,
+  EDITING: 3,
 };
 
 class P_AnimationSystem_GUI_TimeLine extends UIDiv {
@@ -278,7 +280,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     this.setId("TimeLine");
 
     //面板状态
-    that.animatedState = AnimationEditorState.NORMAL;
+    that.animationEditorState = AnimationEditorState.NOOBJSELECTED;
 
     //接收来自编辑器的信号
     that.signals = editorOperate.signals;
@@ -480,7 +482,6 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.signals.objectsChanged.add(that.updateAttributeParam);
   }
 
-
   resizeEventStart() {
     let that = this;
 
@@ -531,7 +532,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     ) {
       that.eventColumns.setWidth(
         (that.eventAreaScroll.dom.offsetWidth * that.oldEventColumnsWidth) /
-        that.oldEventAreaScrollWidth
+          that.oldEventAreaScrollWidth
       );
     } else {
       that.eventColumns.setWidth(
@@ -539,8 +540,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       );
     }
 
-    let newEventColumnCellsHeight =
-      that.eventAreaScroll.dom.offsetHeight - 69;
+    let newEventColumnCellsHeight = that.eventAreaScroll.dom.offsetHeight - 69;
     if (newEventColumnCellsHeight > 350) {
       that.eventColumnCells.setHeight(newEventColumnCellsHeight + "px");
     } else {
@@ -690,40 +690,74 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
   updateAnimatedObject(objects) {
     let that = this;
 
+    console.log(objects[0].animations);
+    //这里根据主编辑器反馈回的选中物体，来进一步的判断动画面板的状态
     if (objects.length) {
-      if (that.container.getIndexOfChild(that.eventAreaScroll) == -1) {
-        that.container.add(that.eventAreaScroll);
-        if (that.tempScrollLeft) {
-          that.eventAreaScroll.dom.scrollLeft = that.tempScrollLeft;
-          that.tempScrollLeft = null;
-        }
+      if(objects[0].animations.length){
+        that.animationEditorState = AnimationEditorState.NORMAL;
+      }else{
+        that.animationEditorState = AnimationEditorState.SELECTEDOBJNOANIMATION;
       }
-      if (that.container.getIndexOfChild(that.noObjectTips) != -1) {
-        that.container.remove(that.noObjectTips);
-      }
+      // if (that.container.getIndexOfChild(that.eventAreaScroll) == -1) {
+      //   that.container.add(that.eventAreaScroll);
+      //   that.eventAreaScroll.setWidth(that.noObjectTips.dom.offsetWidth);
 
-      that.resizeEventStart();
-      let tempEvent = {
-        detail: {
-          newHeight: that.mainBody.dom.offsetHeight,
-          newWidth: that.mainBody.dom.offsetWidth
-        }
-      };
-      that.resizeEventing(tempEvent);
+      //   if (
+      //     that.mainBody.dom.offsetHeight != that.oldTotalHeight_BH ||
+      //     that.mainBody.dom.offsetWidth != that.oldTotalWidth_BH
+      //   ) {
+      //     that.oldObjColumnWidth = that.oldObjColumnWidth_BH;
+      //     that.oldEventAreaScrollWidth = that.oldEventAreaScrollWidth_BH;
+      //     that.oldEventColumnsWidth = that.oldEventColumnsWidth_BH;
+
+      //     that.oldTotalWidth = that.oldTotalWidth_BH;
+      //     that.oldTotalHeight = that.oldTotalHeight_BH;
+
+      //     let tempEvent = {
+      //       detail: {
+      //         newHeight: that.mainBody.dom.offsetHeight,
+      //         newWidth: that.mainBody.dom.offsetWidth,
+      //       },
+      //     };
+      //     that.resizeEventing(tempEvent);
+      //   }
+
+      //   if (that.tempScrollLeft) {
+      //     that.eventAreaScroll.dom.scrollLeft = that.tempScrollLeft;
+      //     that.tempScrollLeft = null;
+      //   }
+      // }
+      // if (that.container.getIndexOfChild(that.noObjectTips) != -1) {
+      //   that.container.remove(that.noObjectTips);
+      // }
+
       that.enableAllButtonAndInput();
     } else {
-      if (!that.tempScrollLeft) {
-        that.tempScrollLeft = that.eventAreaScroll.dom.scrollLeft;
-      }
-      if (that.container.getIndexOfChild(that.eventAreaScroll) != -1) {
-        that.container.remove(that.eventAreaScroll);
-      }
-      if (that.container.getIndexOfChild(that.noObjectTips) == -1) {
-        that.container.add(that.noObjectTips);
-      }
+      that.animationEditorState = AnimationEditorState.NOOBJSELECTED;
+      // if (!that.tempScrollLeft) {
+      //   that.tempScrollLeft = that.eventAreaScroll.dom.scrollLeft;
+      // }
+
+      // that.oldObjColumnWidth_BH = that.objColumn.dom.offsetWidth;
+      // that.oldEventAreaScrollWidth_BH = that.eventAreaScroll.dom.offsetWidth;
+      // that.oldEventColumnsWidth_BH = that.eventColumns.dom.offsetWidth;
+
+      // that.oldTotalWidth_BH = that.mainBody.dom.offsetWidth;
+      // that.oldTotalHeight_BH = that.mainBody.dom.offsetHeight;
+
+      // if (that.container.getIndexOfChild(that.noObjectTips) == -1) {
+      //   that.noObjectTips.setWidth(that.eventAreaScroll.dom.offsetWidth);
+      //   that.container.add(that.noObjectTips);
+      // }
+      // if (that.container.getIndexOfChild(that.eventAreaScroll) != -1) {
+      //   that.container.remove(that.eventAreaScroll);
+      // }
 
       that.disableAllButtonAndInput();
     }
+
+    console.log("that.oldTotalWidth_BH is:" + that.oldTotalWidth_BH);
+    // console.log(that.eventAreaScroll.dom.parentNode);
   }
 
   enableAllButtonAndInput() {
@@ -1126,12 +1160,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
           that.secondUnit) /
-        that.secondUnitWidth
+          that.secondUnitWidth
       );
     } else {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16) * that.secondUnit) /
-        that.secondUnitWidth
+          that.secondUnitWidth
       );
     }
 
@@ -1215,12 +1249,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
             that.minuteUnit) /
-          that.minuteUnitWidth
+            that.minuteUnitWidth
         );
       } else {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16) * that.minuteUnit) /
-          that.minuteUnitWidth
+            that.minuteUnitWidth
         );
       }
 
