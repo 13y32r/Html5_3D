@@ -734,12 +734,39 @@ input::-webkit-inner-spin-button {
 
 .NoObjectTips {
   height: auto;
-  width: 100%;
+  width: 415px;
   color: #b4b4b4;
   justify-content: center;
   align-items: center;
   display: flex;
   background-color: #383838;
+}
+
+.SelectedObjNoAnimationsTips {
+  color: #b4b4b4;
+  height: auto;
+  width: 415px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  background-color: #383838;
+}
+
+.CreateNewAnimationButton {
+  font-size: 12px;
+  color: #b4b4b4;
+  border: 1px solid #808080;
+  border-radius: 3px;
+  width: 228px;
+  height: 20px;
+  box-shadow: 2px 2px 5px #242424;
+  margin-top: 10px;
+  background-image: linear-gradient(#5d5d5d, #444444);
+}
+
+.CreateNewAnimationButton:hover {
+  background-image: linear-gradient(#4d4d4d, #5a5a5a);
 }
 
 .EventColumn {

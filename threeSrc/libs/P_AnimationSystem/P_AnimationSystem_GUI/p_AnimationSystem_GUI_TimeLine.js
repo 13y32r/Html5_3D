@@ -318,12 +318,23 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.container = new UIDiv();
 
     that.objColumn = new UIDiv();
+    //这里创建时间轴面板右边的一个虚拟区域，用于变化的时候指代不同的显示对象
+    that.rightBigArea = null;
     that.eventColumns = new UIDiv();
     that.eventAreaScroll = new UIDiv();
     that.noObjectTips = new UIDiv();
     that.noObjectTips.setInnerHTML(
       "还没有对象被选中欧~，请先在场景中选择一个对象。"
     );
+    that.selectedObjNoAnimationsTips = new UIDiv();
+    that.createNewAnimationButton = new UIElement(
+      document.createElement("button")
+    );
+    that.noAnimationsTipsLabel = new UIElement(document.createElement("label"));
+    that.noAnimationsTipsLabel.setInnerHTML(
+      "此对象还没有一个动画剪辑，点击下面的按钮可以为该对象创建一个剪辑。"
+    );
+    that.createNewAnimationButton.dom.textContent = "创建新动画剪辑";
 
     that.buttonArea = new UIDiv();
     that.recordButton = new AnimationButton(
@@ -406,6 +417,8 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
 
     that.eventAreaScroll.addClass("EventAreaScroll");
     that.noObjectTips.addClass("NoObjectTips");
+    that.selectedObjNoAnimationsTips.addClass("SelectedObjNoAnimationsTips");
+    that.createNewAnimationButton.addClass("CreateNewAnimationButton");
 
     that.buttonArea.setClass("ButtonArea");
     that.selectSettingArea.setClass("SelectSettingArea");
@@ -471,6 +484,8 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       that.eventAreaScrollPointerUp
     );
 
+    that.displayContentAccordingToPanelState =
+      that.displayContentAccordingToPanelState.bind(this);
     that.updateAnimatedObject = that.updateAnimatedObject.bind(this);
     that.updateAttributeParam = that.updateAttributeParam.bind(this);
 
@@ -485,20 +500,13 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
   resizeEventStart() {
     let that = this;
 
-    that.oldObjColumnWidth;
+    that.oldRightBigAreaWidth = that.rightBigArea.dom.offsetWidth;
 
-    that.oldEventAreaScrollWidth;
-
-    that.oldEventColumnsWidth;
-
-    that.oldTotalWidth;
-    that.oldTotalHeight;
+    if (that.rightBigArea == that.eventAreaScroll) {
+      that.oldEventColumnsWidth = that.eventColumns.dom.offsetWidth;
+    }
 
     that.oldObjColumnWidth = that.objColumn.dom.offsetWidth;
-
-    that.oldEventAreaScrollWidth = that.eventAreaScroll.dom.offsetWidth;
-
-    that.oldEventColumnsWidth = that.eventColumns.dom.offsetWidth;
 
     that.oldTotalWidth = that.mainBody.dom.offsetWidth;
     that.oldTotalHeight = that.mainBody.dom.offsetHeight;
@@ -515,43 +523,40 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
 
     let newObjColumnWidth = that.oldObjColumnWidth * scaleFactorW;
 
-    let oldScaleDomWidth = that.eventColumns.dom.offsetWidth;
-
     if (minLeftMargin < newObjColumnWidth) {
       that.objColumn.setWidth(newObjColumnWidth + "px");
     }
     that.objColumnCells.setHeight(e.detail.newHeight - 72 + "px");
-
-    that.eventAreaScroll.setHeight(e.detail.newHeight - 36 + "px");
-    that.eventAreaScroll.setWidth(
+    that.rightBigArea.setHeight(e.detail.newHeight - 36 + "px");
+    that.rightBigArea.setWidth(
       e.detail.newWidth - newObjColumnWidth - 2 + "px"
     );
 
-    if (
-      that.eventColumns.dom.offsetWidth > that.eventAreaScroll.dom.offsetWidth
-    ) {
-      that.eventColumns.setWidth(
-        (that.eventAreaScroll.dom.offsetWidth * that.oldEventColumnsWidth) /
-          that.oldEventAreaScrollWidth
-      );
-    } else {
-      that.eventColumns.setWidth(
-        that.eventAreaScroll.dom.offsetWidth - 15 + "px"
-      );
-    }
+    if (that.rightBigArea == that.eventAreaScroll) {
+      if (
+        that.eventColumns.dom.offsetWidth > that.eventAreaScroll.dom.offsetWidth
+      ) {
+        that.eventColumns.setWidth(that.oldEventColumnsWidth * scaleFactorW);
+      } else {
+        that.eventColumns.setWidth(
+          that.eventAreaScroll.dom.offsetWidth - 15 + "px"
+        );
+      }
 
-    let newEventColumnCellsHeight = that.eventAreaScroll.dom.offsetHeight - 69;
-    if (newEventColumnCellsHeight > 350) {
-      that.eventColumnCells.setHeight(newEventColumnCellsHeight + "px");
-    } else {
-      that.eventColumnCells.setHeight(350 + "px");
+      let newEventColumnCellsHeight =
+        that.eventAreaScroll.dom.offsetHeight - 69;
+      if (newEventColumnCellsHeight > 350) {
+        that.eventColumnCells.setHeight(newEventColumnCellsHeight + "px");
+      } else {
+        that.eventColumnCells.setHeight(350 + "px");
+      }
     }
 
     that.promptLine.setHeight(e.detail.newHeight - 51 + "px");
 
     that.resizeEventStart();
-    let scale = that.eventColumns.dom.offsetWidth / oldScaleDomWidth;
-    that.sizeChangeReCalFrameSpace(scale);
+    let scale = that.eventColumns.dom.offsetWidth / that.oldEventColumnsWidth;
+    // that.sizeChangeReCalFrameSpace(scale);
   }
 
   createGUI() {
@@ -616,8 +621,17 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.sampleArea.add(that.sampleInput);
 
     that.container.add(that.verticalSplitLine);
-    that.container.add(that.eventAreaScroll);
-    // that.container.add(that.noObjectTips);
+    addResizerHandle.bind(this)(
+      that.container.dom,
+      that.objColumn.dom,
+      that.eventAreaScroll.dom,
+      that.eventColumns.dom,
+      that.mainBody.dom,
+      that.resizeChange
+    );
+    that.container.add(that.noObjectTips);
+    that.selectedObjNoAnimationsTips.add(that.noAnimationsTipsLabel);
+    that.selectedObjNoAnimationsTips.add(that.createNewAnimationButton);
 
     that.eventAreaScroll.add(that.eventColumns);
 
@@ -640,20 +654,14 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.eventColumns.add(that.promptLine);
     that.promptLine.setHeight("110px");
 
-    addResizerHandle.bind(this)(
-      that.container.dom,
-      that.objColumn.dom,
-      that.eventAreaScroll.dom,
-      that.eventColumns.dom,
-      that.mainBody.dom,
-      that.resizeChange
-    );
-
-    that.initFrame();
+    setTimeout(() => {
+      that.updateAnimatedObject(editorOperate.selectionHelper.selectedObject);
+      // that.closePanel();
+    }, 500);
   }
 
   //初始化帧频显示数据
-  initFrame() {
+  showTheFrameBar() {
     let that = this;
 
     that.sampleNumber = that.sampleInput.getValue();
@@ -680,22 +688,18 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     }
 
     that.refreshFrame();
-    setTimeout(() => {
-      that.updateAnimatedObject([]);
-      that.closePanel();
-    }, 500);
   }
 
   //更新动画面板对象
   updateAnimatedObject(objects) {
     let that = this;
 
-    console.log(objects[0].animations);
+    // console.log(objects[0].animations);
     //这里根据主编辑器反馈回的选中物体，来进一步的判断动画面板的状态
     if (objects.length) {
-      if(objects[0].animations.length){
+      if (objects[0].animations.length) {
         that.animationEditorState = AnimationEditorState.NORMAL;
-      }else{
+      } else {
         that.animationEditorState = AnimationEditorState.SELECTEDOBJNOANIMATION;
       }
       // if (that.container.getIndexOfChild(that.eventAreaScroll) == -1) {
@@ -730,8 +734,6 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       // if (that.container.getIndexOfChild(that.noObjectTips) != -1) {
       //   that.container.remove(that.noObjectTips);
       // }
-
-      that.enableAllButtonAndInput();
     } else {
       that.animationEditorState = AnimationEditorState.NOOBJSELECTED;
       // if (!that.tempScrollLeft) {
@@ -752,12 +754,32 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       // if (that.container.getIndexOfChild(that.eventAreaScroll) != -1) {
       //   that.container.remove(that.eventAreaScroll);
       // }
-
-      that.disableAllButtonAndInput();
     }
 
-    console.log("that.oldTotalWidth_BH is:" + that.oldTotalWidth_BH);
+    that.displayContentAccordingToPanelState(that.animationEditorState);
     // console.log(that.eventAreaScroll.dom.parentNode);
+  }
+
+  displayContentAccordingToPanelState(panelState) {
+    let that = this;
+    that.container.removeTheLastChild();
+    switch (panelState) {
+      case AnimationEditorState.NOOBJSELECTED:
+        that.disableAllButtonAndInput();
+        that.rightBigArea = that.noObjectTips;
+        that.container.add(that.noObjectTips);
+        break;
+      case AnimationEditorState.SELECTEDOBJNOANIMATION:
+        that.disableAllButtonAndInput();
+        that.rightBigArea = that.selectedObjNoAnimationsTips;
+        that.container.add(that.selectedObjNoAnimationsTips);
+        break;
+      case AnimationEditorState.NORMAL:
+        that.rightBigArea = that.eventAreaScroll;
+        that.container.add(that.eventAreaScroll);
+        that.enableAllButtonAndInput();
+        break;
+    }
   }
 
   enableAllButtonAndInput() {
@@ -772,6 +794,9 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.addEventButton.enable();
     that.clipSelect.setDisabled(false);
     that.sampleInput.changeAbility(true);
+    if (that.objColumnCells.getIndexOfChild(that.addPropertyButton) == -1) {
+      that.objColumnCells.add(that.addPropertyButton);
+    }
   }
 
   disableAllButtonAndInput() {
@@ -786,6 +811,9 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.addEventButton.disable();
     that.clipSelect.setDisabled(true);
     that.sampleInput.changeAbility(false);
+    if (that.objColumnCells.getIndexOfChild(that.addPropertyButton) != -1) {
+      that.objColumnCells.remove(that.addPropertyButton);
+    }
   }
 
   updateAttributeParam() {

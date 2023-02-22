@@ -53,6 +53,9 @@ async function init() {
   const plane = new window["THREE"].Mesh(geometry, material);
   plane.position.set(5, 5, 5);
   plane.name = "平面_1";
+  plane.animations.push("Hello World!");
+  console.log("plane is:");
+  console.log(plane.animations);
   scene.add(plane);
 
   const bgeometry = new window["THREE"].BoxGeometry(5, 5, 5);
@@ -156,9 +159,9 @@ function initOrbitControls() {
       if (window["editorOperate"].state == EditorState.EDIT) {
         if (
           window["editorOperate"].selectionHelper.selectState ==
-          SelectState.IDLE ||
+            SelectState.IDLE ||
           window["editorOperate"].selectionHelper.selectState ==
-          SelectState.HALT
+            SelectState.HALT
         ) {
           window["orbitControls"].enabled = true;
           window["editorOperate"].changeSelectState(SelectState.HALT);

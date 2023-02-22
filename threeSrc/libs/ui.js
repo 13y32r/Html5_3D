@@ -52,6 +52,10 @@ class UIElement {
     }
   }
 
+  removeTheLastChild() {
+    this.dom.removeChild(this.dom.lastChild);
+  }
+
   setId(id) {
     this.dom.id = id;
 
