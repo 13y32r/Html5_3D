@@ -61,8 +61,8 @@ function addResizerHandle(fDom, dom1, dom2, dom3, rootDom, changeFN) {
       clientX < offsetX + minLeftMargin
         ? offsetX + minLeftMargin
         : clientX > offsetWidth + offsetX - maxRightMargin
-        ? offsetWidth + offsetX - maxRightMargin
-        : clientX;
+          ? offsetWidth + offsetX - maxRightMargin
+          : clientX;
     // const cX = clientX;
 
     const x = cX - rootDom.offsetLeft;
@@ -167,6 +167,12 @@ class ClipSelect extends UIElement {
     this.dom.value = selected;
 
     return this;
+  }
+
+  clear() {
+    while (this.dom.children.length > 0) {
+      this.dom.removeChild(this.dom.firstChild);
+    }
   }
 
   getValue() {
@@ -297,8 +303,8 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     //时间轴的滚轮增量，默认是零
     that.markIncrement = 0;
 
-    //时间轴的默认采样频率，默认是“60”
-    that.sampleNumber = 60;
+    //时间轴的默认采样频率，默认是“10”
+    that.sampleNumber = 10;
 
     //分的单位宽度
     that.minuteUnitWidth;
@@ -424,7 +430,6 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.selectSettingArea.setClass("SelectSettingArea");
 
     that.sampleArea.setClass("SampleArea");
-    that.clipSelect.setOptions({ 1: "创建新动画" });
     that.sampleText.setClass("SampleText");
     that.sampleText.setInnerHTML("采样频率");
 
@@ -488,6 +493,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       that.displayContentAccordingToPanelState.bind(this);
     that.updateAnimatedObject = that.updateAnimatedObject.bind(this);
     that.updateAttributeParam = that.updateAttributeParam.bind(this);
+    that.initFrameBar = that.initFrameBar.bind(this);
 
     that.openPanel = that.openPanel.bind(this);
     that.closePanel = that.closePanel.bind(this);
@@ -503,6 +509,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.oldRightBigAreaWidth = that.rightBigArea.dom.offsetWidth;
 
     if (that.rightBigArea == that.eventAreaScroll) {
+      that.oldEventAreaScrollWidth = that.oldRightBigAreaWidth;
       that.oldEventColumnsWidth = that.eventColumns.dom.offsetWidth;
     }
 
@@ -510,6 +517,45 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
 
     that.oldTotalWidth = that.mainBody.dom.offsetWidth;
     that.oldTotalHeight = that.mainBody.dom.offsetHeight;
+  }
+
+  eventRightBigAreaOverAllChange(mNewWidth, mNewHeight) {
+    let that = this;
+
+    if (that.rightBigArea == that.eventAreaScroll) {
+      that.eventAreaScroll.setHeight(mNewHeight - 36 + "px");
+      that.eventAreaScroll.setWidth(
+        mNewWidth - that.objColumn.dom.offsetWidth - 2 + "px"
+      );
+
+      if (
+        that.eventColumns.dom.offsetWidth > that.eventAreaScroll.dom.offsetWidth
+      ) {
+        let eventAreaScrollScaleFactorW = that.eventAreaScroll.dom.offsetWidth / that.oldEventAreaScrollWidth;
+        that.eventColumns.setWidth(that.oldEventColumnsWidth * eventAreaScrollScaleFactorW);
+      } else {
+        that.eventColumns.setWidth(
+          that.eventAreaScroll.dom.offsetWidth - 15 + "px"
+        );
+      }
+
+      let newEventColumnCellsHeight =
+        that.eventAreaScroll.dom.offsetHeight - 69;
+      if (newEventColumnCellsHeight > 350) {
+        that.eventColumnCells.setHeight(newEventColumnCellsHeight + "px");
+      } else {
+        that.eventColumnCells.setHeight(350 + "px");
+      }
+
+      that.promptLine.setHeight(mNewHeight - 51 + "px");
+      let scale = that.eventColumns.dom.offsetWidth / that.oldEventColumnsWidth;
+      that.sizeChangeReCalFrameSpace(scale);
+    } else {
+      that.rightBigArea.setHeight(mNewHeight - 36 + "px");
+      that.rightBigArea.setWidth(
+        mNewWidth - that.objColumn.dom.offsetWidth - 2 + "px"
+      );
+    }
   }
 
   resizeEventing(e) {
@@ -527,36 +573,10 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       that.objColumn.setWidth(newObjColumnWidth + "px");
     }
     that.objColumnCells.setHeight(e.detail.newHeight - 72 + "px");
-    that.rightBigArea.setHeight(e.detail.newHeight - 36 + "px");
-    that.rightBigArea.setWidth(
-      e.detail.newWidth - newObjColumnWidth - 2 + "px"
-    );
 
-    if (that.rightBigArea == that.eventAreaScroll) {
-      if (
-        that.eventColumns.dom.offsetWidth > that.eventAreaScroll.dom.offsetWidth
-      ) {
-        that.eventColumns.setWidth(that.oldEventColumnsWidth * scaleFactorW);
-      } else {
-        that.eventColumns.setWidth(
-          that.eventAreaScroll.dom.offsetWidth - 15 + "px"
-        );
-      }
-
-      let newEventColumnCellsHeight =
-        that.eventAreaScroll.dom.offsetHeight - 69;
-      if (newEventColumnCellsHeight > 350) {
-        that.eventColumnCells.setHeight(newEventColumnCellsHeight + "px");
-      } else {
-        that.eventColumnCells.setHeight(350 + "px");
-      }
-    }
-
-    that.promptLine.setHeight(e.detail.newHeight - 51 + "px");
+    that.eventRightBigAreaOverAllChange(e.detail.newWidth, e.detail.newHeight);
 
     that.resizeEventStart();
-    let scale = that.eventColumns.dom.offsetWidth / that.oldEventColumnsWidth;
-    // that.sizeChangeReCalFrameSpace(scale);
   }
 
   createGUI() {
@@ -661,103 +681,62 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
   }
 
   //初始化帧频显示数据
-  showTheFrameBar() {
+  initFrameBar(maxTime) {
     let that = this;
 
     that.sampleNumber = that.sampleInput.getValue();
     that.sampleNumber = parseInt(that.sampleNumber);
 
-    // window["editorOperate"].changeEditorState(4);
-    // window["editorOperate"].stopKeyEvent();
+    setTimeout(() => {
+      let pixelTotalWidth = that.eventColumns.dom.offsetWidth - 70;
+      let totalWidthIncrement = pixelTotalWidth - that.markIncrement;
 
-    let pixelTotalWidth = that.eventColumns.dom.offsetWidth - 70;
+      let timeCell = 1 / that.sampleNumber;
+      let totalSecondNumber = maxTime / timeCell;
 
-    let totalWidthIncrement = pixelTotalWidth - that.markIncrement;
+      that.secondUnitWidth = totalWidthIncrement / totalSecondNumber;
+      that.minuteUnitWidth = that.secondUnitWidth * that.sampleNumber;
 
-    that.minuteUnitWidth = totalWidthIncrement;
-    that.secondUnitWidth = totalWidthIncrement / that.sampleNumber;
-
-    while (that.secondUnitWidth <= 5) {
-      if (that.secondUnit * 2 < that.sampleNumber) {
-        that.secondUnit *= 2;
-        that.secondUnitWidth *= 2;
-      } else {
-        that.myUnitType = UnitType.Minute;
-        break;
+      while (that.secondUnitWidth <= 5) {
+        if (that.secondUnit * 2 < that.sampleNumber) {
+          that.secondUnit *= 2;
+          that.secondUnitWidth *= 2;
+        } else {
+          that.myUnitType = UnitType.Minute;
+          break;
+        }
       }
-    }
 
-    that.refreshFrame();
+      that.refreshFrame();
+    }, 100);
   }
 
   //更新动画面板对象
   updateAnimatedObject(objects) {
     let that = this;
 
-    // console.log(objects[0].animations);
     //这里根据主编辑器反馈回的选中物体，来进一步的判断动画面板的状态
     if (objects.length) {
       if (objects[0].animations.length) {
         that.animationEditorState = AnimationEditorState.NORMAL;
+        //这里获取所选择物体的第一个动画剪辑的最大动画时间。
+        let theFirstAnimationClipMaxTime = objects[0].animations[0].duration;
+        that.initFrameBar(theFirstAnimationClipMaxTime);
+        let animationOption = {};
+        for (let i = 0; i < objects[0].animations.length; i++) {
+          animationOption[i] = objects[0].animations[i].name;
+        }
+        animationOption[objects[0].animations.length] = "创建新动画";
+        that.clipSelect.setOptions(animationOption);
+        that.clipSelect.setValue(0);
       } else {
         that.animationEditorState = AnimationEditorState.SELECTEDOBJNOANIMATION;
       }
-      // if (that.container.getIndexOfChild(that.eventAreaScroll) == -1) {
-      //   that.container.add(that.eventAreaScroll);
-      //   that.eventAreaScroll.setWidth(that.noObjectTips.dom.offsetWidth);
-
-      //   if (
-      //     that.mainBody.dom.offsetHeight != that.oldTotalHeight_BH ||
-      //     that.mainBody.dom.offsetWidth != that.oldTotalWidth_BH
-      //   ) {
-      //     that.oldObjColumnWidth = that.oldObjColumnWidth_BH;
-      //     that.oldEventAreaScrollWidth = that.oldEventAreaScrollWidth_BH;
-      //     that.oldEventColumnsWidth = that.oldEventColumnsWidth_BH;
-
-      //     that.oldTotalWidth = that.oldTotalWidth_BH;
-      //     that.oldTotalHeight = that.oldTotalHeight_BH;
-
-      //     let tempEvent = {
-      //       detail: {
-      //         newHeight: that.mainBody.dom.offsetHeight,
-      //         newWidth: that.mainBody.dom.offsetWidth,
-      //       },
-      //     };
-      //     that.resizeEventing(tempEvent);
-      //   }
-
-      //   if (that.tempScrollLeft) {
-      //     that.eventAreaScroll.dom.scrollLeft = that.tempScrollLeft;
-      //     that.tempScrollLeft = null;
-      //   }
-      // }
-      // if (that.container.getIndexOfChild(that.noObjectTips) != -1) {
-      //   that.container.remove(that.noObjectTips);
-      // }
     } else {
       that.animationEditorState = AnimationEditorState.NOOBJSELECTED;
-      // if (!that.tempScrollLeft) {
-      //   that.tempScrollLeft = that.eventAreaScroll.dom.scrollLeft;
-      // }
-
-      // that.oldObjColumnWidth_BH = that.objColumn.dom.offsetWidth;
-      // that.oldEventAreaScrollWidth_BH = that.eventAreaScroll.dom.offsetWidth;
-      // that.oldEventColumnsWidth_BH = that.eventColumns.dom.offsetWidth;
-
-      // that.oldTotalWidth_BH = that.mainBody.dom.offsetWidth;
-      // that.oldTotalHeight_BH = that.mainBody.dom.offsetHeight;
-
-      // if (that.container.getIndexOfChild(that.noObjectTips) == -1) {
-      //   that.noObjectTips.setWidth(that.eventAreaScroll.dom.offsetWidth);
-      //   that.container.add(that.noObjectTips);
-      // }
-      // if (that.container.getIndexOfChild(that.eventAreaScroll) != -1) {
-      //   that.container.remove(that.eventAreaScroll);
-      // }
     }
 
     that.displayContentAccordingToPanelState(that.animationEditorState);
-    // console.log(that.eventAreaScroll.dom.parentNode);
   }
 
   displayContentAccordingToPanelState(panelState) {
@@ -768,16 +747,21 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         that.disableAllButtonAndInput();
         that.rightBigArea = that.noObjectTips;
         that.container.add(that.noObjectTips);
+        that.oldEventAreaScrollWidth = that.eventAreaScroll.dom.offsetWidth;
+        that.eventRightBigAreaOverAllChange(that.mainBody.dom.offsetWidth, that.mainBody.dom.offsetHeight);
         break;
       case AnimationEditorState.SELECTEDOBJNOANIMATION:
         that.disableAllButtonAndInput();
         that.rightBigArea = that.selectedObjNoAnimationsTips;
         that.container.add(that.selectedObjNoAnimationsTips);
+        that.oldEventAreaScrollWidth = that.eventAreaScroll.dom.offsetWidth;
+        that.eventRightBigAreaOverAllChange(that.mainBody.dom.offsetWidth, that.mainBody.dom.offsetHeight);
         break;
       case AnimationEditorState.NORMAL:
         that.rightBigArea = that.eventAreaScroll;
         that.container.add(that.eventAreaScroll);
         that.enableAllButtonAndInput();
+        that.eventRightBigAreaOverAllChange(that.mainBody.dom.offsetWidth, that.mainBody.dom.offsetHeight);
         break;
     }
   }
@@ -809,6 +793,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.keyPositionInput.changeAbility(false);
     that.addKeyButton.disable();
     that.addEventButton.disable();
+    that.clipSelect.clear();
     that.clipSelect.setDisabled(true);
     that.sampleInput.changeAbility(false);
     if (that.objColumnCells.getIndexOfChild(that.addPropertyButton) != -1) {
@@ -1188,12 +1173,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
           that.secondUnit) /
-          that.secondUnitWidth
+        that.secondUnitWidth
       );
     } else {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16) * that.secondUnit) /
-          that.secondUnitWidth
+        that.secondUnitWidth
       );
     }
 
@@ -1277,12 +1262,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
             that.minuteUnit) /
-            that.minuteUnitWidth
+          that.minuteUnitWidth
         );
       } else {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16) * that.minuteUnit) /
-            that.minuteUnitWidth
+          that.minuteUnitWidth
         );
       }
 

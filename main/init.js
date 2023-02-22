@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-13 19:20:28
- * @LastEditTime: 2023-02-14 20:39:58
+ * @LastEditTime: 2023-02-22 10:44:51
  * @LastEditors: your name
  * @Description: 这是引擎的启动主函数
  * @FilePath: \Html5_3D\main\init.js
@@ -53,10 +53,25 @@ async function init() {
   const plane = new window["THREE"].Mesh(geometry, material);
   plane.position.set(5, 5, 5);
   plane.name = "平面_1";
-  plane.animations.push("Hello World!");
-  console.log("plane is:");
-  console.log(plane.animations);
   scene.add(plane);
+
+  //----------------------这里为plane添加一个动画的测试元素--------------
+  const quaternion1 = new THREE.Quaternion();
+  const euler1 = new THREE.Euler(0, 0, 0, 'XYZ');
+  quaternion1.setFromEuler(euler1);
+
+  const quaternion2 = new THREE.Quaternion();
+  const euler2 = new THREE.Euler(0, Math.PI, 0, 'XYZ');
+  quaternion2.setFromEuler(euler2);
+  const valuesY = [
+    quaternion1.x, quaternion1.y, quaternion1.z, quaternion1.w, quaternion2.x, quaternion2.y, quaternion2.z, quaternion2.w
+  ] // 过渡的值
+  const posYKeyFramTrack = new THREE.QuaternionKeyframeTrack('.quaternion', [0, 1.2], valuesY);
+
+  const trackArr = [posYKeyFramTrack];
+  const clip = new THREE.AnimationClip('PLANE-ANUMATION', -1, trackArr);
+  plane.animations.push(clip);
+  //-----------------------动画剪辑添加完毕-------------------------
 
   const bgeometry = new window["THREE"].BoxGeometry(5, 5, 5);
   const bmaterial = new window["THREE"].MeshBasicMaterial({
@@ -159,9 +174,9 @@ function initOrbitControls() {
       if (window["editorOperate"].state == EditorState.EDIT) {
         if (
           window["editorOperate"].selectionHelper.selectState ==
-            SelectState.IDLE ||
+          SelectState.IDLE ||
           window["editorOperate"].selectionHelper.selectState ==
-            SelectState.HALT
+          SelectState.HALT
         ) {
           window["orbitControls"].enabled = true;
           window["editorOperate"].changeSelectState(SelectState.HALT);

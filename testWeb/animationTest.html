@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2022-08-29 19:32:38
- * @LastEditTime: 2022-12-30 13:43:45
+ * @LastEditTime: 2023-02-22 10:17:30
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\testWeb\animationTest.html
@@ -33,7 +33,7 @@
         scene.add(cube);
         render();
 
-        const times = [0, 10, 15] // 时间序列
+        const times = [0, 1, 1.5654987654352189657987654] // 时间序列
         const valuesX = [
             0, 0, 0, 10, 0, 0, 10, 10, 0
         ] // 过渡的值
@@ -52,7 +52,7 @@
 
         // 0 - 10 秒内的位置变化
         const posXKeyFramTrack = new THREE.KeyframeTrack('.position', times, valuesX);
-        const posYKeyFramTrack = new THREE.QuaternionKeyframeTrack('.quaternion', [0, 12], valuesY);
+        const posYKeyFramTrack = new THREE.QuaternionKeyframeTrack('.quaternion', [0, 1.2], valuesY);
 
         // 通过THREE.AnimationClip对象对动画进行剪辑
         // name, 持续时间, KeyframeTrack<>
