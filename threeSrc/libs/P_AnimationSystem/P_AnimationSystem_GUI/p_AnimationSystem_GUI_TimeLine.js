@@ -10,8 +10,7 @@ import {
 import { normalWindow } from "../../../libs/ui.menu.js";
 import { GUIFrameLabel } from "./p_AnimationSystem_GUI_Frame.js";
 
-function addResizerHandle(fDom, dom1, dom2, dom3, rootDom, changeFN) {
-  let that = this;
+function addResizerHandle(fDom, dom1, dom2, dom3, rootDom, changeFN, handle, scope) {
 
   let minLeftMargin = 248;
   let maxRightMargin = 200;
@@ -19,22 +18,17 @@ function addResizerHandle(fDom, dom1, dom2, dom3, rootDom, changeFN) {
   let overallSize = dom1.offsetWidth + dom2.offsetWidth;
   let tempRootWidth = rootDom.offsetWidth;
 
-  let handle = new UIDiv();
-  handle.setClass("ResizeHandle");
+  rootDom.removeEventListener("pointerup", adjustHandlePosition);
+  rootDom.addEventListener("pointerup", adjustHandlePosition);
 
-  handle.setLeft(dom1.offsetWidth + "px");
-  handle.setHeight(dom1.offsetHeight + "px");
-
-  fDom.appendChild(handle.dom);
-
-  rootDom.addEventListener("pointerup", function () {
+  function adjustHandlePosition() {
     if (tempRootWidth != rootDom.offsetWidth) {
       handle.setLeft(dom1.offsetWidth + "px");
       handle.setHeight(dom1.offsetHeight + "px");
       overallSize = dom1.offsetWidth + dom2.offsetWidth;
       tempRootWidth = rootDom.offsetWidth;
     }
-  });
+  }
 
   function onPointerDown(event) {
     if (event.isPrimary === false) return;
@@ -71,17 +65,18 @@ function addResizerHandle(fDom, dom1, dom2, dom3, rootDom, changeFN) {
 
     let oldDom2Width = dom2.offsetWidth;
 
-    dom1.style.width = (x / overallSize) * 100 + "%";
-    dom2.style.width = (1 - x / overallSize) * 100 + "%";
+    dom1.style.width = x + "px";
+    dom2.style.width = (overallSize - x) + "px";
 
-    let oldDom3Width = dom3.offsetWidth;
-
-    let newDom3Width = (dom3.offsetWidth * dom2.offsetWidth) / oldDom2Width;
-    dom3.style.width = newDom3Width + "px";
-
-    changeFN(that, { oldDom3Width, newDom3Width });
+    if (dom3) {
+      let oldDom3Width = dom3.offsetWidth;
+      let newDom3Width = (dom3.offsetWidth * dom2.offsetWidth) / oldDom2Width;
+      dom3.style.width = newDom3Width + "px";
+      changeFN(scope, { oldDom3Width, newDom3Width });
+    }
   }
 
+  handle.dom.removeEventListener("pointerdown", onPointerDown);
   handle.dom.addEventListener("pointerdown", onPointerDown);
 }
 
@@ -266,6 +261,12 @@ class AnimationButton extends UIElement {
   }
 }
 
+class AttributeCollapseDisplayColumns {
+  constructor() {
+
+  }
+}
+
 const UnitType = {
   Second: 0,
   Minute: 1,
@@ -409,6 +410,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     });
 
     that.objColumnCells = new UIDiv();
+    that.objAttributeShowArea = new UIDiv();
     that.addPropertyButton = new AddPropertyButton("增加属性");
 
     that.timeScaleBar = new UIDiv();
@@ -432,6 +434,9 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.sampleArea.setClass("SampleArea");
     that.sampleText.setClass("SampleText");
     that.sampleText.setInnerHTML("采样频率");
+
+    that.objAttributeShowArea.setClass("ObjAttributeShowArea");
+    that.objAttributeShowArea.setInnerHTML("asldkfjlaskdjflkjsadlfkjl\nkgjlkjelkfjaljewiojflksa\njdflkjaslvkjaslkdjffgl\nkjweoifjlkasdj;ajsldfkja;\nlsekdjf['wejro[pjlksjad.");
 
     that.objColumnCells.setClass("TimeLineContainer");
     that.objColumnCells.addClass("ObjectColumnCells");
@@ -523,9 +528,9 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     let that = this;
 
     if (that.rightBigArea == that.eventAreaScroll) {
-      that.eventAreaScroll.setHeight(mNewHeight - 36 + "px");
+      that.eventAreaScroll.setHeight(mNewHeight - 40 + "px");
       that.eventAreaScroll.setWidth(
-        mNewWidth - that.objColumn.dom.offsetWidth - 2 + "px"
+        mNewWidth - that.objColumn.dom.offsetWidth - 4 + "px"
       );
 
       if (
@@ -547,13 +552,13 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         that.eventColumnCells.setHeight(350 + "px");
       }
 
-      that.promptLine.setHeight(mNewHeight - 51 + "px");
+      that.promptLine.setHeight(mNewHeight - 55 + "px");
       let scale = that.eventColumns.dom.offsetWidth / that.oldEventColumnsWidth;
       that.sizeChangeReCalFrameSpace(scale);
     } else {
-      that.rightBigArea.setHeight(mNewHeight - 36 + "px");
+      that.rightBigArea.setHeight(mNewHeight - 40 + "px");
       that.rightBigArea.setWidth(
-        mNewWidth - that.objColumn.dom.offsetWidth - 2 + "px"
+        mNewWidth - that.objColumn.dom.offsetWidth - 4 + "px"
       );
     }
   }
@@ -603,10 +608,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.objColumn.add(horizontalSplitLine_2);
     that.objColumn.add(that.objColumnCells);
 
-    let placeHolderCell = new UIDiv();
-    placeHolderCell.setHeight("16px");
-    placeHolderCell.setWidth("100%");
-    that.objColumnCells.add(placeHolderCell);
+    that.objColumnCells.add(that.objAttributeShowArea);
     that.objColumnCells.add(that.addPropertyButton);
 
     let verticalSplitLine_1 = new UIVerticalSplitLine();
@@ -640,15 +642,14 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.sampleArea.add(that.sampleText);
     that.sampleArea.add(that.sampleInput);
 
+    that.handle = new UIDiv();
+    that.handle.setClass("ResizeHandle");
+    that.handle.setLeft(that.objColumn.dom.offsetWidth + "px");
+    that.handle.setHeight(that.objColumn.dom.offsetHeight + "px");
+
     that.container.add(that.verticalSplitLine);
-    addResizerHandle.bind(this)(
-      that.container.dom,
-      that.objColumn.dom,
-      that.eventAreaScroll.dom,
-      that.eventColumns.dom,
-      that.mainBody.dom,
-      that.resizeChange
-    );
+    that.container.add(that.handle);
+
     that.container.add(that.noObjectTips);
     that.selectedObjNoAnimationsTips.add(that.noAnimationsTipsLabel);
     that.selectedObjNoAnimationsTips.add(that.createNewAnimationButton);
@@ -688,7 +689,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.sampleNumber = parseInt(that.sampleNumber);
 
     setTimeout(() => {
-      let pixelTotalWidth = that.eventColumns.dom.offsetWidth - 70;
+      let pixelTotalWidth = that.eventColumns.dom.offsetWidth - 75;
       let totalWidthIncrement = pixelTotalWidth - that.markIncrement;
 
       let timeCell = 1 / that.sampleNumber;
@@ -729,6 +730,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         animationOption[objects[0].animations.length] = "创建新动画";
         that.clipSelect.setOptions(animationOption);
         that.clipSelect.setValue(0);
+        that.updateAttributeParam(objects[0].animations[0]);
       } else {
         that.animationEditorState = AnimationEditorState.SELECTEDOBJNOANIMATION;
       }
@@ -741,29 +743,83 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
 
   displayContentAccordingToPanelState(panelState) {
     let that = this;
+
+    let lastRightBigAreaWidth;
+
+    if (that.rightBigArea) {
+      lastRightBigAreaWidth = that.rightBigArea.dom.offsetWidth;
+    }
     that.container.removeTheLastChild();
+
     switch (panelState) {
       case AnimationEditorState.NOOBJSELECTED:
         that.disableAllButtonAndInput();
+        if (that.rightBigArea == that.eventAreaScroll) {
+          that.oldEventAreaScrollWidth = that.eventAreaScroll.dom.offsetWidth;
+        }
         that.rightBigArea = that.noObjectTips;
         that.container.add(that.noObjectTips);
-        that.oldEventAreaScrollWidth = that.eventAreaScroll.dom.offsetWidth;
+        if (that.rightBigArea) {
+          that.noObjectTips.setWidth(lastRightBigAreaWidth + "px");
+        }
         that.eventRightBigAreaOverAllChange(that.mainBody.dom.offsetWidth, that.mainBody.dom.offsetHeight);
+
+        addResizerHandle(
+          that.container.dom,
+          that.objColumn.dom,
+          that.rightBigArea.dom,
+          null,
+          that.mainBody.dom,
+          that.resizeChange,
+          that.handle,
+          that
+        );
         break;
       case AnimationEditorState.SELECTEDOBJNOANIMATION:
         that.disableAllButtonAndInput();
+        if (that.rightBigArea == that.eventAreaScroll) {
+          that.oldEventAreaScrollWidth = that.eventAreaScroll.dom.offsetWidth;
+        }
         that.rightBigArea = that.selectedObjNoAnimationsTips;
         that.container.add(that.selectedObjNoAnimationsTips);
-        that.oldEventAreaScrollWidth = that.eventAreaScroll.dom.offsetWidth;
+        if (that.rightBigArea) {
+          that.selectedObjNoAnimationsTips.setWidth(lastRightBigAreaWidth + "px");
+        }
         that.eventRightBigAreaOverAllChange(that.mainBody.dom.offsetWidth, that.mainBody.dom.offsetHeight);
+
+        addResizerHandle(
+          that.container.dom,
+          that.objColumn.dom,
+          that.rightBigArea.dom,
+          null,
+          that.mainBody.dom,
+          that.resizeChange,
+          that.handle,
+          that
+        );
         break;
       case AnimationEditorState.NORMAL:
         that.rightBigArea = that.eventAreaScroll;
         that.container.add(that.eventAreaScroll);
+        if (that.rightBigArea) {
+          that.eventAreaScroll.setWidth(lastRightBigAreaWidth + "px");
+        }
         that.enableAllButtonAndInput();
         that.eventRightBigAreaOverAllChange(that.mainBody.dom.offsetWidth, that.mainBody.dom.offsetHeight);
+
+        addResizerHandle(
+          that.container.dom,
+          that.objColumn.dom,
+          that.eventAreaScroll.dom,
+          that.eventColumns.dom,
+          that.mainBody.dom,
+          that.resizeChange,
+          that.handle,
+          that
+        );
         break;
     }
+
   }
 
   enableAllButtonAndInput() {
@@ -801,8 +857,13 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     }
   }
 
-  updateAttributeParam() {
+  updateAttributeParam(animationClip) {
     let that = this;
+
+    for (let j = 0; j < animationClip.tracks.length; j++) {
+      let attrName = animationClip.tracks[j].name.slice(1);
+      console.log(editorOperate.selectionHelper.selectedObject[0]);
+    }
   }
 
   //滚轮控制帧间隙的函数
