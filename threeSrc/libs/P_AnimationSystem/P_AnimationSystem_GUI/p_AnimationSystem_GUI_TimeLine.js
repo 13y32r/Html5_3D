@@ -7,11 +7,21 @@ import {
   UIHorizontalSplitLine,
   documentBodyAdd,
 } from "../../../libs/ui.js";
+import { dynamicCssFile } from "../../../../assist/dynamicCssFile.js";
+import { Vector3, Quaternion } from "three";
 import { normalWindow } from "../../../libs/ui.menu.js";
 import { GUIFrameLabel } from "./p_AnimationSystem_GUI_Frame.js";
 
-function addResizerHandle(fDom, dom1, dom2, dom3, rootDom, changeFN, handle, scope) {
-
+function addResizerHandle(
+  fDom,
+  dom1,
+  dom2,
+  dom3,
+  rootDom,
+  changeFN,
+  handle,
+  scope
+) {
   let minLeftMargin = 248;
   let maxRightMargin = 200;
 
@@ -55,8 +65,8 @@ function addResizerHandle(fDom, dom1, dom2, dom3, rootDom, changeFN, handle, sco
       clientX < offsetX + minLeftMargin
         ? offsetX + minLeftMargin
         : clientX > offsetWidth + offsetX - maxRightMargin
-          ? offsetWidth + offsetX - maxRightMargin
-          : clientX;
+        ? offsetWidth + offsetX - maxRightMargin
+        : clientX;
     // const cX = clientX;
 
     const x = cX - rootDom.offsetLeft;
@@ -66,7 +76,7 @@ function addResizerHandle(fDom, dom1, dom2, dom3, rootDom, changeFN, handle, sco
     let oldDom2Width = dom2.offsetWidth;
 
     dom1.style.width = x + "px";
-    dom2.style.width = (overallSize - x) + "px";
+    dom2.style.width = overallSize - x + "px";
 
     if (dom3) {
       let oldDom3Width = dom3.offsetWidth;
@@ -261,9 +271,87 @@ class AnimationButton extends UIElement {
   }
 }
 
-class AttributeCollapseDisplayColumns {
+class RollButton extends UIElement {
   constructor() {
+    super(document.createElement("button"));
+    let that = this;
 
+    that.setClass("RollButton");
+    that.addClass("RollButton_Close");
+    that.isExpand = false;
+
+    that.triggerFun = that.triggerFun.bind(this);
+    that.dom.addEventListener("pointerup", that.triggerFun);
+  }
+
+  triggerFun() {
+    let that = this;
+    that.isExpand = !that.isExpand;
+    that.dom.dispatchEvent(
+      new CustomEvent("rollButtonEvent", {
+        bubbles: false,
+        cancelable: true,
+        detail: { state: that.isExpand },
+      })
+    );
+
+    if (!that.isExpand) {
+      if (that.dom.classList.contains("RollButton_Open"))
+        that.dom.classList.remove("RollButton_Open");
+      if (!that.dom.classList.contains("RollButton_Close"))
+        that.dom.classList.add("RollButton_Close");
+    } else {
+      if (that.dom.classList.contains("RollButton_Close"))
+        that.dom.classList.remove("RollButton_Close");
+      if (!that.dom.classList.contains("RollButton_Open"))
+        that.dom.classList.add("RollButton_Open");
+    }
+  }
+}
+
+class AttributeCell extends UIDiv {
+  constructor(attType, isOdd) {
+    super("AttributeCell");
+    let that = this;
+
+    that.setClass("AttributeCell");
+    if (!isOdd) {
+      that.setBackgroundColor("#3f3f3f");
+    }
+
+    that.isRoll = null;
+
+    that.symbolLogo = new UIDiv();
+    that.symbolLogo.setClass("SymbolLogo");
+
+    if (attType == "vector" || attType == "quaternion") {
+      that.isRoll = true;
+
+      that.rollButton = new RollButton();
+      that.add(that.rollButton);
+      that.rollButton.dom.addEventListener("rollButtonEvent", function (e) {
+        console.log(e.detail);
+      });
+      that.symbolLogo.setBackgroundImage(
+        "url('../../../../../menuGUI/img/symbol/transform.png')"
+      );
+    } else {
+      that.isRoll = false;
+
+      that.rollButton_PlaceHolder = new UIDiv();
+      that.rollButton_PlaceHolder.setClass("RollButton_PlaceHolder");
+      that.add(that.rollButton_PlaceHolder);
+
+      switch (attType) {
+        case "color":
+          console.log("in color mode");
+          that.symbolLogo.setBackgroundImage(
+            "url('../../../../../menuGUI/img/symbol/color.png')"
+          );
+      }
+    }
+
+    that.add(that.symbolLogo);
   }
 }
 
@@ -285,6 +373,11 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     let that = this;
 
     this.setId("TimeLine");
+
+    //导入本插件所需要的CSS文件
+    that.myCss = new dynamicCssFile(
+      "./threeSrc/libs/P_AnimationSystem/P_AnimationSystem_GUI/p_AnimationSystem_GUI_TimeLine.css"
+    );
 
     //面板状态
     that.animationEditorState = AnimationEditorState.NOOBJSELECTED;
@@ -411,6 +504,10 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
 
     that.objColumnCells = new UIDiv();
     that.objAttributeShowArea = new UIDiv();
+    that.test1AttributeCell = new AttributeCell("color", true);
+    that.test2AttributeCell = new AttributeCell("vector", false);
+    that.test3AttributeCell = new AttributeCell("vector", true);
+    that.test4AttributeCell = new AttributeCell("color", false);
     that.addPropertyButton = new AddPropertyButton("增加属性");
 
     that.timeScaleBar = new UIDiv();
@@ -436,7 +533,13 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.sampleText.setInnerHTML("采样频率");
 
     that.objAttributeShowArea.setClass("ObjAttributeShowArea");
-    that.objAttributeShowArea.setInnerHTML("asldkfjlaskdjflkjsadlfkjl\nkgjlkjelkfjaljewiojflksa\njdflkjaslvkjaslkdjffgl\nkjweoifjlkasdj;ajsldfkja;\nlsekdjf['wejro[pjlksjad.");
+    that.objAttributeShowArea.setInnerHTML(
+      "asldkfjlaskdjflkjsadlfkjl\nkgjlkjelkfjaljewiojflksa\njdflkjaslvkjaslkdjffgl\nasldkfjlaskdjflkjsadlfkjl\nkgjlkjelkfjaljewiojflksa\njdflkjaslvkjaslkdjffgl\nasldkfjlaskdjflkjsadlfkjl\nkgjlkjelkfjaljewiojflksa\njdflkjaslvkjaslkdjffgl\nasldkfjlaskdjflkjsadlfkjl\nkgjlkjelkfjaljewiojflksa\njdflkjaslvkjaslkdjffgl\nasldkfjlaskdjflkjsadlfkjl\nkgjlkjelkfjaljewiojflksa\njdflkjaslvkjaslkdjffgl\nkjweoifjlkasdj;ajsldfkja;\nlsekdjf['wejro[pjlksjad."
+    );
+    that.objAttributeShowArea.add(that.test1AttributeCell);
+    that.objAttributeShowArea.add(that.test2AttributeCell);
+    that.objAttributeShowArea.add(that.test3AttributeCell);
+    that.objAttributeShowArea.add(that.test4AttributeCell);
 
     that.objColumnCells.setClass("TimeLineContainer");
     that.objColumnCells.addClass("ObjectColumnCells");
@@ -536,8 +639,11 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       if (
         that.eventColumns.dom.offsetWidth > that.eventAreaScroll.dom.offsetWidth
       ) {
-        let eventAreaScrollScaleFactorW = that.eventAreaScroll.dom.offsetWidth / that.oldEventAreaScrollWidth;
-        that.eventColumns.setWidth(that.oldEventColumnsWidth * eventAreaScrollScaleFactorW);
+        let eventAreaScrollScaleFactorW =
+          that.eventAreaScroll.dom.offsetWidth / that.oldEventAreaScrollWidth;
+        that.eventColumns.setWidth(
+          that.oldEventColumnsWidth * eventAreaScrollScaleFactorW
+        );
       } else {
         that.eventColumns.setWidth(
           that.eventAreaScroll.dom.offsetWidth - 15 + "px"
@@ -762,7 +868,10 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         if (that.rightBigArea) {
           that.noObjectTips.setWidth(lastRightBigAreaWidth + "px");
         }
-        that.eventRightBigAreaOverAllChange(that.mainBody.dom.offsetWidth, that.mainBody.dom.offsetHeight);
+        that.eventRightBigAreaOverAllChange(
+          that.mainBody.dom.offsetWidth,
+          that.mainBody.dom.offsetHeight
+        );
 
         addResizerHandle(
           that.container.dom,
@@ -783,9 +892,14 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         that.rightBigArea = that.selectedObjNoAnimationsTips;
         that.container.add(that.selectedObjNoAnimationsTips);
         if (that.rightBigArea) {
-          that.selectedObjNoAnimationsTips.setWidth(lastRightBigAreaWidth + "px");
+          that.selectedObjNoAnimationsTips.setWidth(
+            lastRightBigAreaWidth + "px"
+          );
         }
-        that.eventRightBigAreaOverAllChange(that.mainBody.dom.offsetWidth, that.mainBody.dom.offsetHeight);
+        that.eventRightBigAreaOverAllChange(
+          that.mainBody.dom.offsetWidth,
+          that.mainBody.dom.offsetHeight
+        );
 
         addResizerHandle(
           that.container.dom,
@@ -805,7 +919,10 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
           that.eventAreaScroll.setWidth(lastRightBigAreaWidth + "px");
         }
         that.enableAllButtonAndInput();
-        that.eventRightBigAreaOverAllChange(that.mainBody.dom.offsetWidth, that.mainBody.dom.offsetHeight);
+        that.eventRightBigAreaOverAllChange(
+          that.mainBody.dom.offsetWidth,
+          that.mainBody.dom.offsetHeight
+        );
 
         addResizerHandle(
           that.container.dom,
@@ -819,7 +936,6 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         );
         break;
     }
-
   }
 
   enableAllButtonAndInput() {
@@ -862,6 +978,8 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
 
     for (let j = 0; j < animationClip.tracks.length; j++) {
       let attrName = animationClip.tracks[j].name.slice(1);
+      let valueType = animationClip.tracks[j].ValueTypeName;
+      console.log("valueType name is:" + valueType);
       console.log(editorOperate.selectionHelper.selectedObject[0]);
     }
   }
@@ -1234,12 +1352,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
           that.secondUnit) /
-        that.secondUnitWidth
+          that.secondUnitWidth
       );
     } else {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16) * that.secondUnit) /
-        that.secondUnitWidth
+          that.secondUnitWidth
       );
     }
 
@@ -1323,12 +1441,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
             that.minuteUnit) /
-          that.minuteUnitWidth
+            that.minuteUnitWidth
         );
       } else {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16) * that.minuteUnit) /
-          that.minuteUnitWidth
+            that.minuteUnitWidth
         );
       }
 
