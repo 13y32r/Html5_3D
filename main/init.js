@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-13 19:20:28
- * @LastEditTime: 2023-02-22 10:44:51
+ * @LastEditTime: 2023-03-01 12:22:11
  * @LastEditors: your name
  * @Description: 这是引擎的启动主函数
  * @FilePath: \Html5_3D\main\init.js
@@ -68,7 +68,7 @@ async function init() {
   ] // 过渡的值
   const posYKeyFramTrack = new THREE.QuaternionKeyframeTrack('.quaternion', [0, 1.2], valuesY);
 
-  const trackArr = [posYKeyFramTrack];
+  const trackArr = [posYKeyFramTrack, posYKeyFramTrack, posYKeyFramTrack, posYKeyFramTrack];
   const clip = new THREE.AnimationClip('PLANE-ANUMATION', -1, trackArr);
   plane.animations.push(clip);
   //-----------------------动画剪辑添加完毕-------------------------

@@ -65,8 +65,8 @@ function addResizerHandle(
       clientX < offsetX + minLeftMargin
         ? offsetX + minLeftMargin
         : clientX > offsetWidth + offsetX - maxRightMargin
-        ? offsetWidth + offsetX - maxRightMargin
-        : clientX;
+          ? offsetWidth + offsetX - maxRightMargin
+          : clientX;
     // const cX = clientX;
 
     const x = cX - rootDom.offsetLeft;
@@ -193,6 +193,11 @@ class ClipSelect extends UIElement {
 
     return this;
   }
+
+  getCurrentText() {
+    let currentID = this.getValue();
+    return this.dom.options[currentID].text;
+  }
 }
 
 class AnimationButton extends UIElement {
@@ -310,12 +315,18 @@ class RollButton extends UIElement {
 }
 
 class AttributeCell extends UIDiv {
-  constructor(attType, isOdd) {
+  constructor(objectName, attType, paramName, isOdd) {
     super("AttributeCell");
     let that = this;
 
     that.setClass("AttributeCell");
-    if (!isOdd) {
+
+    if (!objectName) {
+      that.setStyle("marginTop", ["20px"]);
+    }
+
+    that.isOdd = isOdd;
+    if (!that.isOdd) {
       that.setBackgroundColor("#3f3f3f");
     }
 
@@ -323,6 +334,9 @@ class AttributeCell extends UIDiv {
 
     that.symbolLogo = new UIDiv();
     that.symbolLogo.setClass("SymbolLogo");
+
+    that.label = new UIElement(document.createElement("label"));
+    let showName;
 
     if (attType == "vector" || attType == "quaternion") {
       that.isRoll = true;
@@ -335,6 +349,12 @@ class AttributeCell extends UIDiv {
       that.symbolLogo.setBackgroundImage(
         "url('../../../../../menuGUI/img/symbol/transform.png')"
       );
+
+      if (objectName) {
+        showName = objectName + ":" + attType;
+      } else {
+        showName = attType + "." + paramName;
+      }
     } else {
       that.isRoll = false;
 
@@ -344,14 +364,53 @@ class AttributeCell extends UIDiv {
 
       switch (attType) {
         case "color":
-          console.log("in color mode");
           that.symbolLogo.setBackgroundImage(
             "url('../../../../../menuGUI/img/symbol/color.png')"
           );
       }
+
+      showName = objectName + ":" + attType + "." + paramName;
     }
 
     that.add(that.symbolLogo);
+    that.label.setInnerHTML(showName);
+    that.add(that.label);
+
+    that.pointerHover = that.pointerHover.bind(this);
+    that.pointerOut = that.pointerOut.bind(this);
+    that.elementActive = that.elementActive.bind(this);
+    that.elementNoActive = that.elementNoActive.bind(this);
+    that.dom.onpointerover = that.pointerHover;
+    that.dom.onpointerout = that.pointerOut;
+    that.dom.onpointerdown = that.elementActive;
+  }
+
+  pointerHover() {
+    let that = this;
+    that.lastBackgroundColor = that.dom.style.backgroundColor;
+    that.setBackgroundColor("#4d4d4d");
+  }
+
+  pointerOut() {
+    let that = this;
+    that.setBackgroundColor(that.lastBackgroundColor);
+  }
+
+  elementActive() {
+    let that = this;
+    that.setBackgroundColor("#3e5f96");
+    that.lastBackgroundColor = that.dom.style.backgroundColor;
+    that.dom.dispatchEvent(new CustomEvent("attrCellPointerDown"))
+  }
+
+  elementNoActive() {
+    let that = this;
+    if (!that.isOdd) {
+      that.setBackgroundColor("#3f3f3f");
+    } else {
+      that.setBackgroundColor("transparent");
+    }
+    that.lastBackgroundColor = that.dom.style.backgroundColor;
   }
 }
 
@@ -482,6 +541,18 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     );
     that.selectSettingArea = new UIDiv();
     that.clipSelect = new ClipSelect();
+    that.clipSelect.onChange(onSelectNewAnimationClip);
+    function onSelectNewAnimationClip() {
+      let animationID = that.clipSelect.getValue();
+      let currentText = that.clipSelect.getCurrentText();
+      if (currentText == "创建新动画") {
+        console.log("老子要创建新动画了！闲杂人等给老子爬！~");
+      } else {
+        let object = editorOperate.selectionHelper.selectedObject[0];
+        that.updateAttributeParam(object, object.animations[animationID]);
+      }
+    }
+
     that.sampleArea = new UIDiv();
     that.sampleText = new UISpan();
     that.sampleInput = new AnimationPannelInput();
@@ -504,10 +575,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
 
     that.objColumnCells = new UIDiv();
     that.objAttributeShowArea = new UIDiv();
-    that.test1AttributeCell = new AttributeCell("color", true);
-    that.test2AttributeCell = new AttributeCell("vector", false);
-    that.test3AttributeCell = new AttributeCell("vector", true);
-    that.test4AttributeCell = new AttributeCell("color", false);
+    that.objAttributeShowArea.cellsArray = [];
     that.addPropertyButton = new AddPropertyButton("增加属性");
 
     that.timeScaleBar = new UIDiv();
@@ -533,13 +601,6 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.sampleText.setInnerHTML("采样频率");
 
     that.objAttributeShowArea.setClass("ObjAttributeShowArea");
-    that.objAttributeShowArea.setInnerHTML(
-      "asldkfjlaskdjflkjsadlfkjl\nkgjlkjelkfjaljewiojflksa\njdflkjaslvkjaslkdjffgl\nasldkfjlaskdjflkjsadlfkjl\nkgjlkjelkfjaljewiojflksa\njdflkjaslvkjaslkdjffgl\nasldkfjlaskdjflkjsadlfkjl\nkgjlkjelkfjaljewiojflksa\njdflkjaslvkjaslkdjffgl\nasldkfjlaskdjflkjsadlfkjl\nkgjlkjelkfjaljewiojflksa\njdflkjaslvkjaslkdjffgl\nasldkfjlaskdjflkjsadlfkjl\nkgjlkjelkfjaljewiojflksa\njdflkjaslvkjaslkdjffgl\nkjweoifjlkasdj;ajsldfkja;\nlsekdjf['wejro[pjlksjad."
-    );
-    that.objAttributeShowArea.add(that.test1AttributeCell);
-    that.objAttributeShowArea.add(that.test2AttributeCell);
-    that.objAttributeShowArea.add(that.test3AttributeCell);
-    that.objAttributeShowArea.add(that.test4AttributeCell);
 
     that.objColumnCells.setClass("TimeLineContainer");
     that.objColumnCells.addClass("ObjectColumnCells");
@@ -836,7 +897,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         animationOption[objects[0].animations.length] = "创建新动画";
         that.clipSelect.setOptions(animationOption);
         that.clipSelect.setValue(0);
-        that.updateAttributeParam(objects[0].animations[0]);
+        that.updateAttributeParam(objects[0], objects[0].animations[0]);
       } else {
         that.animationEditorState = AnimationEditorState.SELECTEDOBJNOANIMATION;
       }
@@ -973,14 +1034,30 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     }
   }
 
-  updateAttributeParam(animationClip) {
+  updateAttributeParam(object, animationClip) {
     let that = this;
+
+    let objName = object.name;
+    that.objAttributeShowArea.cellsArray.length = 0;
+    that.objAttributeShowArea.clear();
 
     for (let j = 0; j < animationClip.tracks.length; j++) {
       let attrName = animationClip.tracks[j].name.slice(1);
-      let valueType = animationClip.tracks[j].ValueTypeName;
-      console.log("valueType name is:" + valueType);
-      console.log(editorOperate.selectionHelper.selectedObject[0]);
+      // let valueType = animationClip.tracks[j].ValueTypeName;
+
+      let isOdd = !(j % 2);
+
+      let clip = new AttributeCell(objName, attrName, null, isOdd);
+      that.objAttributeShowArea.cellsArray.push(clip);
+      that.objAttributeShowArea.add(clip);
+
+      clip.dom.addEventListener("attrCellPointerDown", function () {
+        for (let i = 0; i < that.objAttributeShowArea.cellsArray.length; i++) {
+          if (that.objAttributeShowArea.cellsArray[i] != clip) {
+            that.objAttributeShowArea.cellsArray[i].elementNoActive();
+          }
+        }
+      });
     }
   }
 
@@ -1352,12 +1429,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
           that.secondUnit) /
-          that.secondUnitWidth
+        that.secondUnitWidth
       );
     } else {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16) * that.secondUnit) /
-          that.secondUnitWidth
+        that.secondUnitWidth
       );
     }
 
@@ -1441,12 +1518,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
             that.minuteUnit) /
-            that.minuteUnitWidth
+          that.minuteUnitWidth
         );
       } else {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16) * that.minuteUnit) /
-            that.minuteUnitWidth
+          that.minuteUnitWidth
         );
       }
 

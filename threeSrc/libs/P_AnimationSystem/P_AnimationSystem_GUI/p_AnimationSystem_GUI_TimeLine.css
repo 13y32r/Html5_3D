@@ -130,10 +130,7 @@ input::-webkit-inner-spin-button {
   height: 22px;
   display: flex;
   flex-direction: row;
-}
-
-.AttributeCell:hover {
-  background-color: #4d4d4d;
+  align-items: center;
 }
 
 .AttributeCell .RollButton_PlaceHolder {
@@ -151,15 +148,19 @@ input::-webkit-inner-spin-button {
   background-color: transparent;
   border: none;
 }
+
 .AttributeCell .RollButton_Open {
   background-image: url("../../../../../../menuGUI/img/expandButtonDark.png");
 }
+
 .AttributeCell .RollButton_Open:hover {
   background-image: url("../../../../../../menuGUI/img/expandButtonLight.png");
 }
+
 .AttributeCell .RollButton_Close {
   background-image: url("../../../../../../menuGUI/img/gatherButtonDark.png");
 }
+
 .AttributeCell .RollButton_Close:hover {
   background-image: url("../../../../../../menuGUI/img/gatherButtonLight.png");
 }
