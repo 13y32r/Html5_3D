@@ -201,7 +201,7 @@ class ClipSelect extends UIElement {
 }
 
 class AnimationButton extends UIElement {
-  constructor(imgURL, width, height) {
+  constructor(imgURL, width, height, isSwitch) {
     super(document.createElement("button"));
 
     let that = this;
@@ -210,6 +210,11 @@ class AnimationButton extends UIElement {
     that.upFun = null;
 
     that.imgURL = imgURL;
+    that.isSwitch = isSwitch;
+
+    if (that.isSwitch) {
+      that.openState = false;
+    }
 
     this.setClass("AnimationButton_UP");
     this.setBackgroundRepeat("no-repeat");
@@ -234,20 +239,37 @@ class AnimationButton extends UIElement {
     this.setBackgroundImage(that.imgURL);
 
     this.dom.onpointerdown = function () {
-      if (that.dom.classList.contains("AnimationButton_UP"))
-        that.dom.classList.remove("AnimationButton_UP");
-      if (!that.dom.classList.contains("AnimationButton_DOWN"))
-        that.dom.classList.add("AnimationButton_DOWN");
+      if (!that.isSwitch) {
+        if (that.dom.classList.contains("AnimationButton_UP"))
+          that.dom.classList.remove("AnimationButton_UP");
+        if (!that.dom.classList.contains("AnimationButton_DOWN"))
+          that.dom.classList.add("AnimationButton_DOWN");
+      } else {
+        that.openState = !that.openState;
+        if (that.openState) {
+          if (that.dom.classList.contains("AnimationButton_UP"))
+            that.dom.classList.remove("AnimationButton_UP");
+          if (!that.dom.classList.contains("AnimationButton_DOWN"))
+            that.dom.classList.add("AnimationButton_DOWN");
+        } else {
+          if (that.dom.classList.contains("AnimationButton_DOWN"))
+            that.dom.classList.remove("AnimationButton_DOWN");
+          if (!that.dom.classList.contains("AnimationButton_UP"))
+            that.dom.classList.add("AnimationButton_UP");
+        }
+      }
 
       if (that.downFun) {
         that.downFun();
       }
     };
     this.dom.onpointerup = function () {
-      if (that.dom.classList.contains("AnimationButton_DOWN"))
-        that.dom.classList.remove("AnimationButton_DOWN");
-      if (!that.dom.classList.contains("AnimationButton_UP"))
-        that.dom.classList.add("AnimationButton_UP");
+      if (!that.isSwitch) {
+        if (that.dom.classList.contains("AnimationButton_DOWN"))
+          that.dom.classList.remove("AnimationButton_DOWN");
+        if (!that.dom.classList.contains("AnimationButton_UP"))
+          that.dom.classList.add("AnimationButton_UP");
+      }
 
       if (that.upFun) {
         that.upFun();
@@ -268,11 +290,11 @@ class AnimationButton extends UIElement {
   }
 
   setDownFun(downFun) {
-    that.downFun = downFun;
+    this.downFun = downFun;
   }
 
   setUpFun(upFun) {
-    that.upFun = upFun;
+    this.upFun = upFun;
   }
 }
 
@@ -336,6 +358,9 @@ class AttributeCell extends UIDiv {
     that.symbolLogo.setClass("SymbolLogo");
 
     that.label = new UIElement(document.createElement("label"));
+    that.setKeyFrameValueArea = new UIDiv();
+    that.setKeyFrameValueArea.setClass("SetKeyFrameValueArea");
+
     let showName;
 
     if (attType == "vector" || attType == "quaternion") {
@@ -375,6 +400,7 @@ class AttributeCell extends UIDiv {
     that.add(that.symbolLogo);
     that.label.setInnerHTML(showName);
     that.add(that.label);
+    that.add(that.setKeyFrameValueArea);
 
     that.pointerHover = that.pointerHover.bind(this);
     that.pointerOut = that.pointerOut.bind(this);
@@ -383,6 +409,20 @@ class AttributeCell extends UIDiv {
     that.dom.onpointerover = that.pointerHover;
     that.dom.onpointerout = that.pointerOut;
     that.dom.onpointerdown = that.elementActive;
+  }
+
+  animationPanelStateChange(state) {
+    let that = this;
+
+    console.log("I got the state change. Ok!");
+
+    if (state == AnimationEditorState.EDITING) {
+      that.label.setWidth('calc(100% - 75px)');
+      that.setKeyFrameValueArea.setWidth("75px");
+    } else {
+      that.label.setWidth('calc(100% - 30px)');
+      that.setKeyFrameValueArea.setWidth("30px");
+    }
   }
 
   pointerHover() {
@@ -400,7 +440,7 @@ class AttributeCell extends UIDiv {
     let that = this;
     that.setBackgroundColor("#3e5f96");
     that.lastBackgroundColor = that.dom.style.backgroundColor;
-    that.dom.dispatchEvent(new CustomEvent("attrCellPointerDown"))
+    that.dom.dispatchEvent(new CustomEvent("attrCellPointerDown"));
   }
 
   elementNoActive() {
@@ -499,12 +539,24 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.recordButton = new AnimationButton(
       "url(../../../menuGUI/img/recordButton.png)",
       "25px",
-      "100%"
+      "100%",
+      true
     );
+    function recordButtonDown() {
+      if (that.animationEditorState == AnimationEditorState.EDITING) {
+        that.animationEditorState = AnimationEditorState.NORMAL;
+      } else {
+        that.animationEditorState = AnimationEditorState.EDITING;
+      }
+      that.stateChange();
+    }
+    that.recordButton.setDownFun(recordButtonDown);
+
     that.playButton = new AnimationButton(
       "url(../../../menuGUI/img/playButton.png)",
       "25px",
-      "100%"
+      "100%",
+      true
     );
     that.previousKeyButton = new AnimationButton(
       "url(../../../menuGUI/img/previousKeyButton.png)",
@@ -906,6 +958,17 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     }
 
     that.displayContentAccordingToPanelState(that.animationEditorState);
+    that.stateChange();
+  }
+
+  stateChange() {
+    let that = this;
+
+    if (that.objAttributeShowArea) {
+      for (let i = 0; i < that.objAttributeShowArea.cellsArray.length; i++) {
+        that.objAttributeShowArea.cellsArray[i].animationPanelStateChange(that.animationEditorState);
+      }
+    }
   }
 
   displayContentAccordingToPanelState(panelState) {
