@@ -280,6 +280,17 @@ class AnimationButton extends UIElement {
   disable() {
     let that = this;
 
+    if (that.isSwitch) {
+      if (that.openState) {
+        that.openState = false;
+
+        if (that.dom.classList.contains("AnimationButton_DOWN"))
+          that.dom.classList.remove("AnimationButton_DOWN");
+        if (!that.dom.classList.contains("AnimationButton_UP"))
+          that.dom.classList.add("AnimationButton_UP");
+      }
+    }
+
     let disableImg = that.imgURL.slice(0, that.imgURL.length - 5);
     disableImg += "_Disabled.png)";
 
@@ -1074,6 +1085,9 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.addEventButton.enable();
     that.clipSelect.setDisabled(false);
     that.sampleInput.changeAbility(true);
+    if (that.objColumnCells.getIndexOfChild(that.objAttributeShowArea) == -1) {
+      that.objColumnCells.add(that.objAttributeShowArea);
+    }
     if (that.objColumnCells.getIndexOfChild(that.addPropertyButton) == -1) {
       that.objColumnCells.add(that.addPropertyButton);
     }
@@ -1092,6 +1106,9 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.clipSelect.clear();
     that.clipSelect.setDisabled(true);
     that.sampleInput.changeAbility(false);
+    if (that.objColumnCells.getIndexOfChild(that.objAttributeShowArea) != -1) {
+      that.objColumnCells.remove(that.objAttributeShowArea);
+    }
     if (that.objColumnCells.getIndexOfChild(that.addPropertyButton) != -1) {
       that.objColumnCells.remove(that.addPropertyButton);
     }
