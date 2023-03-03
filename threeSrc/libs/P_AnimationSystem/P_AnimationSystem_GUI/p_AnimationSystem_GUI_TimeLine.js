@@ -11,6 +11,7 @@ import { dynamicCssFile } from "../../../../assist/dynamicCssFile.js";
 import { Vector3, Quaternion } from "three";
 import { normalWindow } from "../../../libs/ui.menu.js";
 import { GUIFrameLabel } from "./p_AnimationSystem_GUI_Frame.js";
+import { findWhichMenuThisClassBelongsTo } from "/menuGUI/findWhichMenuThisClassBelongsTo.js";
 
 function addResizerHandle(
   fDom,
@@ -348,7 +349,7 @@ class RollButton extends UIElement {
 }
 
 class AttributeCell extends UIDiv {
-  constructor(objectName, attType, paramName, isOdd) {
+  constructor(objectName, attType, paramName, isOdd, panelDom) {
     super("AttributeCell");
     let that = this;
 
@@ -420,10 +421,15 @@ class AttributeCell extends UIDiv {
     that.dom.onpointerover = that.pointerHover;
     that.dom.onpointerout = that.pointerOut;
     that.dom.onpointerdown = that.elementActive;
+
+    that.animationPanelStateChange = that.animationPanelStateChange.bind(this);
+
+    panelDom.addEventListener("animationPanelStateChange", that.animationPanelStateChange);
   }
 
-  animationPanelStateChange(state) {
+  animationPanelStateChange(event) {
     let that = this;
+    let state = event.detail.state;
 
     console.log("I got the state change. Ok!");
 
@@ -975,11 +981,11 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
   stateChange() {
     let that = this;
 
-    if (that.objAttributeShowArea) {
-      for (let i = 0; i < that.objAttributeShowArea.cellsArray.length; i++) {
-        that.objAttributeShowArea.cellsArray[i].animationPanelStateChange(that.animationEditorState);
-      }
-    }
+    that.dom.dispatchEvent(new CustomEvent("animationPanelStateChange", {
+      bubbles: false,
+      cancelable: true,
+      detail: { state: that.animationEditorState }
+    }));
   }
 
   displayContentAccordingToPanelState(panelState) {
@@ -1127,7 +1133,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
 
       let isOdd = !(j % 2);
 
-      let clip = new AttributeCell(objName, attrName, null, isOdd);
+      let clip = new AttributeCell(objName, attrName, null, isOdd, that.dom);
       that.objAttributeShowArea.cellsArray.push(clip);
       that.objAttributeShowArea.add(clip);
 
