@@ -1116,6 +1116,10 @@ function documentBodyAdd(uiEle) {
   document.body.appendChild(uiEle.dom);
 }
 
+function documentBodyRemove(uiEle) {
+  document.body.removeChild(uiEle.dom);
+}
+
 export {
   UIElement,
   UISpan,
@@ -1140,4 +1144,5 @@ export {
   UIVerticalSplitLine,
   UIVerticalPromptLine,
   documentBodyAdd,
+  documentBodyRemove,
 };

@@ -1008,7 +1008,7 @@ function addResizeEventListener(dom) {
     let relativeY = event.pageY - domAbsolutePosition.top;
     // console.log(relativeX + " : " + relativeY);
 
-    if (relativeX < (dom.offsetWidth - 15) || relativeY < (dom.offsetHeight - 15))
+    if (relativeX < dom.offsetWidth - 15 || relativeY < dom.offsetHeight - 15)
       return;
     else {
       const resizeEventStart = new CustomEvent("resizeEventStart", {
@@ -1022,14 +1022,13 @@ function addResizeEventListener(dom) {
   }
 
   function pointerMove() {
-
     const resizeEventing = new CustomEvent("resizeEventing", {
       bubbles: true,
       cancelable: true,
       detail: {
         newWidth: dom.offsetWidth,
-        newHeight: dom.offsetHeight
-      }
+        newHeight: dom.offsetHeight,
+      },
     });
 
     dom.dispatchEvent(resizeEventing);
@@ -1043,12 +1042,20 @@ function addResizeEventListener(dom) {
 }
 
 function docuemntHtmlPageXY(elem) {
-
   var rect = elem.getBoundingClientRect();
 
-  var scrollTop = window.scrollTop || (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop || 0;
-  var scrollLeft = window.scrollLeft || (document.documentElement && document.documentElement.scrollLeft) || document.body.scrollLeft || 0;
-  var html = document.documentElement || document.getElementsByTagName_r('html')[0];
+  var scrollTop =
+    window.scrollTop ||
+    (document.documentElement && document.documentElement.scrollTop) ||
+    document.body.scrollTop ||
+    0;
+  var scrollLeft =
+    window.scrollLeft ||
+    (document.documentElement && document.documentElement.scrollLeft) ||
+    document.body.scrollLeft ||
+    0;
+  var html =
+    document.documentElement || document.getElementsByTagName_r("html")[0];
 
   //修复ie6 7 下的浏览器边框也被算在 boundingClientRect 内的 bug
 
@@ -1056,16 +1063,16 @@ function docuemntHtmlPageXY(elem) {
 
   //修复 ie8 返回 -2 的 bug
 
-  deviation = { //FF 不允许修改返回的对象
+  deviation = {
+    //FF 不允许修改返回的对象
     left: deviation.left < 0 ? 0 : deviation.left,
-    top: deviation.top < 0 ? 0 : deviation.top
+    top: deviation.top < 0 ? 0 : deviation.top,
   };
 
   return {
     left: rect.left + scrollLeft - deviation.left,
-    top: rect.top + scrollTop - deviation.top
+    top: rect.top + scrollTop - deviation.top,
   };
-
 }
 
 function smallBtnDown(target) {
@@ -1165,6 +1172,197 @@ function initialToLowercase(oString) {
   return cString;
 }
 
+class PopupMenuOption extends UIDiv {
+  constructor(id, value) {
+    super();
+    let that = this;
+    that.setClass("PopupMenuOption");
+
+    that.id = id;
+    that.value = value;
+
+    that.setInnerHTML(that.value);
+
+    that.pointerHover = that.pointerHover.bind(this);
+    that.pointerOut = that.pointerOut.bind(this);
+    that.pointerDown = that.pointerDown.bind(this);
+    that.dom.onpointerover = that.pointerHover;
+    that.dom.onpointerout = that.pointerOut;
+    that.dom.onpointerdown = that.pointerDown;
+  }
+
+  dispose() {
+    let that = this;
+
+    that.id = null;
+    that.value = null;
+    that.dom.onpointerover = null;
+    that.dom.onpointerout = null;
+    that.dom.onpointerdown = null;
+  }
+
+  setValue(value) {
+    this.value = value;
+  }
+
+  getValue() {
+    return this.value;
+  }
+
+  pointerHover() {
+    let that = this;
+    that.setBackgroundColor("#91c9f7");
+  }
+
+  pointerOut() {
+    let that = this;
+    that.setBackgroundColor("transparent");
+  }
+
+  pointerDown() {
+    let that = this;
+
+    that.dom.dispatchEvent(
+      new CustomEvent("popupMenuOptionDown", {
+        bubbles: false,
+        cancelable: true,
+        detail: { id: that.id, value: that.value },
+      })
+    );
+  }
+
+  setEnable() {
+    let that = this;
+
+    that.setColor("#000000");
+    that.dom.onpointerover = that.pointerHover;
+    that.dom.onpointerout = that.pointerOut;
+    that.dom.onpointerdown = that.pointerDown;
+  }
+
+  setDisable() {
+    let that = this;
+
+    that.setColor("#6d6d6d");
+    that.dom.onpointerover = null;
+    that.dom.onpointerout = null;
+    that.dom.onpointerdown = null;
+  }
+}
+
+class PopupMenuSplitLine extends UIDiv {
+  constructor() {
+    super();
+    this.setClass("PopupMenuSplitLine");
+  }
+
+  dispose() {
+    return;
+  }
+}
+
+class PopupMenu extends UIDiv {
+  constructor(options) {
+    super();
+    let that = this;
+    that.setClass("PopupMenu");
+
+    that.selectedID = null;
+    that.options = options;
+    that.updateOptions = that.updateOptions.bind(this);
+    that.selected = that.selected.bind(this);
+    that.noSelected = that.noSelected.bind(this);
+
+    setTimeout(() => {
+      document.addEventListener("click", that.noSelected);
+      that.updateOptions(that.options);
+    }, 500);
+  }
+
+  dispose() {
+    let that = this;
+
+    if (that.options) {
+      for (let i = 0; i < that.options.length; i++) {
+        that.remove(that.options[i]);
+        that.options[i].dom.removeEventListener(
+          "popupMenuOptionDown",
+          that.selected
+        );
+        that.options[i].dispose();
+      }
+    }
+
+    that.selectedID = null;
+    that.options.length = 0;
+    that.options = null;
+    document.removeEventListener("click", that.noSelected);
+  }
+
+  setOptions(options) {
+    let that = this;
+    that.clear();
+    that.options = options;
+    that.updateOptions(that.options);
+  }
+
+  updateOptions(options) {
+    let that = this;
+
+    if (options) {
+      for (let i = 0; i < options.length; i++) {
+        that.add(options[i]);
+        options[i].dom.addEventListener("popupMenuOptionDown", that.selected);
+      }
+    }
+  }
+
+  getValue() {
+    let that = this;
+    let value = this.options[that.selectedID].value;
+    return value;
+  }
+
+  selected(event) {
+    let that = this;
+
+    let option = event.detail;
+    that.selectedID = option.id;
+
+    that.dom.dispatchEvent(
+      new CustomEvent("popupMenuOptionDown", {
+        bubbles: false,
+        cancelable: true,
+        detail: { id: option.id, value: option.value },
+      })
+    );
+  }
+
+  noSelected(event) {
+    let that = this;
+
+    if (!that.dom.contains(event.target)) {
+      that.dom.dispatchEvent(
+        new CustomEvent("popupMenuOptionDown", {
+          bubbles: false,
+          cancelable: true,
+          detail: null,
+        })
+      );
+    }
+  }
+
+  clear() {
+    let that = this;
+    if (!that.options) return;
+
+    for (let i = 0; i < that.options.length; i++) {
+      that.remove(that.options[i]);
+    }
+    that.options.length = 0;
+  }
+}
+
 export {
   MenuMain,
   MenuDirectionColumn,
@@ -1180,5 +1378,8 @@ export {
   normalWindow,
   initialToLowercase,
   dragElement,
-  addResizeEventListener
+  addResizeEventListener,
+  PopupMenuOption,
+  PopupMenuSplitLine,
+  PopupMenu,
 };

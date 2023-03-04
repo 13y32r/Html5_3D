@@ -326,3 +326,25 @@
   width: auto;
   flex-direction: column;
 }
+
+.PopupMenuOption {
+  padding-left: 32px;
+  width: auto;
+  color: #000;
+  font-family: "Microsoft Yahei";
+  user-select: none;
+}
+
+.PopupMenuSplitLine {
+  width: 100%;
+  height: 1px;
+  background-color: #d7d7d7;
+}
+
+.PopupMenu {
+  position: absolute;
+  border: 1px solid #cccccc;
+  padding: 2px;
+  height: auto;
+  background-color: #f2f2f2;
+}

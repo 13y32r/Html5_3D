@@ -137,11 +137,18 @@ input::-webkit-inner-spin-button {
   overflow: hidden;
 }
 
+.AttributeCell .AttributeCellLastButton {
+  width: 27px;
+  height: 15px;
+  border-radius: 8px;
+}
+
 .AttributeCell .SetKeyFrameValueArea {
   height: 100%;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  background-color: blue;
+  /* background-color: blue; */
 }
 
 .AttributeCell .RollButton_PlaceHolder {
