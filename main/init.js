@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-13 19:20:28
- * @LastEditTime: 2023-03-01 12:22:11
+ * @LastEditTime: 2023-03-07 23:10:08
  * @LastEditors: your name
  * @Description: 这是引擎的启动主函数
  * @FilePath: \Html5_3D\main\init.js
@@ -56,6 +56,12 @@ async function init() {
   scene.add(plane);
 
   //----------------------这里为plane添加一个动画的测试元素--------------
+  const times = [0, 1, 1.5654987654352189657987654] // 时间序列
+  const valuesX = [
+    0, 0, 0, 10, 0, 0, 10, 10, 0
+  ] // 过渡的值
+  const posXKeyFramTrack = new THREE.VectorKeyframeTrack('.position', times, valuesX);
+
   const quaternion1 = new THREE.Quaternion();
   const euler1 = new THREE.Euler(0, 0, 0, 'XYZ');
   quaternion1.setFromEuler(euler1);
@@ -68,7 +74,7 @@ async function init() {
   ] // 过渡的值
   const posYKeyFramTrack = new THREE.QuaternionKeyframeTrack('.quaternion', [0, 1.2], valuesY);
 
-  const trackArr = [posYKeyFramTrack, posYKeyFramTrack, posYKeyFramTrack, posYKeyFramTrack];
+  const trackArr = [posXKeyFramTrack, posYKeyFramTrack, posYKeyFramTrack, posYKeyFramTrack, posYKeyFramTrack];
   const clip = new THREE.AnimationClip('PLANE-ANUMATION', -1, trackArr);
   plane.animations.push(clip);
   //-----------------------动画剪辑添加完毕-------------------------

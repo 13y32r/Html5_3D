@@ -134,7 +134,6 @@ input::-webkit-inner-spin-button {
 }
 
 .AttributeCell label {
-  width: calc(100% - 30px);
   overflow: hidden;
 }
 
