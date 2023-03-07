@@ -359,15 +359,13 @@ class AttributeCellLastButton extends UIDiv {
     super();
     let that = this;
 
-    that.normalImg = "";
-    that.hoverImg = "";
+    that.normalImg = "url(/menuGUI/img/attributeCellLastButton_Normal.png)";
+    that.hoverImg = "url(/menuGUI/img/attributeCellLastButton_Hover.png)";
 
     that.options = new Array();
 
     that.setClass("AttributeCellLastButton");
-    that.setBackgroundImage(
-      "url(/menuGUI/img/attributeCellLastButton_Normal.png)"
-    );
+    that.setBackgroundImage(that.normalImg);
     that.animationPanel = animationPanel;
 
     that.pointerHover = that.pointerHover.bind(this);
@@ -483,11 +481,14 @@ class AttributeCellLastButton extends UIDiv {
     ) {
       that.normalImg =
         "url(/menuGUI/img/attributeCellLastButton_Record_Normal.png)";
-      that.hoverImg = "url(/menuGUI/img/attributeCellLastButton_Record_Hover)";
+      that.hoverImg =
+        "url(/menuGUI/img/attributeCellLastButton_Record_Hover.png)";
     } else {
       that.normalImg = "url(/menuGUI/img/attributeCellLastButton_Normal.png)";
       that.hoverImg = "url(/menuGUI/img/attributeCellLastButton_Hover.png)";
     }
+
+    that.pointerOut();
   }
 
   pointerDown() {
@@ -534,9 +535,9 @@ class AttributeCell extends UIDiv {
     that.setKeyFrameValueArea = new UIDiv();
     that.setKeyFrameValueArea.setClass("SetKeyFrameValueArea");
 
-    let lastButton = new AttributeCellLastButton(animationPanel);
-    lastButton.setRight("20px");
-    that.setKeyFrameValueArea.add(lastButton);
+    that.lastButton = new AttributeCellLastButton(animationPanel);
+    that.lastButton.setRight("1px");
+    that.setKeyFrameValueArea.add(that.lastButton);
 
     let showName;
 
@@ -604,9 +605,11 @@ class AttributeCell extends UIDiv {
     if (state == AnimationEditorState.EDITING) {
       that.label.setWidth("calc(100% - 75px)");
       that.setKeyFrameValueArea.setWidth("75px");
+      that.lastButton.setRight("-37px");
     } else {
       that.label.setWidth("calc(100% - 30px)");
       that.setKeyFrameValueArea.setWidth("30px");
+      that.lastButton.setRight("1px");
     }
   }
 
@@ -785,8 +788,9 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       if (currentText == "创建新动画") {
         console.log("老子要创建新动画了！闲杂人等给老子爬！~");
       } else {
-        let object = editorOperate.selectionHelper.selectedObject[0];
-        that.updateAttributeParam(object, object.animations[animationID]);
+        that.disableAllButtonAndInput();
+        let objects = editorOperate.selectionHelper.selectedObject;
+        that.updateAnimatedObject(objects);
       }
     }
 
@@ -1124,9 +1128,6 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     if (objects.length) {
       if (objects[0].animations.length) {
         that.animationEditorState = AnimationEditorState.NORMAL;
-        //这里获取所选择物体的第一个动画剪辑的最大动画时间。
-        let theFirstAnimationClipMaxTime = objects[0].animations[0].duration;
-        that.initFrameBar(theFirstAnimationClipMaxTime);
         let animationOption = {};
         for (let i = 0; i < objects[0].animations.length; i++) {
           animationOption[i] = objects[0].animations[i].name;
@@ -1292,6 +1293,10 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
 
   updateAttributeParam(object, animationClip) {
     let that = this;
+
+    //这里获取动画剪辑的最大动画时间，并刷新时间轴。
+    let theFirstAnimationClipMaxTime = animationClip.duration;
+    that.initFrameBar(theFirstAnimationClipMaxTime);
 
     let objName = object.name;
     that.objAttributeShowArea.cellsArray.length = 0;

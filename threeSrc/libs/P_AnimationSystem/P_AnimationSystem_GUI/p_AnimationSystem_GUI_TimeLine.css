@@ -134,10 +134,12 @@ input::-webkit-inner-spin-button {
 }
 
 .AttributeCell label {
+  width: calc(100% - 30px);
   overflow: hidden;
 }
 
 .AttributeCell .AttributeCellLastButton {
+  position: relative;
   width: 27px;
   height: 15px;
   border-radius: 8px;

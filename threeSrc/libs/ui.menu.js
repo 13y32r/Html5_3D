@@ -1273,9 +1273,9 @@ class PopupMenu extends UIDiv {
     that.selected = that.selected.bind(this);
     that.noSelected = that.noSelected.bind(this);
 
+    that.updateOptions(that.options);
     setTimeout(() => {
       document.addEventListener("click", that.noSelected);
-      that.updateOptions(that.options);
     }, 500);
   }
 
