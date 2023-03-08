@@ -513,7 +513,7 @@ class AttributeCellLastButton extends UIDiv {
 }
 
 class AttributeCell extends UIDiv {
-  constructor(objectName, attType, paramName, isOdd, animationPanel) {
+  constructor(objectName, attName, attType, paramName, isOdd, animationPanel) {
     super("AttributeCell");
     let that = this;
 
@@ -541,8 +541,8 @@ class AttributeCell extends UIDiv {
     that.setKeyFrameValueArea = new UIDiv();
     that.setKeyFrameValueArea.setClass("SetKeyFrameValueArea");
 
+    that.placeholderBeforeTheLastButton = new UIDiv();
     that.lastButton = new AttributeCellLastButton(animationPanel);
-    that.lastButton.setRight("1px");
     that.setKeyFrameValueArea.add(that.lastButton);
 
     let showName;
@@ -554,19 +554,19 @@ class AttributeCell extends UIDiv {
         that.rollButton = new RollButton();
         that.add(that.rollButton);
 
-        showName = objectName + ":" + attType;
+        showName = objectName + ":" + attName;
         if (attType == "vector") {
-          that.paramArray[0] = new AttributeCell(null, attType, "x", !isOdd, animationPanel);
-          that.paramArray[1] = new AttributeCell(null, attType, "y", isOdd, animationPanel);
-          that.paramArray[2] = new AttributeCell(null, attType, "z", !isOdd, animationPanel);
+          that.paramArray[0] = new AttributeCell(null, attName, attType, "x", !isOdd, animationPanel);
+          that.paramArray[1] = new AttributeCell(null, attName, attType, "y", isOdd, animationPanel);
+          that.paramArray[2] = new AttributeCell(null, attName, attType, "z", !isOdd, animationPanel);
         } else if (attType == "quaternion") {
-          that.paramArray[0] = new AttributeCell(null, attType, "x", !isOdd, animationPanel);
-          that.paramArray[1] = new AttributeCell(null, attType, "y", isOdd, animationPanel);
-          that.paramArray[2] = new AttributeCell(null, attType, "z", !isOdd, animationPanel);
-          that.paramArray[3] = new AttributeCell(null, attType, "w", isOdd, animationPanel);
+          that.paramArray[0] = new AttributeCell(null, attName, attType, "x", !isOdd, animationPanel);
+          that.paramArray[1] = new AttributeCell(null, attName, attType, "y", isOdd, animationPanel);
+          that.paramArray[2] = new AttributeCell(null, attName, attType, "z", !isOdd, animationPanel);
+          that.paramArray[3] = new AttributeCell(null, attName, attType, "w", isOdd, animationPanel);
         }
       } else {
-        showName = attType + "." + paramName;
+        showName = attName + "." + paramName;
         that.label.setColor("#808080");
       }
     } else {
@@ -583,7 +583,7 @@ class AttributeCell extends UIDiv {
           );
       }
 
-      showName = objectName + ":" + attType + "." + paramName;
+      showName = objectName + ":" + attName + "." + paramName;
     }
 
     that.symbolLogo.setBackgroundImage(
@@ -618,18 +618,19 @@ class AttributeCell extends UIDiv {
     let that = this;
     let state = event.detail.state;
 
-    console.log("I got the state change. Ok!");
-
     if (state == AnimationEditorState.EDITING) {
       let widthOffset = 107 + that.myInnerOffsetLeft;
       that.label.setWidth("calc(100% - " + widthOffset + "px)");
       that.setKeyFrameValueArea.setWidth("75px");
-      that.lastButton.setRight("0px");
+      that.setKeyFrameValueArea.clear();
+      that.setKeyFrameValueArea.add(that.placeholderBeforeTheLastButton);
+      that.setKeyFrameValueArea.add(that.lastButton);
     } else {
       let widthOffset = 62 + that.myInnerOffsetLeft;
       that.label.setWidth("calc(100% - " + widthOffset + "px)");
       that.setKeyFrameValueArea.setWidth("30px");
-      that.lastButton.setRight("0px");
+      that.setKeyFrameValueArea.clear();
+      that.setKeyFrameValueArea.add(that.lastButton);
     }
   }
 
@@ -900,9 +901,11 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.calKeyFrameOfPromptLine = that.calKeyFrameOfPromptLine.bind(this);
     that.calKeyFrameOfPL_Position = that.calKeyFrameOfPL_Position.bind(this);
 
+    that.objColumnCellsScrollEvent = that.objColumnCellsScrollEvent.bind(this);
+    that.objColumnCells.dom.addEventListener("scroll", that.objColumnCellsScrollEvent);
+
     that.wheelEventInWindow = that.wheelEventInWindow.bind(this);
     that.eventColumns.dom.addEventListener("wheel", that.wheelEventInWindow);
-
     that.eventColumnsPointerDown = that.eventColumnsPointerDown.bind(this);
     that.eventColumns.dom.addEventListener(
       "pointerdown",
@@ -932,6 +935,8 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.openPanel = that.openPanel.bind(this);
     that.closePanel = that.closePanel.bind(this);
 
+    that.TheEventColumnsHeightToConsistentWithTheObjColumnHeight = that.TheEventColumnsHeightToConsistentWithTheObjColumnHeight.bind(this);
+
     that.signals.objectSelected.add(that.updateAnimatedObject);
     that.signals.hierarchyChange.add(that.updateAnimatedObject);
     that.signals.objectsChanged.add(that.updateAttributeParam);
@@ -953,11 +958,24 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.oldTotalHeight = that.mainBody.dom.offsetHeight;
   }
 
+  TheEventColumnsHeightToConsistentWithTheObjColumnHeight() {
+    let that = this;
+
+    let RefHeight = that.objAttributeShowArea.dom.offsetHeight + 48;
+
+    if (RefHeight > that.objColumnCells.dom.offsetHeight) {
+      RefHeight -= 18;
+      that.eventColumnCells.setHeight(RefHeight + "px");
+    } else {
+      that.eventColumnCells.setHeight(that.objColumnCells.dom.offsetHeight - 33 + "px");
+    }
+  }
+
   eventRightBigAreaOverAllChange(mNewWidth, mNewHeight) {
     let that = this;
 
     if (that.rightBigArea == that.eventAreaScroll) {
-      that.eventAreaScroll.setHeight(mNewHeight - 40 + "px");
+      that.eventAreaScroll.setHeight(that.objColumn.dom.offsetHeight + "px");
       that.eventAreaScroll.setWidth(
         mNewWidth - that.objColumn.dom.offsetWidth - 4 + "px"
       );
@@ -976,19 +994,13 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         );
       }
 
-      let newEventColumnCellsHeight =
-        that.eventAreaScroll.dom.offsetHeight - 69;
-      if (newEventColumnCellsHeight > 350) {
-        that.eventColumnCells.setHeight(newEventColumnCellsHeight + "px");
-      } else {
-        that.eventColumnCells.setHeight(350 + "px");
-      }
+      that.TheEventColumnsHeightToConsistentWithTheObjColumnHeight();
 
-      that.promptLine.setHeight(mNewHeight - 55 + "px");
+      that.promptLine.setHeight(that.objColumn.dom.offsetHeight - 15 + "px");
       let scale = that.eventColumns.dom.offsetWidth / that.oldEventColumnsWidth;
       that.sizeChangeReCalFrameSpace(scale);
     } else {
-      that.rightBigArea.setHeight(mNewHeight - 40 + "px");
+      that.rightBigArea.setHeight(that.objColumn.dom.offsetHeight + "px");
       that.rightBigArea.setWidth(
         mNewWidth - that.objColumn.dom.offsetWidth - 4 + "px"
       );
@@ -1327,12 +1339,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.objAttributeShowArea.clear();
 
     for (let j = 0; j < animationClip.tracks.length; j++) {
-      // let attrName = animationClip.tracks[j].name.slice(1);
+      let attrName = animationClip.tracks[j].name.slice(1);
       let valueType = animationClip.tracks[j].ValueTypeName;
 
       let isOdd = !(j % 2);
 
-      let clip = new AttributeCell(objName, valueType, null, isOdd, that);
+      let clip = new AttributeCell(objName, attrName, valueType, null, isOdd, that);
       that.objAttributeShowArea.cellsArray.push(clip);
       that.objAttributeShowArea.add(clip);
 
@@ -1360,6 +1372,9 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
               that.objAttributeShowArea.cellsArray[j].elementNoActive();
             }
           }
+
+          //这里由于左边的属性列展开后高度发生变化，所以右边的事件列的高度也要随之改变。
+          that.TheEventColumnsHeightToConsistentWithTheObjColumnHeight();
         });
       }
 
@@ -1595,6 +1610,17 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.refreshFrame();
   }
 
+  objColumnCellsScrollEvent(event) {
+    event = event || window.event;
+    event.preventDefault();
+    event.stopPropagation();
+
+    let that = this;
+    that.eventAreaScroll.dom.scrollTop = event.srcElement.scrollTop;
+
+    that.refreshFrame();
+  }
+
   eventColumnsPointerDown(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -1638,7 +1664,14 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     event.stopPropagation();
 
     let that = this;
-    console.log("eventAreaScrollEvent!!!!!!!!!!");
+    let maxScroll = that.objAttributeShowArea.dom.offsetHeight + 50 - that.objColumnCells.dom.offsetHeight;
+    if (event.srcElement.scrollTop < maxScroll) {
+      that.objColumnCells.dom.scrollTop = event.srcElement.scrollTop;
+    }
+    else {
+      that.eventAreaScroll.dom.scrollTop = maxScroll;
+      that.objColumnCells.dom.scrollTop = maxScroll;
+    }
 
     that.refreshFrame();
   }

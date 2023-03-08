@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2022-06-13 19:20:28
- * @LastEditTime: 2023-03-07 23:10:08
+ * @LastEditTime: 2023-03-08 14:51:20
  * @LastEditors: your name
  * @Description: 这是引擎的启动主函数
  * @FilePath: \Html5_3D\main\init.js
@@ -60,7 +60,7 @@ async function init() {
   const valuesX = [
     0, 0, 0, 10, 0, 0, 10, 10, 0
   ] // 过渡的值
-  const posXKeyFramTrack = new THREE.VectorKeyframeTrack('.position', times, valuesX);
+  const posXKeyFramTrack = new THREE.VectorKeyframeTrack('.scale', times, valuesX);
 
   const quaternion1 = new THREE.Quaternion();
   const euler1 = new THREE.Euler(0, 0, 0, 'XYZ');
