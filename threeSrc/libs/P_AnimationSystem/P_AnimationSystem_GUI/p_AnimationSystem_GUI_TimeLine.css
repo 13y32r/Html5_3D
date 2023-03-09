@@ -198,6 +198,16 @@ input::-webkit-inner-spin-button {
   overflow: scroll;
 }
 
+.EventAreaScroll .EventUnitRowsShowArea {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: red;
+  opacity: 0.5;
+  left: 0px;
+  top: 0px;
+}
+
 .EventAreaScroll::-webkit-scrollbar {
   width: 15px;
   height: 15px;
@@ -218,6 +228,7 @@ input::-webkit-inner-spin-button {
 
 .EventAreaScroll::-webkit-scrollbar-corner {
   background: #494949;
+  height: 0px !important;
 }
 
 .EventAreaScroll::-webkit-scrollbar-button:single-button {

@@ -72,8 +72,8 @@ function addResizerHandle(
       clientX < offsetX + minLeftMargin
         ? offsetX + minLeftMargin
         : clientX > offsetWidth + offsetX - maxRightMargin
-          ? offsetWidth + offsetX - maxRightMargin
-          : clientX;
+        ? offsetWidth + offsetX - maxRightMargin
+        : clientX;
     // const cX = clientX;
 
     const x = cX - rootDom.offsetLeft;
@@ -556,14 +556,63 @@ class AttributeCell extends UIDiv {
 
         showName = objectName + ":" + attName;
         if (attType == "vector") {
-          that.paramArray[0] = new AttributeCell(null, attName, attType, "x", !isOdd, animationPanel);
-          that.paramArray[1] = new AttributeCell(null, attName, attType, "y", isOdd, animationPanel);
-          that.paramArray[2] = new AttributeCell(null, attName, attType, "z", !isOdd, animationPanel);
+          that.paramArray[0] = new AttributeCell(
+            null,
+            attName,
+            attType,
+            "x",
+            !isOdd,
+            animationPanel
+          );
+          that.paramArray[1] = new AttributeCell(
+            null,
+            attName,
+            attType,
+            "y",
+            isOdd,
+            animationPanel
+          );
+          that.paramArray[2] = new AttributeCell(
+            null,
+            attName,
+            attType,
+            "z",
+            !isOdd,
+            animationPanel
+          );
         } else if (attType == "quaternion") {
-          that.paramArray[0] = new AttributeCell(null, attName, attType, "x", !isOdd, animationPanel);
-          that.paramArray[1] = new AttributeCell(null, attName, attType, "y", isOdd, animationPanel);
-          that.paramArray[2] = new AttributeCell(null, attName, attType, "z", !isOdd, animationPanel);
-          that.paramArray[3] = new AttributeCell(null, attName, attType, "w", isOdd, animationPanel);
+          that.paramArray[0] = new AttributeCell(
+            null,
+            attName,
+            attType,
+            "x",
+            !isOdd,
+            animationPanel
+          );
+          that.paramArray[1] = new AttributeCell(
+            null,
+            attName,
+            attType,
+            "y",
+            isOdd,
+            animationPanel
+          );
+          that.paramArray[2] = new AttributeCell(
+            null,
+            attName,
+            attType,
+            "z",
+            !isOdd,
+            animationPanel
+          );
+          that.paramArray[3] = new AttributeCell(
+            null,
+            attName,
+            attType,
+            "w",
+            isOdd,
+            animationPanel
+          );
         }
       } else {
         showName = attName + "." + paramName;
@@ -649,11 +698,13 @@ class AttributeCell extends UIDiv {
     let that = this;
     that.setBackgroundColor("#3e5f96");
     that.lastBackgroundColor = that.dom.style.backgroundColor;
-    that.dom.dispatchEvent(new CustomEvent("attrCellPointerDown", {
-      bubbles: false,
-      cancelable: true,
-      detail: { sourceObj: that }
-    }));
+    that.dom.dispatchEvent(
+      new CustomEvent("attrCellPointerDown", {
+        bubbles: false,
+        cancelable: true,
+        detail: { sourceObj: that },
+      })
+    );
   }
 
   elementNoActive() {
@@ -848,6 +899,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.eventShowArea = new UIDiv();
     that.keyShowArea = new UIDiv();
     that.eventColumnCells = new UIDiv();
+    that.eventUnitRowsShowArea = new UIDiv();
 
     that.container.setClass("TimeLineDisplayArea");
 
@@ -878,6 +930,8 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.eventColumnCells.setClass("TimeLineContainer");
     that.eventColumnCells.addClass("EventColumnCells");
 
+    that.eventUnitRowsShowArea.setClass("EventUnitRowsShowArea");
+
     that.verticalSplitLine = new UIVerticalSplitLine();
     that.horizontalSplitLine = new UIHorizontalSplitLine();
 
@@ -902,7 +956,10 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.calKeyFrameOfPL_Position = that.calKeyFrameOfPL_Position.bind(this);
 
     that.objColumnCellsScrollEvent = that.objColumnCellsScrollEvent.bind(this);
-    that.objColumnCells.dom.addEventListener("scroll", that.objColumnCellsScrollEvent);
+    that.objColumnCells.dom.addEventListener(
+      "scroll",
+      that.objColumnCellsScrollEvent
+    );
 
     that.wheelEventInWindow = that.wheelEventInWindow.bind(this);
     that.eventColumns.dom.addEventListener("wheel", that.wheelEventInWindow);
@@ -935,7 +992,8 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.openPanel = that.openPanel.bind(this);
     that.closePanel = that.closePanel.bind(this);
 
-    that.TheEventColumnsHeightToConsistentWithTheObjColumnHeight = that.TheEventColumnsHeightToConsistentWithTheObjColumnHeight.bind(this);
+    that.TheEventColumnsHeightToConsistentWithTheObjColumnHeight =
+      that.TheEventColumnsHeightToConsistentWithTheObjColumnHeight.bind(this);
 
     that.signals.objectSelected.add(that.updateAnimatedObject);
     that.signals.hierarchyChange.add(that.updateAnimatedObject);
@@ -967,7 +1025,9 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       RefHeight -= 18;
       that.eventColumnCells.setHeight(RefHeight + "px");
     } else {
-      that.eventColumnCells.setHeight(that.objColumnCells.dom.offsetHeight - 33 + "px");
+      that.eventColumnCells.setHeight(
+        that.objColumnCells.dom.offsetHeight - 33 + "px"
+      );
     }
   }
 
@@ -1099,6 +1159,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.selectedObjNoAnimationsTips.add(that.createNewAnimationButton);
 
     that.eventAreaScroll.add(that.eventColumns);
+    that.eventAreaScroll.add(that.eventUnitRowsShowArea);
 
     that.eventColumns.add(that.timeScaleBar);
     let horizontalSplitLine_3 = new UIHorizontalSplitLine();
@@ -1344,7 +1405,14 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
 
       let isOdd = !(j % 2);
 
-      let clip = new AttributeCell(objName, attrName, valueType, null, isOdd, that);
+      let clip = new AttributeCell(
+        objName,
+        attrName,
+        valueType,
+        null,
+        isOdd,
+        that
+      );
       that.objAttributeShowArea.cellsArray.push(clip);
       that.objAttributeShowArea.add(clip);
 
@@ -1354,21 +1422,41 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
 
           if (clip.rollButton.isExpand) {
             for (let i = 0; i < clip.paramArray.length; i++) {
-              that.objAttributeShowArea.cellsArray.splice(clipID + 1 + i, 0, clip.paramArray[i]);
-              clip.paramArray[i].dom.addEventListener("attrCellPointerDown", allCellsNoActive);
+              that.objAttributeShowArea.cellsArray.splice(
+                clipID + 1 + i,
+                0,
+                clip.paramArray[i]
+              );
+              clip.paramArray[i].dom.addEventListener(
+                "attrCellPointerDown",
+                allCellsNoActive
+              );
             }
           } else {
             for (let i = 0; i < clip.paramArray.length; i++) {
-              clip.paramArray[i].dom.removeEventListener("attrCellPointerDown", allCellsNoActive);
+              clip.paramArray[i].dom.removeEventListener(
+                "attrCellPointerDown",
+                allCellsNoActive
+              );
             }
-            that.objAttributeShowArea.cellsArray.splice(clipID + 1, clip.paramArray.length);
+            that.objAttributeShowArea.cellsArray.splice(
+              clipID + 1,
+              clip.paramArray.length
+            );
           }
 
           that.objAttributeShowArea.clear();
-          for (let j = 0; j < that.objAttributeShowArea.cellsArray.length; j++) {
-            that.objAttributeShowArea.add(that.objAttributeShowArea.cellsArray[j]);
+          for (
+            let j = 0;
+            j < that.objAttributeShowArea.cellsArray.length;
+            j++
+          ) {
+            that.objAttributeShowArea.add(
+              that.objAttributeShowArea.cellsArray[j]
+            );
             if (j != 0) {
-              that.objAttributeShowArea.cellsArray[j].isOdd = !that.objAttributeShowArea.cellsArray[j - 1].isOdd;
+              that.objAttributeShowArea.cellsArray[j].isOdd =
+                !that.objAttributeShowArea.cellsArray[j - 1].isOdd;
               that.objAttributeShowArea.cellsArray[j].elementNoActive();
             }
           }
@@ -1664,11 +1752,13 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     event.stopPropagation();
 
     let that = this;
-    let maxScroll = that.objAttributeShowArea.dom.offsetHeight + 50 - that.objColumnCells.dom.offsetHeight;
+    let maxScroll =
+      that.objAttributeShowArea.dom.offsetHeight +
+      50 -
+      that.objColumnCells.dom.offsetHeight;
     if (event.srcElement.scrollTop < maxScroll) {
       that.objColumnCells.dom.scrollTop = event.srcElement.scrollTop;
-    }
-    else {
+    } else {
       that.eventAreaScroll.dom.scrollTop = maxScroll;
       that.objColumnCells.dom.scrollTop = maxScroll;
     }
@@ -1778,12 +1868,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
           that.secondUnit) /
-        that.secondUnitWidth
+          that.secondUnitWidth
       );
     } else {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16) * that.secondUnit) /
-        that.secondUnitWidth
+          that.secondUnitWidth
       );
     }
 
@@ -1867,12 +1957,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
             that.minuteUnit) /
-          that.minuteUnitWidth
+            that.minuteUnitWidth
         );
       } else {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16) * that.minuteUnit) /
-          that.minuteUnitWidth
+            that.minuteUnitWidth
         );
       }
 
