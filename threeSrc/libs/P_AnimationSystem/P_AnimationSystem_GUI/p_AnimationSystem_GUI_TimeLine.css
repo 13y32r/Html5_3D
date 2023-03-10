@@ -198,14 +198,15 @@ input::-webkit-inner-spin-button {
   overflow: scroll;
 }
 
-.EventAreaScroll .EventUnitRowsShowArea {
-  width: 100%;
-  height: 100%;
+.EventAreaScroll .EventUnitRowsScrollArea {
   position: absolute;
-  background-color: red;
-  opacity: 0.5;
-  left: 0px;
-  top: 0px;
+  overflow: hidden;
+}
+
+.EventUnitRowsScrollArea .EventUnitRowsShowArea {
+  position: relative;
+  width: 100%;
+  height: auto;
 }
 
 .EventAreaScroll::-webkit-scrollbar {

@@ -1,736 +1,13 @@
-import {
-  UIElement,
-  UISpan,
-  UIDiv,
-  UIVerticalPromptLine,
-  UIVerticalSplitLine,
-  UIHorizontalSplitLine,
-  documentBodyAdd,
-  documentBodyRemove,
-} from "../../../libs/ui.js";
-import { dynamicCssFile } from "../../../../assist/dynamicCssFile.js";
-import { Vector3, Quaternion } from "three";
-import {
-  normalWindow,
-  PopupMenuOption,
-  PopupMenuSplitLine,
-  PopupMenu,
-} from "../../../libs/ui.menu.js";
-import { GUIFrameLabel } from "./p_AnimationSystem_GUI_Frame.js";
-import { findWhichMenuThisClassBelongsTo } from "/menuGUI/findWhichMenuThisClassBelongsTo.js";
-
-function addResizerHandle(
-  fDom,
-  dom1,
-  dom2,
-  dom3,
-  rootDom,
-  changeFN,
-  handle,
-  scope
-) {
-  let minLeftMargin = 248;
-  let maxRightMargin = 200;
-
-  let overallSize = dom1.offsetWidth + dom2.offsetWidth;
-  let tempRootWidth = rootDom.offsetWidth;
-
-  rootDom.removeEventListener("pointerup", adjustHandlePosition);
-  rootDom.addEventListener("pointerup", adjustHandlePosition);
-
-  function adjustHandlePosition() {
-    if (tempRootWidth != rootDom.offsetWidth) {
-      handle.setLeft(dom1.offsetWidth + "px");
-      handle.setHeight(dom1.offsetHeight + "px");
-      overallSize = dom1.offsetWidth + dom2.offsetWidth;
-      tempRootWidth = rootDom.offsetWidth;
-    }
-  }
-
-  function onPointerDown(event) {
-    if (event.isPrimary === false) return;
-
-    fDom.addEventListener("pointermove", onPointerMove);
-    fDom.addEventListener("pointerup", onPointerUp);
-  }
-
-  function onPointerUp(event) {
-    if (event.isPrimary === false) return;
-
-    fDom.removeEventListener("pointermove", onPointerMove);
-    fDom.removeEventListener("pointerup", onPointerUp);
-  }
-
-  function onPointerMove(event) {
-    if (event.isPrimary === false) return;
-
-    const clientX = event.clientX;
-    const offsetX = rootDom.offsetLeft;
-    const offsetWidth = rootDom.offsetWidth;
-
-    const cX =
-      clientX < offsetX + minLeftMargin
-        ? offsetX + minLeftMargin
-        : clientX > offsetWidth + offsetX - maxRightMargin
-          ? offsetWidth + offsetX - maxRightMargin
-          : clientX;
-    // const cX = clientX;
-
-    const x = cX - rootDom.offsetLeft;
-
-    handle.dom.style.left = x + "px";
-
-    let oldDom2Width = dom2.offsetWidth;
-
-    dom1.style.width = x + "px";
-    dom2.style.width = overallSize - x + "px";
-
-    if (dom3) {
-      let oldDom3Width = dom3.offsetWidth;
-      let newDom3Width = (dom3.offsetWidth * dom2.offsetWidth) / oldDom2Width;
-      dom3.style.width = newDom3Width + "px";
-      changeFN(scope, { oldDom3Width, newDom3Width });
-    }
-  }
-
-  handle.dom.removeEventListener("pointerdown", onPointerDown);
-  handle.dom.addEventListener("pointerdown", onPointerDown);
-}
-
-class AnimationPannelInput extends UIElement {
-  constructor() {
-    super(document.createElement("Input"));
-
-    let that = this;
-
-    that.dom.type = "Number";
-    that.setClass("AnimationPannelInput");
-    that.addClass("Enabled");
-    that.setStyle("boxShadow", ["1px 1px 2px #000 inset"]);
-    that.dom.value = 0;
-
-    that.dom.addEventListener("keydown", function (event) {
-      event.stopPropagation();
-    });
-
-    that.changeAbility = that.changeAbility.bind(this);
-  }
-
-  changeAbility(param) {
-    let that = this;
-
-    if (param) {
-      if (that.dom.classList.contains("Disabled")) {
-        that.removeClass("Disabled");
-      }
-      if (!that.dom.classList.contains("Enabled")) {
-        that.addClass("Enabled");
-      }
-      that.dom.removeAttribute("disabled");
-    } else {
-      if (that.dom.classList.contains("Enabled")) {
-        that.removeClass("Enabled");
-      }
-      if (!that.dom.classList.contains("Disabled")) {
-        that.addClass("Disabled");
-      }
-      that.setDisabled(true);
-    }
-  }
-
-  setValue(num) {
-    this.dom.value = num;
-  }
-
-  getValue() {
-    return this.dom.value;
-  }
-
-  changed(fn) {
-    this.dom.oninput = fn;
-    this.dom.onchange = fn;
-  }
-}
-
-class ClipSelect extends UIElement {
-  constructor() {
-    super(document.createElement("Select"));
-
-    let that = this;
-
-    that.setClass("ClipSelect");
-    that.dom.setAttribute("autocomplete", "off");
-  }
-
-  setOptions(options) {
-    const selected = this.dom.value;
-
-    while (this.dom.children.length > 0) {
-      this.dom.removeChild(this.dom.firstChild);
-    }
-
-    for (const key in options) {
-      const option = document.createElement("option");
-      option.value = key;
-      option.innerHTML = options[key];
-      this.dom.appendChild(option);
-    }
-
-    this.dom.value = selected;
-
-    return this;
-  }
-
-  clear() {
-    while (this.dom.children.length > 0) {
-      this.dom.removeChild(this.dom.firstChild);
-    }
-  }
-
-  getValue() {
-    return this.dom.value;
-  }
-
-  setValue(value) {
-    value = String(value);
-
-    if (this.dom.value !== value) {
-      this.dom.value = value;
-    }
-
-    return this;
-  }
-
-  getCurrentText() {
-    let currentID = this.getValue();
-    return this.dom.options[currentID].text;
-  }
-}
-
-class AnimationButton extends UIElement {
-  constructor(imgURL, width, height, isSwitch) {
-    super(document.createElement("button"));
-
-    let that = this;
-
-    that.downFun = null;
-    that.upFun = null;
-
-    that.imgURL = imgURL;
-    that.isSwitch = isSwitch;
-
-    if (that.isSwitch) {
-      that.openState = false;
-    }
-
-    this.setClass("AnimationButton_UP");
-    this.setBackgroundRepeat("no-repeat");
-    this.setWidth(width);
-    this.setHeight(height);
-
-    this.dom.setAttribute("type", "button");
-    this.dom.setAttribute("name", "AnimationButton");
-    this.dom.setAttribute("title", "关闭菜单栏");
-
-    that.enable = that.enable.bind(this);
-    that.disable = that.disable.bind(this);
-    that.setDownFun = that.setDownFun.bind(this);
-    that.setUpFun = that.setUpFun.bind(this);
-
-    that.enable();
-  }
-
-  enable() {
-    let that = this;
-
-    this.setBackgroundImage(that.imgURL);
-
-    this.dom.onpointerdown = function () {
-      if (!that.isSwitch) {
-        if (that.dom.classList.contains("AnimationButton_UP"))
-          that.dom.classList.remove("AnimationButton_UP");
-        if (!that.dom.classList.contains("AnimationButton_DOWN"))
-          that.dom.classList.add("AnimationButton_DOWN");
-      } else {
-        that.openState = !that.openState;
-        if (that.openState) {
-          if (that.dom.classList.contains("AnimationButton_UP"))
-            that.dom.classList.remove("AnimationButton_UP");
-          if (!that.dom.classList.contains("AnimationButton_DOWN"))
-            that.dom.classList.add("AnimationButton_DOWN");
-        } else {
-          if (that.dom.classList.contains("AnimationButton_DOWN"))
-            that.dom.classList.remove("AnimationButton_DOWN");
-          if (!that.dom.classList.contains("AnimationButton_UP"))
-            that.dom.classList.add("AnimationButton_UP");
-        }
-      }
-
-      if (that.downFun) {
-        that.downFun();
-      }
-    };
-    this.dom.onpointerup = function () {
-      if (!that.isSwitch) {
-        if (that.dom.classList.contains("AnimationButton_DOWN"))
-          that.dom.classList.remove("AnimationButton_DOWN");
-        if (!that.dom.classList.contains("AnimationButton_UP"))
-          that.dom.classList.add("AnimationButton_UP");
-      }
-
-      if (that.upFun) {
-        that.upFun();
-      }
-    };
-  }
-
-  disable() {
-    let that = this;
-
-    if (that.isSwitch) {
-      if (that.openState) {
-        that.openState = false;
-
-        if (that.dom.classList.contains("AnimationButton_DOWN"))
-          that.dom.classList.remove("AnimationButton_DOWN");
-        if (!that.dom.classList.contains("AnimationButton_UP"))
-          that.dom.classList.add("AnimationButton_UP");
-      }
-    }
-
-    let disableImg = that.imgURL.slice(0, that.imgURL.length - 5);
-    disableImg += "_Disabled.png)";
-
-    this.setBackgroundImage(disableImg);
-
-    this.dom.onpointerdown = null;
-    this.dom.onpointerup = null;
-  }
-
-  setDownFun(downFun) {
-    this.downFun = downFun;
-  }
-
-  setUpFun(upFun) {
-    this.upFun = upFun;
-  }
-}
-
-class RollButton extends UIElement {
-  constructor() {
-    super(document.createElement("button"));
-    let that = this;
-
-    that.setClass("RollButton");
-    that.addClass("RollButton_Close");
-    that.isExpand = false;
-
-    that.triggerFun = that.triggerFun.bind(this);
-    that.dom.addEventListener("pointerup", that.triggerFun);
-  }
-
-  triggerFun() {
-    let that = this;
-    that.isExpand = !that.isExpand;
-    that.dom.dispatchEvent(
-      new CustomEvent("rollButtonEvent", {
-        bubbles: false,
-        cancelable: true,
-        detail: { state: that.isExpand },
-      })
-    );
-
-    if (!that.isExpand) {
-      if (that.dom.classList.contains("RollButton_Open"))
-        that.dom.classList.remove("RollButton_Open");
-      if (!that.dom.classList.contains("RollButton_Close"))
-        that.dom.classList.add("RollButton_Close");
-    } else {
-      if (that.dom.classList.contains("RollButton_Close"))
-        that.dom.classList.remove("RollButton_Close");
-      if (!that.dom.classList.contains("RollButton_Open"))
-        that.dom.classList.add("RollButton_Open");
-    }
-  }
-}
-
-class AttributeCellLastButton extends UIDiv {
-  constructor(animationPanel) {
-    super();
-    let that = this;
-
-    that.normalImg = "url(/menuGUI/img/attributeCellLastButton_Normal.png)";
-    that.hoverImg = "url(/menuGUI/img/attributeCellLastButton_Hover.png)";
-
-    that.options = new Array();
-
-    that.setClass("AttributeCellLastButton");
-    that.setBackgroundImage(that.normalImg);
-    that.animationPanel = animationPanel;
-
-    that.pointerHover = that.pointerHover.bind(this);
-    that.pointerOut = that.pointerOut.bind(this);
-    that.pointerDown = that.pointerDown.bind(this);
-    that.dom.onpointerover = that.pointerHover;
-    that.dom.onpointerout = that.pointerOut;
-    that.dom.onpointerdown = that.pointerDown;
-
-    that.updateAnimationPanelState = that.updateAnimationPanelState.bind(this);
-    animationPanel.dom.addEventListener(
-      "animationPanelStateChange",
-      that.updateAnimationPanelState
-    );
-
-    that.resPopupMenu = that.resPopupMenu.bind(this);
-  }
-
-  addPopupMenu() {
-    let that = this;
-
-    if (
-      that.animationPanel.animationEditorState == AnimationEditorState.EDITING
-    ) {
-      that.setRecordPopupMenu();
-    } else {
-      that.setNormalPopupMenu();
-    }
-
-    that.popupMenu = new PopupMenu();
-    that.popupMenu.setWidth("236px");
-    that.popupMenu.setOptions(that.options);
-    documentBodyAdd(that.popupMenu);
-
-    // 获取元素的绝对位置坐标（像对于页面左上角）
-    function getElementPagePosition(element) {
-      //计算x坐标
-      var actualLeft = element.offsetLeft;
-      var current = element.offsetParent;
-      while (current !== null) {
-        actualLeft += current.offsetLeft;
-        current = current.offsetParent;
-      }
-      //计算y坐标
-      var actualTop = element.offsetTop;
-      var current = element.offsetParent;
-      while (current !== null) {
-        actualTop += current.offsetTop + current.clientTop;
-        current = current.offsetParent;
-      }
-      //返回结果
-      return { x: actualLeft, y: actualTop };
-    }
-
-    let offsetScrollTop = that.animationPanel.objColumnCells.dom.scrollTop;
-
-    let absolutePosition = getElementPagePosition(that.dom);
-    let position_x = absolutePosition.x + 26 + "px";
-    let position_y = absolutePosition.y - offsetScrollTop + "px";
-
-    that.popupMenu.setLeft(position_x);
-    that.popupMenu.setTop(position_y);
-
-    that.popupMenu.dom.addEventListener(
-      "popupMenuOptionDown",
-      that.resPopupMenu
-    );
-  }
-
-  removePopupMenu() {
-    let that = this;
-
-    that.popupMenu.dom.removeEventListener(
-      "popupMenuOptionDown",
-      that.resPopupMenu
-    );
-    documentBodyRemove(that.popupMenu);
-    that.popupMenu.dispose();
-    that.popupMenu = null;
-  }
-
-  setNormalPopupMenu() {
-    let that = this;
-
-    that.options.length = 0;
-    let option = new PopupMenuOption(0, "删除属性");
-    that.options.push(option);
-  }
-
-  setRecordPopupMenu() {
-    let that = this;
-
-    let option_0 = new PopupMenuOption(0, "删除属性");
-    let option_splitLine = new PopupMenuSplitLine();
-    let option_1 = new PopupMenuOption(1, "添加帧");
-    let option_2 = new PopupMenuOption(2, "删除帧");
-    that.options.length = 0;
-    that.options = [option_0, option_splitLine, option_1, option_2];
-  }
-
-  resPopupMenu(event) {
-    let that = this;
-
-    let order = event.detail;
-    console.log(event.detail);
-
-    that.removePopupMenu();
-  }
-
-  updateAnimationPanelState() {
-    let that = this;
-
-    if (
-      that.animationPanel.animationEditorState == AnimationEditorState.EDITING
-    ) {
-      that.normalImg =
-        "url(/menuGUI/img/attributeCellLastButton_Record_Normal.png)";
-      that.hoverImg =
-        "url(/menuGUI/img/attributeCellLastButton_Record_Hover.png)";
-    } else {
-      that.normalImg = "url(/menuGUI/img/attributeCellLastButton_Normal.png)";
-      that.hoverImg = "url(/menuGUI/img/attributeCellLastButton_Hover.png)";
-    }
-
-    that.pointerOut();
-  }
-
-  pointerDown() {
-    let that = this;
-
-    that.addPopupMenu();
-  }
-
-  pointerHover() {
-    let that = this;
-    that.setBackgroundImage(that.hoverImg);
-    that.setBackgroundColor("#282828");
-  }
-
-  pointerOut() {
-    let that = this;
-    that.setBackgroundImage(that.normalImg);
-    that.setBackgroundColor("transparent");
-  }
-}
-
-class AttributeCell extends UIDiv {
-  constructor(objectName, attName, attType, paramName, isOdd, animationPanel) {
-    super("AttributeCell");
-    let that = this;
-
-    that.setClass("AttributeCell");
-
-    that.myInnerOffsetLeft = 0;
-    if (!objectName) {
-      that.setStyle("paddingLeft", ["30px"]);
-      that.setWidth("calc(100% - 30px)");
-      that.myInnerOffsetLeft = -16;
-    }
-
-    that.isOdd = isOdd;
-    if (!that.isOdd) {
-      that.setBackgroundColor("#3f3f3f");
-    }
-
-    that.isRoll = null;
-    that.paramArray = [];
-
-    that.symbolLogo = new UIDiv();
-    that.symbolLogo.setClass("SymbolLogo");
-
-    that.label = new UIElement(document.createElement("label"));
-    that.setKeyFrameValueArea = new UIDiv();
-    that.setKeyFrameValueArea.setClass("SetKeyFrameValueArea");
-
-    that.placeholderBeforeTheLastButton = new UIDiv();
-    that.lastButton = new AttributeCellLastButton(animationPanel);
-    that.setKeyFrameValueArea.add(that.lastButton);
-
-    let showName;
-
-    if (attType == "vector" || attType == "quaternion") {
-      that.isRoll = true;
-
-      if (objectName) {
-        that.rollButton = new RollButton();
-        that.add(that.rollButton);
-
-        showName = objectName + ":" + attName;
-        if (attType == "vector") {
-          that.paramArray[0] = new AttributeCell(
-            null,
-            attName,
-            attType,
-            "x",
-            !isOdd,
-            animationPanel
-          );
-          that.paramArray[1] = new AttributeCell(
-            null,
-            attName,
-            attType,
-            "y",
-            isOdd,
-            animationPanel
-          );
-          that.paramArray[2] = new AttributeCell(
-            null,
-            attName,
-            attType,
-            "z",
-            !isOdd,
-            animationPanel
-          );
-        } else if (attType == "quaternion") {
-          that.paramArray[0] = new AttributeCell(
-            null,
-            attName,
-            attType,
-            "x",
-            !isOdd,
-            animationPanel
-          );
-          that.paramArray[1] = new AttributeCell(
-            null,
-            attName,
-            attType,
-            "y",
-            isOdd,
-            animationPanel
-          );
-          that.paramArray[2] = new AttributeCell(
-            null,
-            attName,
-            attType,
-            "z",
-            !isOdd,
-            animationPanel
-          );
-          that.paramArray[3] = new AttributeCell(
-            null,
-            attName,
-            attType,
-            "w",
-            isOdd,
-            animationPanel
-          );
-        }
-      } else {
-        showName = attName + "." + paramName;
-        that.label.setColor("#808080");
-      }
-    } else {
-      that.isRoll = false;
-
-      that.rollButton_PlaceHolder = new UIDiv();
-      that.rollButton_PlaceHolder.setClass("RollButton_PlaceHolder");
-      that.add(that.rollButton_PlaceHolder);
-
-      switch (attType) {
-        case "color":
-          that.symbolLogo.setBackgroundImage(
-            "url('../../../../../menuGUI/img/symbol/color.png')"
-          );
-      }
-
-      showName = objectName + ":" + attName + "." + paramName;
-    }
-
-    that.symbolLogo.setBackgroundImage(
-      "url('../../../../../menuGUI/img/symbol/transform.png')"
-    );
-    that.add(that.symbolLogo);
-
-    let widthOffset = 62 + that.myInnerOffsetLeft;
-    that.label.setWidth("calc(100% - " + widthOffset + "px)");
-    that.label.setInnerHTML(showName);
-    that.add(that.label);
-
-    that.add(that.setKeyFrameValueArea);
-
-    that.pointerHover = that.pointerHover.bind(this);
-    that.pointerOut = that.pointerOut.bind(this);
-    that.elementActive = that.elementActive.bind(this);
-    that.elementNoActive = that.elementNoActive.bind(this);
-    that.dom.onpointerover = that.pointerHover;
-    that.dom.onpointerout = that.pointerOut;
-    that.dom.onpointerdown = that.elementActive;
-
-    that.animationPanelStateChange = that.animationPanelStateChange.bind(this);
-
-    animationPanel.dom.addEventListener(
-      "animationPanelStateChange",
-      that.animationPanelStateChange
-    );
-  }
-
-  animationPanelStateChange(event) {
-    let that = this;
-    let state = event.detail.state;
-
-    if (state == AnimationEditorState.EDITING) {
-      let widthOffset = 107 + that.myInnerOffsetLeft;
-      that.label.setWidth("calc(100% - " + widthOffset + "px)");
-      that.setKeyFrameValueArea.setWidth("75px");
-      that.setKeyFrameValueArea.clear();
-      that.setKeyFrameValueArea.add(that.placeholderBeforeTheLastButton);
-      that.setKeyFrameValueArea.add(that.lastButton);
-    } else {
-      let widthOffset = 62 + that.myInnerOffsetLeft;
-      that.label.setWidth("calc(100% - " + widthOffset + "px)");
-      that.setKeyFrameValueArea.setWidth("30px");
-      that.setKeyFrameValueArea.clear();
-      that.setKeyFrameValueArea.add(that.lastButton);
-    }
-  }
-
-  pointerHover() {
-    let that = this;
-    that.lastBackgroundColor = that.dom.style.backgroundColor;
-    that.setBackgroundColor("#4d4d4d");
-  }
-
-  pointerOut() {
-    let that = this;
-    that.setBackgroundColor(that.lastBackgroundColor);
-  }
-
-  elementActive() {
-    let that = this;
-    that.setBackgroundColor("#3e5f96");
-    that.lastBackgroundColor = that.dom.style.backgroundColor;
-    that.dom.dispatchEvent(
-      new CustomEvent("attrCellPointerDown", {
-        bubbles: false,
-        cancelable: true,
-        detail: { sourceObj: that },
-      })
-    );
-  }
-
-  elementNoActive() {
-    let that = this;
-    if (!that.isOdd) {
-      that.setBackgroundColor("#3f3f3f");
-    } else {
-      that.setBackgroundColor("transparent");
-    }
-    that.lastBackgroundColor = that.dom.style.backgroundColor;
-  }
-}
-
-const UnitType = {
-  Second: 0,
-  Minute: 1,
-};
-
-const AnimationEditorState = {
-  NOOBJSELECTED: 0,
-  SELECTEDOBJNOANIMATION: 1,
-  NORMAL: 2,
-  EDITING: 3,
-};
-
-class P_AnimationSystem_GUI_TimeLine extends UIDiv {
+/*******
+ * @Author: 邹岱志
+ * @Date: 2022-12-23 10:21:34
+ * @LastEditTime: 2023-03-09 18:19:34
+ * @LastEditors: your name
+ * @Description:
+ * @FilePath: \Html5_3D\threeSrc\libs\P_AnimationSystem\AnimationPanel.js
+ * @可以输入预定的版权声明、个性签名、空行等
+ */
+class AnimationPanel extends UIDiv {
   constructor() {
     super("TimeLine");
     let that = this;
@@ -899,9 +176,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.eventShowArea = new UIDiv();
     that.keyShowArea = new UIDiv();
     that.eventColumnCells = new UIDiv();
-    that.eventUnitRowsScrollArea = new UIDiv();
     that.eventUnitRowsShowArea = new UIDiv();
-    that.eventUnitRowsShowArea.setInnerHTML("sadlkgjlkjlgkjasdg\nasdflkjwlkjeflkjwlekj\nsadlkgjlkjlgkjasdg\nasdflkjwlkjeflkjwlekj\nsadlkgjlkjlgkjasdg\nasdflkjwlkjeflkjwlekj\nsadlkgjlkjlgkjasdg\nasdflkjwlkjeflkjwlekj");
 
     that.container.setClass("TimeLineDisplayArea");
 
@@ -932,7 +207,6 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.eventColumnCells.setClass("TimeLineContainer");
     that.eventColumnCells.addClass("EventColumnCells");
 
-    that.eventUnitRowsScrollArea.setClass("EventUnitRowsScrollArea");
     that.eventUnitRowsShowArea.setClass("EventUnitRowsShowArea");
 
     that.verticalSplitLine = new UIVerticalSplitLine();
@@ -965,7 +239,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     );
 
     that.wheelEventInWindow = that.wheelEventInWindow.bind(this);
-    that.eventAreaScroll.dom.addEventListener("wheel", that.wheelEventInWindow);
+    that.eventColumns.dom.addEventListener("wheel", that.wheelEventInWindow);
     that.eventColumnsPointerDown = that.eventColumnsPointerDown.bind(this);
     that.eventColumns.dom.addEventListener(
       "pointerdown",
@@ -995,8 +269,8 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.openPanel = that.openPanel.bind(this);
     that.closePanel = that.closePanel.bind(this);
 
-    that.theEventColumnsHeightToConsistentWithTheObjColumnHeight =
-      that.theEventColumnsHeightToConsistentWithTheObjColumnHeight.bind(this);
+    that.TheEventColumnsHeightToConsistentWithTheObjColumnHeight =
+      that.TheEventColumnsHeightToConsistentWithTheObjColumnHeight.bind(this);
 
     that.signals.objectSelected.add(that.updateAnimatedObject);
     that.signals.hierarchyChange.add(that.updateAnimatedObject);
@@ -1019,16 +293,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.oldTotalHeight = that.mainBody.dom.offsetHeight;
   }
 
-  adjustEventUnitRowsShowArea() {
-    let that = this;
-
-    that.eventUnitRowsScrollArea.setWidth(that.eventAreaScroll.dom.offsetWidth - 15 + "px");
-    that.eventUnitRowsScrollArea.setHeight(that.eventAreaScroll.dom.offsetHeight - 69 + "px");
-    that.eventUnitRowsScrollArea.setTop(that.eventAreaScroll.dom.offsetTop + 54 + "px");
-    that.eventUnitRowsScrollArea.setLeft(that.eventAreaScroll.dom.offsetLeft + "px");
-  }
-
-  theEventColumnsHeightToConsistentWithTheObjColumnHeight() {
+  TheEventColumnsHeightToConsistentWithTheObjColumnHeight() {
     let that = this;
 
     let RefHeight = that.objAttributeShowArea.dom.offsetHeight + 48;
@@ -1066,8 +331,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         );
       }
 
-      that.theEventColumnsHeightToConsistentWithTheObjColumnHeight();
-      that.adjustEventUnitRowsShowArea();
+      that.TheEventColumnsHeightToConsistentWithTheObjColumnHeight();
 
       that.promptLine.setHeight(that.objColumn.dom.offsetHeight - 15 + "px");
       let scale = that.eventColumns.dom.offsetWidth / that.oldEventColumnsWidth;
@@ -1172,8 +436,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.selectedObjNoAnimationsTips.add(that.createNewAnimationButton);
 
     that.eventAreaScroll.add(that.eventColumns);
-    that.eventAreaScroll.add(that.eventUnitRowsScrollArea);
-    that.eventUnitRowsScrollArea.add(that.eventUnitRowsShowArea);
+    that.eventAreaScroll.add(that.eventUnitRowsShowArea);
 
     that.eventColumns.add(that.timeScaleBar);
     let horizontalSplitLine_3 = new UIHorizontalSplitLine();
@@ -1476,7 +739,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
           }
 
           //这里由于左边的属性列展开后高度发生变化，所以右边的事件列的高度也要随之改变。
-          that.theEventColumnsHeightToConsistentWithTheObjColumnHeight();
+          that.TheEventColumnsHeightToConsistentWithTheObjColumnHeight();
         });
       }
 
@@ -1719,7 +982,6 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
 
     let that = this;
     that.eventAreaScroll.dom.scrollTop = event.srcElement.scrollTop;
-    that.eventUnitRowsShowArea.setTop(-event.srcElement.scrollTop + "px");
 
     that.refreshFrame();
   }
@@ -1777,8 +1039,6 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       that.eventAreaScroll.dom.scrollTop = maxScroll;
       that.objColumnCells.dom.scrollTop = maxScroll;
     }
-
-    that.eventUnitRowsShowArea.setTop(-event.srcElement.scrollTop + "px");
 
     that.refreshFrame();
   }
@@ -2029,7 +1289,6 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     let that = self;
 
     let scale = param.newDom3Width / param.oldDom3Width;
-    that.adjustEventUnitRowsShowArea();
     that.sizeChangeReCalFrameSpace(scale);
   }
 
@@ -2058,38 +1317,4 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
   }
 }
 
-class AddPropertyButton extends UIElement {
-  constructor(value) {
-    super(document.createElement("button"));
-    let that = this;
-
-    this.dom.className = "AddPropertyButton";
-    this.dom.textContent = value;
-
-    this.dom.setAttribute("name", "AddPropertyButton");
-    this.dom.setAttribute("title", "添加动画属性");
-    this.dom.onpointerdown = function () {
-      if (that.dom.classList.contains("AddPropertyButton_UP"))
-        that.dom.classList.remove("AddPropertyButton_UP");
-      if (!that.dom.classList.contains("AddPropertyButton_DOWN"))
-        that.dom.classList.add("AddPropertyButton_DOWN");
-    };
-    this.dom.onpointerup = function () {
-      if (that.dom.classList.contains("AddPropertyButton_DOWN"))
-        that.dom.classList.remove("AddPropertyButton_DOWN");
-      if (!that.dom.classList.contains("AddPropertyButton_UP"))
-        that.dom.classList.add("AddPropertyButton_UP");
-    };
-  }
-}
-
-class ScaleOfTimeLine extends UIDiv {
-  constructor(type) {
-    super("ScaleOfTimeLine");
-    switch (type) {
-      case "small":
-    }
-  }
-}
-
-export { P_AnimationSystem_GUI_TimeLine };
+export { AnimationPanel };
