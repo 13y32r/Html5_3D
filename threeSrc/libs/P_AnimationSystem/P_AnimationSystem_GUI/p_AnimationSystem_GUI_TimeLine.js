@@ -72,8 +72,8 @@ function addResizerHandle(
       clientX < offsetX + minLeftMargin
         ? offsetX + minLeftMargin
         : clientX > offsetWidth + offsetX - maxRightMargin
-          ? offsetWidth + offsetX - maxRightMargin
-          : clientX;
+        ? offsetWidth + offsetX - maxRightMargin
+        : clientX;
     // const cX = clientX;
 
     const x = cX - rootDom.offsetLeft;
@@ -901,7 +901,6 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.eventColumnCells = new UIDiv();
     that.eventUnitRowsScrollArea = new UIDiv();
     that.eventUnitRowsShowArea = new UIDiv();
-    that.eventUnitRowsShowArea.setInnerHTML("sadlkgjlkjlgkjasdg\nasdflkjwlkjeflkjwlekj\nsadlkgjlkjlgkjasdg\nasdflkjwlkjeflkjwlekj\nsadlkgjlkjlgkjasdg\nasdflkjwlkjeflkjwlekj\nsadlkgjlkjlgkjasdg\nasdflkjwlkjeflkjwlekj");
 
     that.container.setClass("TimeLineDisplayArea");
 
@@ -1022,10 +1021,18 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
   adjustEventUnitRowsShowArea() {
     let that = this;
 
-    that.eventUnitRowsScrollArea.setWidth(that.eventAreaScroll.dom.offsetWidth - 15 + "px");
-    that.eventUnitRowsScrollArea.setHeight(that.eventAreaScroll.dom.offsetHeight - 69 + "px");
-    that.eventUnitRowsScrollArea.setTop(that.eventAreaScroll.dom.offsetTop + 54 + "px");
-    that.eventUnitRowsScrollArea.setLeft(that.eventAreaScroll.dom.offsetLeft + "px");
+    that.eventUnitRowsScrollArea.setWidth(
+      that.eventAreaScroll.dom.offsetWidth - 15 + "px"
+    );
+    that.eventUnitRowsScrollArea.setHeight(
+      that.eventAreaScroll.dom.offsetHeight - 69 + "px"
+    );
+    that.eventUnitRowsScrollArea.setTop(
+      that.eventAreaScroll.dom.offsetTop + 54 + "px"
+    );
+    that.eventUnitRowsScrollArea.setLeft(
+      that.eventAreaScroll.dom.offsetLeft + "px"
+    );
   }
 
   theEventColumnsHeightToConsistentWithTheObjColumnHeight() {
@@ -1885,12 +1892,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
           that.secondUnit) /
-        that.secondUnitWidth
+          that.secondUnitWidth
       );
     } else {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16) * that.secondUnit) /
-        that.secondUnitWidth
+          that.secondUnitWidth
       );
     }
 
@@ -1974,12 +1981,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
             that.minuteUnit) /
-          that.minuteUnitWidth
+            that.minuteUnitWidth
         );
       } else {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16) * that.minuteUnit) /
-          that.minuteUnitWidth
+            that.minuteUnitWidth
         );
       }
 
@@ -2019,7 +2026,9 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     let reEventColumnsWidth =
       that.eventAreaScroll.dom.scrollLeft +
       that.eventAreaScroll.dom.offsetWidth -
-      16;
+      15;
+
+    reEventColumnsWidth = Math.floor(reEventColumnsWidth);
     that.eventColumns.setWidth(reEventColumnsWidth + "px");
 
     that.calPromptLinePosition(that.keyPosition);
