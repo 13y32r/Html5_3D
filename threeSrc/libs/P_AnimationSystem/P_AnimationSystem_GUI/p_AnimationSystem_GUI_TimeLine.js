@@ -8,7 +8,7 @@ import {
   documentBodyAdd,
   documentBodyRemove,
 } from "../../../libs/ui.js";
-import { dynamicCssFile } from "../../../../assist/dynamicCssFile.js";
+// import { dynamicCssFile } from "../../../../assist/dynamicCssFile.js";
 import { Vector3, Quaternion } from "three";
 import {
   normalWindow,
@@ -72,8 +72,8 @@ function addResizerHandle(
       clientX < offsetX + minLeftMargin
         ? offsetX + minLeftMargin
         : clientX > offsetWidth + offsetX - maxRightMargin
-        ? offsetWidth + offsetX - maxRightMargin
-        : clientX;
+          ? offsetWidth + offsetX - maxRightMargin
+          : clientX;
     // const cX = clientX;
 
     const x = cX - rootDom.offsetLeft;
@@ -1892,12 +1892,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
           that.secondUnit) /
-          that.secondUnitWidth
+        that.secondUnitWidth
       );
     } else {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16) * that.secondUnit) /
-          that.secondUnitWidth
+        that.secondUnitWidth
       );
     }
 
@@ -1981,12 +1981,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
             that.minuteUnit) /
-            that.minuteUnitWidth
+          that.minuteUnitWidth
         );
       } else {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16) * that.minuteUnit) /
-            that.minuteUnitWidth
+          that.minuteUnitWidth
         );
       }
 

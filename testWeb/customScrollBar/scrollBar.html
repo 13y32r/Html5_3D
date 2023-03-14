@@ -1,0 +1,52 @@
+<!--
+ * @Author: your name
+ * @Date: 2023-03-10 19:41:21
+ * @LastEditTime: 2023-03-14 11:26:36
+ * @LastEditors: your name
+ * @Description: 
+ * @FilePath: \Html5_3D\testWeb\customScrollBar\scrollBar.html
+ * 可以输入预定的版权声明、个性签名、空行等
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom ScrollBar</title>
+</head>
+
+<body style="background-color:cadetblue;">
+    <!-- <div draggable="false"
+        style="width: 500px; height: 12px;left:calc(50% - 250px);background-color: red;position: relative;top: 300px;display: flex;flex-direction: row;align-items: center;">
+        <div draggable="false" id="fButton" style="width: 21px;height: 10px;background-color:blue;" onclick="dd1()">
+        </div>
+        <div draggable="false" id="track"
+            style="width: 300px;height: 10px;background-color:brown;border-radius: 30px;left: -5px;position:relative;border: solid 1px #4d4d4d;"
+            onclick="dd2()">
+            <div id="thumb" draggable="false"
+                style="width: 150px;height: 10px;background-color:chartreuse;position: relative;">
+            </div>
+        </div>
+    </div> -->
+
+    <script type="module">
+        let that = this;
+        let horizontalScrollBar = null;
+
+        import { HorizontalScrollBar } from './HorizontalScrollBar.js';
+
+        import("/assist/dynamicCssFile.js").then(model => {
+            window["dynamicCssFile"] = model.dynamicCssFile;
+            import("/assist/getElementPagePositionAndViewPosition.js").then(model => {
+                window["getElementPagePosition"] = model.getElementPagePosition;
+                window["getElementViewPosition"] = model.getElementViewPosition;
+                horizontalScrollBar = new HorizontalScrollBar(500);
+                document.body.appendChild(horizontalScrollBar.dom);
+            })
+        });
+    </script>
+</body>
+
+</html>

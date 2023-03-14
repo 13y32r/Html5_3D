@@ -1,4 +1,16 @@
 {
+    "getElementPagePosition": {
+        "url": "../assist/getElementPagePositionAndViewPosition.js",
+        "inModule": true
+    },
+    "getElementViewPosition": {
+        "url": "../assist/getElementPagePositionAndViewPosition.js",
+        "inModule": true
+    },
+    "dynamicCssFile": {
+        "url": "../assist/dynamicCssFile.js",
+        "inModule": true
+    },
     "OrbitControls": {
         "url": "../threeSrc/libs/OrbitControls_Editor.js",
         "inModule": true
