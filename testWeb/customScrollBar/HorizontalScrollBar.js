@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2023-03-11 16:37:36
- * @LastEditTime: 2023-03-14 12:10:30
+ * @LastEditTime: 2023-03-14 22:54:23
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\testWeb\customScrollBar\HorizontalScrollBar.js
@@ -67,6 +67,8 @@ class HorizontalScrollBar extends UIDiv {
         that.thumbLeftHandleUp = that.thumbLeftHandleUp.bind(this);
         that.thumbLeftHandle.dom.addEventListener("pointerdown", that.thumbLeftHandleDown);
 
+        that.setScrollLeft = that.setScrollLeft.bind(this);
+
         that.appendCss();
     }
 
@@ -94,6 +96,8 @@ class HorizontalScrollBar extends UIDiv {
         let trackWidth = that.width - 32 + "px";
         that.track.setWidth(trackWidth);
         that.thumb.setWidth(trackWidth);
+        that.scrollLeft = that.width - 32 - 14;
+        console.log(that.scrollLeft);
     }
 
     thumbLeftHandleDown(event) {
@@ -113,25 +117,25 @@ class HorizontalScrollBar extends UIDiv {
         let that = this;
 
         let limitLeft = that.pageX + 16 + that.thumbLeftHandle.frontX;
-        let limitRight = that.pageX + that.width - 40 + that.thumbLeftHandle.frontX;
+        let limitRight = that.pageX + 16 + that.scrollLeft - (that.thumbLeftHandle.dom.offsetWidth - that.thumbLeftHandle.frontX);
 
         let thumbOffsetX = 0;
         if (event.pageX <= limitLeft) {
             thumbOffsetX = 0;
         }
         else if (event.pageX >= limitRight) {
-            thumbOffsetX = that.width - 56;
+            thumbOffsetX = that.scrollLeft - that.thumbLeftHandle.dom.offsetWidth;
         }
         else {
             thumbOffsetX = event.pageX - that.pageX - 16 - that.thumbLeftHandle.frontX;
         }
 
-        // let newThumbWidth = that.track.dom.offsetWidth - thumbOffsetX;
+        let newThumbWidth = that.scrollLeft - thumbOffsetX + that.thumbRightHandle.dom.offsetWidth;
+        let newThumbBodyWidth = newThumbWidth - that.thumbLeftHandle.dom.offsetWidth - that.thumbRightHandle.dom.offsetWidth;
 
-        // that.thumb.setWidth(newThumbWidth + "px");
-        // that.thumb.setLeft(thumbOffsetX + "px");
-        that.setScrollLeft(thumbOffsetX);
-        that.fullOfThumbOverWidth();
+        that.thumbBody.setWidth(newThumbBodyWidth + "px");
+        that.thumb.setWidth(newThumbWidth + "px");
+        that.thumb.setLeft(thumbOffsetX + "px");
     }
 
     thumbLeftHandleUp(event) {
@@ -161,11 +165,12 @@ class HorizontalScrollBar extends UIDiv {
 
         if (that.leftArrow.isDowning) {
             that.leftArrow.doDowning = setInterval(() => {
-                if (that.scrollLeft - 3 > 0) {
+                if (that.thumb.dom.offsetLeft - 3 > 0) {
                     that.setScrollLeft(that.scrollLeft - 3);
                 }
                 else {
-                    that.setScrollLeft(0);
+                    let zeroLeft = that.thumbLeftToScrollLeft(0);
+                    that.setScrollLeft(zeroLeft);
                 }
             }, 50);
         }
@@ -187,8 +192,18 @@ class HorizontalScrollBar extends UIDiv {
 
         that.scrollLeft = value;
 
-        let newThumbLeft = that.scrollLeft - that.thumbLeftHandle.dom.offsetWidt - that.thumbBody.dom.offsetWidth;
+        let newThumbLeft = that.scrollLeftToThumbLeft();
         that.thumb.setLeft(newThumbLeft + "px");
+    }
+
+    scrollLeftToThumbLeft() {
+        let that = this;
+        return that.scrollLeft - that.thumbLeftHandle.dom.offsetWidth - that.thumbBody.dom.offsetWidth;
+    }
+
+    thumbLeftToScrollLeft(thumbLeftValue) {
+        let that = this;
+        return thumbLeftValue + that.thumbLeftHandle.dom.offsetWidth + that.thumbBody.dom.offsetWidth;
     }
 
     getScrollLeft() {
