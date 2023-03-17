@@ -1,0 +1,12 @@
+.OuterArea {
+  width: 500px;
+  height: 400px;
+  overflow: hidden;
+}
+
+.InnerArea {
+  position: relative;
+  width: 1200px;
+  height: 100%;
+  background-image: linear-gradient(to right, green, yellow, red);
+}

@@ -19,7 +19,7 @@ class HorizontalScrollBar extends UIDiv {
     that.maxFrameWidth = maxFrameWidth;
 
     that.innerAreaDomChange = that.innerAreaDomChange.bind(this);
-    // that.innerAreaDom.addEventListener("innerChange", that.innerAreaDomChange);
+    that.innerAreaDom.addEventListener("innerChange", that.innerAreaDomChange);
 
     that.dom.draggable = false;
     that.scrollLeft = 0;
@@ -123,12 +123,18 @@ class HorizontalScrollBar extends UIDiv {
     that.track.setWidth(trackWidth);
     that.thumb.setWidth(trackWidth);
     that.scrollLeft = that.width - 32 - 14;
-    console.log(that.scrollLeft);
+
+    const detectWhetherComplete = new Promise((resolve, reject) => {
+      if (that.thumbRightHandle.dom) {
+        resolve("complete");
+      }
+    });
+    detectWhetherComplete.then((result) => {
+      that.changeThumbWidthToFitInnerArea();
+    });
   }
 
-  innerAreaDomChange(event) {
-
-  }
+  innerAreaDomChange(event) {}
 
   trackDown(event) {
     event.preventDefault();
@@ -162,7 +168,13 @@ class HorizontalScrollBar extends UIDiv {
 
     let that = this;
 
-    let newScrollLeft = event.pageX - that.pageX - 16 - that.thumbBody.frontX + that.thumbLeftHandle.dom.offsetWidth + that.thumbBody.dom.offsetWidth;
+    let newScrollLeft =
+      event.pageX -
+      that.pageX -
+      16 -
+      that.thumbBody.frontX +
+      that.thumbLeftHandle.dom.offsetWidth +
+      that.thumbBody.dom.offsetWidth;
     that.setScrollLeft(newScrollLeft);
   }
 
@@ -397,6 +409,8 @@ class HorizontalScrollBar extends UIDiv {
       that.scrollLeft = value;
       that.thumb.setLeft(newThumbLeft + "px");
     }
+
+    that.changeInnerAreaLeftToFitThumb();
   }
 
   scrollLeftToThumbLeft(scrollLeftValue) {
@@ -422,13 +436,22 @@ class HorizontalScrollBar extends UIDiv {
     return that.scrollLeft;
   }
 
-  fullOfThumbOverWidth() {
+  changeInnerAreaLeftToFitThumb() {
     let that = this;
-    let newThumbWidth = that.track.dom.offsetWidth - that.scrollLeft;
+    let scale = that.thumb.dom.offsetLeft / that.thumb.dom.offsetWidth;
+    let newInnerAreaLeft = -that.outerAreaDom.offsetWidth * scale;
+
+    that.innerAreaDom.style.left = newInnerAreaLeft + "px";
+  }
+
+  changeThumbWidthToFitInnerArea() {
+    let that = this;
+    let scale = that.innerAreaDom.offsetWidth / that.outerAreaDom.offsetWidth;
+    let newThumbWidth = that.track.dom.offsetWidth / scale;
     let newThumbBodyWidth =
       newThumbWidth -
       that.thumbLeftHandle.dom.offsetWidth -
-      that.thumbRightHandler.dom.offsetWidth;
+      that.thumbRightHandle.dom.offsetWidth;
 
     that.thumbBody.setWidth(newThumbBodyWidth);
     that.thumb.setWidth(newThumbWidth + "px");

@@ -15,9 +15,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Custom ScrollBar</title>
+    <link rel="stylesheet" href="./test.css">
 </head>
 
 <body style="background-color:cadetblue;">
+    <div id="outerArea" class="OuterArea">
+        <div id="innerArea" class="InnerArea">
+        </div>
+    </div>
+
     <!-- <div draggable="false"
         style="width: 500px; height: 12px;left:calc(50% - 250px);background-color: red;position: relative;top: 300px;display: flex;flex-direction: row;align-items: center;">
         <div draggable="false" id="fButton" style="width: 21px;height: 10px;background-color:blue;" onclick="dd1()">
@@ -35,6 +41,10 @@
         let that = this;
         let horizontalScrollBar = null;
 
+        let outerArea = document.getElementById("outerArea");
+        let innerArea = document.getElementById("innerArea");
+        innerArea.maxFrameWidth = 500;
+
         import { HorizontalScrollBar } from './HorizontalScrollBar.js';
 
         import("/assist/dynamicCssFile.js").then(model => {
@@ -42,7 +52,7 @@
             import("/assist/getElementPagePositionAndViewPosition.js").then(model => {
                 window["getElementPagePosition"] = model.getElementPagePosition;
                 window["getElementViewPosition"] = model.getElementViewPosition;
-                horizontalScrollBar = new HorizontalScrollBar(500);
+                horizontalScrollBar = new HorizontalScrollBar(500, outerArea, innerArea, innerArea.maxFrameWidth);
                 document.body.appendChild(horizontalScrollBar.dom);
             })
         });
