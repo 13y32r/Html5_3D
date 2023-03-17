@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2023-03-11 16:37:36
- * @LastEditTime: 2023-03-14 22:54:23
+ * @LastEditTime: 2023-03-15 20:54:50
  * @LastEditors: your name
  * @Description:
  * @FilePath: \Html5_3D\testWeb\customScrollBar\HorizontalScrollBar.js
@@ -10,9 +10,16 @@
 import { UIDiv, UIElement } from "/threeSrc/libs/ui.js";
 
 class HorizontalScrollBar extends UIDiv {
-  constructor(width) {
+  constructor(width, outerAreaDom, innerAreaDom, maxFrameWidth) {
     super();
     let that = this;
+
+    that.outerAreaDom = outerAreaDom;
+    that.innerAreaDom = innerAreaDom;
+    that.maxFrameWidth = maxFrameWidth;
+
+    that.innerAreaDomChange = that.innerAreaDomChange.bind(this);
+    // that.innerAreaDom.addEventListener("innerChange", that.innerAreaDomChange);
 
     that.dom.draggable = false;
     that.scrollLeft = 0;
@@ -78,6 +85,11 @@ class HorizontalScrollBar extends UIDiv {
       that.thumbRightHandleDown
     );
 
+    that.thumbBodyDown = that.thumbBodyDown.bind(this);
+    that.thumbBodyMoving = that.thumbBodyMoving.bind(this);
+    that.thumbBodyUp = that.thumbBodyUp.bind(this);
+    that.thumbBody.dom.addEventListener("pointerdown", that.thumbBodyDown);
+
     that.trackDown = that.trackDown.bind(this);
     that.track.dom.addEventListener("pointerdown", that.trackDown);
 
@@ -114,6 +126,10 @@ class HorizontalScrollBar extends UIDiv {
     console.log(that.scrollLeft);
   }
 
+  innerAreaDomChange(event) {
+
+  }
+
   trackDown(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -122,6 +138,42 @@ class HorizontalScrollBar extends UIDiv {
 
     let newScrollLeft = event.offsetX;
     that.setScrollLeft(newScrollLeft);
+  }
+
+  thumbBodyDown(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    let that = this;
+
+    that.thumbBody.frontX = event.layerX;
+
+    let myPosition = getElementPagePosition(that.dom);
+    that.pageX = myPosition.x;
+    that.pageY = myPosition.y;
+
+    document.addEventListener("pointermove", that.thumbBodyMoving);
+    document.addEventListener("pointerup", that.thumbBodyUp);
+  }
+
+  thumbBodyMoving(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    let that = this;
+
+    let newScrollLeft = event.pageX - that.pageX - 16 - that.thumbBody.frontX + that.thumbLeftHandle.dom.offsetWidth + that.thumbBody.dom.offsetWidth;
+    that.setScrollLeft(newScrollLeft);
+  }
+
+  thumbBodyUp(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    let that = this;
+
+    document.removeEventListener("pointermove", that.thumbBodyMoving);
+    document.removeEventListener("pointerup", that.thumbBodyUp);
   }
 
   thumbLeftHandleDown(event) {
