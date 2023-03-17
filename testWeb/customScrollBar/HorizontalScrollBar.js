@@ -1,7 +1,7 @@
 /*******
  * @Author: your name
  * @Date: 2023-03-11 16:37:36
- * @LastEditTime: 2023-03-15 20:54:50
+ * @LastEditTime: 2023-03-17 22:01:10
  * @LastEditors: your name
  * @Description:
  * @FilePath: \Html5_3D\testWeb\customScrollBar\HorizontalScrollBar.js
@@ -24,7 +24,7 @@ class HorizontalScrollBar extends UIDiv {
     that.dom.draggable = false;
     that.scrollLeft = 0;
 
-    that.myCss = new dynamicCssFile("./HorizontalScrollBar.css");
+    that.myCss = new dynamicCssFile("./customScrollBar.css");
     that.setWidth(width + "px");
     that.width = width;
 
@@ -66,7 +66,6 @@ class HorizontalScrollBar extends UIDiv {
     that.leftButtonUp = that.leftButtonUp.bind(this);
 
     that.leftArrow.dom.addEventListener("pointerdown", that.leftButtonDown);
-    that.leftArrow.dom.addEventListener("pointerup", that.leftButtonUp);
     that.rightArrow.dom.addEventListener("pointerdown", that.rightButtonDown);
 
     that.thumbLeftHandleDown = that.thumbLeftHandleDown.bind(this);
@@ -134,7 +133,7 @@ class HorizontalScrollBar extends UIDiv {
     });
   }
 
-  innerAreaDomChange(event) {}
+  innerAreaDomChange(event) { }
 
   trackDown(event) {
     event.preventDefault();

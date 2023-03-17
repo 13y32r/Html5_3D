@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2023-03-10 19:41:21
- * @LastEditTime: 2023-03-14 11:26:36
+ * @LastEditTime: 2023-03-17 22:23:16
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\testWeb\customScrollBar\scrollBar.html
@@ -40,12 +40,14 @@
     <script type="module">
         let that = this;
         let horizontalScrollBar = null;
+        let verticalScrollBar = null;
 
         let outerArea = document.getElementById("outerArea");
         let innerArea = document.getElementById("innerArea");
         innerArea.maxFrameWidth = 500;
 
         import { HorizontalScrollBar } from './HorizontalScrollBar.js';
+        import { VerticalScrollBar } from './VerticalScrollBar.js';
 
         import("/assist/dynamicCssFile.js").then(model => {
             window["dynamicCssFile"] = model.dynamicCssFile;
@@ -54,6 +56,9 @@
                 window["getElementViewPosition"] = model.getElementViewPosition;
                 horizontalScrollBar = new HorizontalScrollBar(500, outerArea, innerArea, innerArea.maxFrameWidth);
                 document.body.appendChild(horizontalScrollBar.dom);
+
+                verticalScrollBar = new VerticalScrollBar(500);
+                document.body.appendChild(verticalScrollBar.dom);
             })
         });
     </script>
