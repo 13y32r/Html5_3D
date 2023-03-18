@@ -1,8 +1,8 @@
 /*******
- * @Author: your name
+ * @Author: 邹岱志
  * @Date: 2023-03-11 16:37:36
  * @LastEditTime: 2023-03-17 22:01:10
- * @LastEditors: your name
+ * @LastEditors: 邹岱志
  * @Description:
  * @FilePath: \Html5_3D\testWeb\customScrollBar\HorizontalScrollBar.js
  * @可以输入预定的版权声明、个性签名、空行等
@@ -123,7 +123,7 @@ class HorizontalScrollBar extends UIDiv {
     that.thumb.setWidth(trackWidth);
     that.scrollLeft = that.width - 32 - 14;
 
-    const detectWhetherComplete = new Promise((resolve, reject) => {
+    const detectWhetherComplete = new Promise((resolve) => {
       if (that.thumbRightHandle.dom) {
         resolve("complete");
       }
@@ -133,7 +133,7 @@ class HorizontalScrollBar extends UIDiv {
     });
   }
 
-  innerAreaDomChange(event) { }
+  innerAreaDomChange(event) {}
 
   trackDown(event) {
     event.preventDefault();
@@ -333,9 +333,6 @@ class HorizontalScrollBar extends UIDiv {
     that.rightArrow.setBackgroundImage("url('./img/rightArrow_down.png')");
 
     that.rightArrow.isDowning = true;
-
-    let scrollMaxRight =
-      that.track.dom.offsetWidth - that.thumbRightHandle.dom.offsetWidth;
 
     if (that.rightArrow.isDowning) {
       that.rightArrow.doDowning = setInterval(() => {

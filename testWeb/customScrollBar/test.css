@@ -7,6 +7,6 @@
 .InnerArea {
   position: relative;
   width: 1200px;
-  height: 100%;
-  background-image: linear-gradient(to right, green, yellow, red);
+  height: 1200px;
+  background-image: linear-gradient(to right bottom, green, yellow, red);
 }
