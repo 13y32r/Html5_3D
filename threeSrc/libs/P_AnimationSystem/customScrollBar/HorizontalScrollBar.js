@@ -14,6 +14,8 @@ class HorizontalScrollBar extends UIDiv {
     super();
     let that = this;
 
+    that.folderPath = "/threeSrc/libs/P_AnimationSystem/customScrollBar/";
+
     that.outerAreaDom = outerAreaDom;
     that.innerAreaDom = innerAreaDom;
     that.maxFrameWidth = maxFrameWidth;
@@ -330,7 +332,9 @@ class HorizontalScrollBar extends UIDiv {
 
     let that = this;
 
-    that.rightArrow.setBackgroundImage("url('./img/rightArrow_down.png')");
+    that.rightArrow.setBackgroundImage(
+      that.folderPath + "img/rightArrow_down.png)"
+    );
 
     that.rightArrow.isDowning = true;
 
@@ -349,7 +353,9 @@ class HorizontalScrollBar extends UIDiv {
 
     let that = this;
 
-    that.rightArrow.setBackgroundImage("url('./img/rightArrow_normal.png')");
+    that.rightArrow.setBackgroundImage(
+      that.folderPath + "img/rightArrow_normal.png)"
+    );
 
     that.rightArrow.isDowning = false;
 
@@ -363,7 +369,9 @@ class HorizontalScrollBar extends UIDiv {
 
     let that = this;
 
-    that.leftArrow.setBackgroundImage("url('./img/leftArrow_down.png')");
+    that.leftArrow.setBackgroundImage(
+      that.folderPath + "img/leftArrow_down.png)"
+    );
 
     that.leftArrow.isDowning = true;
 
@@ -381,7 +389,9 @@ class HorizontalScrollBar extends UIDiv {
 
     let that = this;
 
-    that.leftArrow.setBackgroundImage("url('./img/leftArrow_normal.png')");
+    that.leftArrow.setBackgroundImage(
+      that.folderPath + "img/leftArrow_normal.png)"
+    );
 
     that.leftArrow.isDowning = false;
 

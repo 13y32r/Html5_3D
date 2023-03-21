@@ -10,19 +10,19 @@
 import { UIDiv, UIElement } from "/threeSrc/libs/ui.js";
 
 class VerticalScrollBar extends UIDiv {
-  constructor(height, outerAreaDom, innerAreaDom) {
+  constructor(outerAreaDom, innerAreaDom) {
     super();
     let that = this;
 
+    that.folderPath = "/threeSrc/libs/P_AnimationSystem/customScrollBar/";
+
     that.outerAreaDom = outerAreaDom;
     that.innerAreaDom = innerAreaDom;
-    that.height = height;
 
     that.dom.draggable = false;
     that.scrollTop = 0;
 
-    that.myCss = new dynamicCssFile("/threeSrc/libs/P_AnimationSystem/customScrollBar/customScrollBar.css");
-    that.setHeight(height + "px");
+    that.myCss = new dynamicCssFile(that.folderPath + "customScrollBar.css");
 
     that.buttonArea = new UIDiv();
 
@@ -87,8 +87,6 @@ class VerticalScrollBar extends UIDiv {
   initStyle() {
     let that = this;
 
-    let trackHeight = that.height - 32 + "px";
-    that.track.setHeight(trackHeight);
     that.scrollTop = that.thumb.dom.offsetHeight / 2;
 
     const detectWhetherComplete = new Promise((resolve) => {
@@ -107,7 +105,9 @@ class VerticalScrollBar extends UIDiv {
 
     let that = this;
 
-    that.upArrow.setBackgroundImage("url('./img/upArrow_down.png')");
+    that.upArrow.setBackgroundImage(
+      "url(" + that.folderPath + "img/upArrow_down.png)"
+    );
 
     that.upArrow.isDowning = true;
 
@@ -126,7 +126,9 @@ class VerticalScrollBar extends UIDiv {
 
     let that = this;
 
-    that.upArrow.setBackgroundImage("url('./img/upArrow_normal.png')");
+    that.upArrow.setBackgroundImage(
+      "url(" + that.folderPath + "img/upArrow_normal.png)"
+    );
 
     that.upArrow.isDowning = false;
 
@@ -140,7 +142,9 @@ class VerticalScrollBar extends UIDiv {
 
     let that = this;
 
-    that.downArrow.setBackgroundImage("url('./img/downArrow_down.png')");
+    that.downArrow.setBackgroundImage(
+      "url(" + that.folderPath + "img/downArrow_down.png)"
+    );
 
     that.downArrow.isDowning = true;
 
@@ -159,7 +163,9 @@ class VerticalScrollBar extends UIDiv {
 
     let that = this;
 
-    that.downArrow.setBackgroundImage("url('./img/downArrow_normal.png')");
+    that.downArrow.setBackgroundImage(
+      "url(" + that.folderPath + "img/downArrow_normal.png)"
+    );
 
     that.downArrow.isDowning = false;
 
@@ -259,16 +265,14 @@ class VerticalScrollBar extends UIDiv {
 
   changeThumbHeightToFitInnerArea() {
     let that = this;
-    console.log(that.innerAreaDom.offsetHeight);
-    let scale = that.innerAreaDom.offsetHeight / that.outerAreaDom.offsetHeight;
-    let newThumbHeight = that.track.dom.offsetHeight / scale;
+    let scale = that.track.dom.offsetHeight / that.innerAreaDom.offsetHeight;
+    let newThumbHeight = that.outerAreaDom.offsetHeight * scale - 2;
 
     that.thumb.setHeight(newThumbHeight + "px");
   }
 
   refresh() {
     let that = this;
-    that.setHeight(that.outerAreaDom.offsetHeight + "px");
     that.changeThumbHeightToFitInnerArea();
     that.changeInnerAreaTopToFitThumb();
   }

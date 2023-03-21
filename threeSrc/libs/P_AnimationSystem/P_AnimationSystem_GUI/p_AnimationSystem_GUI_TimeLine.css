@@ -89,6 +89,7 @@ input::-webkit-inner-spin-button {
   display: flex;
   flex-direction: row;
   overflow-y: hidden;
+  background-color: #383838;
 }
 
 .ObjectColumn .ObjAreaScroll .ObjectColumnCells {

@@ -74,8 +74,8 @@ function addResizerHandle(
       clientX < offsetX + minLeftMargin
         ? offsetX + minLeftMargin
         : clientX > offsetWidth + offsetX - maxRightMargin
-          ? offsetWidth + offsetX - maxRightMargin
-          : clientX;
+        ? offsetWidth + offsetX - maxRightMargin
+        : clientX;
     // const cX = clientX;
 
     const x = cX - rootDom.offsetLeft;
@@ -897,7 +897,10 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.objAttributeShowArea = new UIDiv();
     that.objAttributeShowArea.cellsArray = [];
     that.addPropertyButton = new AddPropertyButton("增加属性");
-    that.objAreaVerticalScrollBar = new VerticalScrollBar(105, that.objAreaScroll.dom, that.objColumnCells.dom);
+    that.objAreaVerticalScrollBar = new VerticalScrollBar(
+      that.objAreaScroll.dom,
+      that.objColumnCells.dom
+    );
 
     that.timeScaleBar = new UIDiv();
     that.eventShowArea = new UIDiv();
@@ -1046,12 +1049,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
 
     let RefHeight = that.objAttributeShowArea.dom.offsetHeight + 48;
 
-    if (RefHeight > that.objColumnCells.dom.offsetHeight) {
+    if (RefHeight > that.objAreaScroll.dom.offsetHeight) {
       RefHeight -= 18;
       that.eventColumnCells.setHeight(RefHeight + "px");
     } else {
       that.eventColumnCells.setHeight(
-        that.objColumnCells.dom.offsetHeight - 33 + "px"
+        that.objAreaScroll.dom.offsetHeight - 33 + "px"
       );
     }
   }
@@ -1107,7 +1110,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     if (minLeftMargin < newObjColumnWidth) {
       that.objColumn.setWidth(newObjColumnWidth + "px");
     }
-    that.objColumnCells.setHeight(e.detail.newHeight - 72 + "px");
+    that.objAreaScroll.setHeight(e.detail.newHeight - 72 + "px");
 
     that.eventRightBigAreaOverAllChange(e.detail.newWidth, e.detail.newHeight);
 
@@ -1139,7 +1142,6 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.objColumn.add(that.objAreaScroll);
 
     that.objAreaScroll.add(that.objColumnCells);
-    that.objAreaScroll.add(that.objAreaVerticalScrollBar);
 
     that.objColumnCells.add(that.objAttributeShowArea);
     that.objColumnCells.add(that.addPropertyButton);
@@ -1491,8 +1493,7 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
             }
           }
 
-          //这里更新obj属性栏滚动条的高度
-          that.objAreaVerticalScrollBar.refresh();
+          that.objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth();
           //这里由于左边的属性列展开后高度发生变化，所以右边的事件列的高度也要随之改变。
           that.theEventColumnsHeightToConsistentWithTheObjColumnHeight();
         });
@@ -1509,6 +1510,46 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       }
 
       clip.dom.addEventListener("attrCellPointerDown", allCellsNoActive);
+    }
+
+    //这里等待所有that.objColumnCells所有的子元素加载完毕之后更新obj属性栏滚动条的高度
+    const detectWhetherComplete = new Promise((resolve) => {
+      setInterval(() => {
+        if (that.objColumnCells.dom.offsetHeight) {
+          resolve("complete");
+        }
+      }, 50);
+    });
+    detectWhetherComplete.then((result) => {
+      that.objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth();
+    });
+  }
+
+  //判断对象属性栏区域是否要添加或则删除VerticalScrollBar，并对that.objColumnCells的dom元素的宽做出调整
+  objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth() {
+    let that = this;
+
+    if (
+      that.objAreaScroll.dom.offsetHeight < that.objColumnCells.dom.offsetHeight
+    ) {
+      if (
+        that.objAreaScroll.getIndexOfChild(that.objAreaVerticalScrollBar) == -1
+      ) {
+        that.objColumnCells.setWidth("calc(100% - 13px)");
+        that.objAreaScroll.add(that.objAreaVerticalScrollBar);
+      }
+
+      //这里更新obj属性栏滚动条的高度
+      that.objAreaVerticalScrollBar.refresh();
+    } else {
+      if (
+        that.objAreaScroll.getIndexOfChild(that.objAreaVerticalScrollBar) == -1
+      ) {
+        return;
+      }
+      that.objColumnCells.setWidth("100%");
+      that.objAreaScroll.remove(that.objAreaVerticalScrollBar);
+      that.objColumnCells.setTop("0px");
     }
   }
 
@@ -1903,12 +1944,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
           that.secondUnit) /
-        that.secondUnitWidth
+          that.secondUnitWidth
       );
     } else {
       areaShowNumber = Math.floor(
         ((that.eventAreaScroll.dom.offsetWidth - 16) * that.secondUnit) /
-        that.secondUnitWidth
+          that.secondUnitWidth
       );
     }
 
@@ -1992,12 +2033,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
             that.minuteUnit) /
-          that.minuteUnitWidth
+            that.minuteUnitWidth
         );
       } else {
         minuteShowNumber = Math.floor(
           ((that.eventAreaScroll.dom.offsetWidth - 16) * that.minuteUnit) /
-          that.minuteUnitWidth
+            that.minuteUnitWidth
         );
       }
 
