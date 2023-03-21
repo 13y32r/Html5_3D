@@ -1,8 +1,8 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2023-03-11 16:37:36
- * @LastEditTime: 2023-03-19 21:59:40
- * @LastEditors: your name
+ * @LastEditTime: 2023-03-17 22:01:10
+ * @LastEditors: 邹岱志
  * @Description:
  * @FilePath: \Html5_3D\testWeb\customScrollBar\HorizontalScrollBar.js
  * @可以输入预定的版权声明、个性签名、空行等
@@ -133,7 +133,7 @@ class HorizontalScrollBar extends UIDiv {
     });
   }
 
-  innerAreaDomChange(event) { }
+  innerAreaDomChange(event) {}
 
   trackDown(event) {
     event.preventDefault();
@@ -442,7 +442,6 @@ class HorizontalScrollBar extends UIDiv {
 
   changeThumbWidthToFitInnerArea() {
     let that = this;
-    console.log(that.innerAreaDom.offsetWidth);
     let scale = that.innerAreaDom.offsetWidth / that.outerAreaDom.offsetWidth;
     let newThumbWidth = that.track.dom.offsetWidth / scale;
     let newThumbBodyWidth =

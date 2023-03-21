@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2023-03-10 19:41:21
- * @LastEditTime: 2023-03-17 22:23:16
+ * @LastEditTime: 2023-03-21 07:18:04
  * @LastEditors: your name
  * @Description: 
  * @FilePath: \Html5_3D\testWeb\customScrollBar\scrollBar.html
@@ -20,22 +20,11 @@
 
 <body style="background-color:cadetblue;">
     <div id="outerArea" class="OuterArea">
-        <div id="innerArea" class="InnerArea">
-        </div>
-    </div>
-
-    <!-- <div draggable="false"
-        style="width: 500px; height: 12px;left:calc(50% - 250px);background-color: red;position: relative;top: 300px;display: flex;flex-direction: row;align-items: center;">
-        <div draggable="false" id="fButton" style="width: 21px;height: 10px;background-color:blue;" onclick="dd1()">
-        </div>
-        <div draggable="false" id="track"
-            style="width: 300px;height: 10px;background-color:brown;border-radius: 30px;left: -5px;position:relative;border: solid 1px #4d4d4d;"
-            onclick="dd2()">
-            <div id="thumb" draggable="false"
-                style="width: 150px;height: 10px;background-color:chartreuse;position: relative;">
+        <div id="shellArea" class="ShellArea">
+            <div id="innerArea" class="InnerArea">
             </div>
         </div>
-    </div> -->
+    </div>
 
     <script type="module">
         let that = this;
@@ -43,6 +32,7 @@
         let verticalScrollBar = null;
 
         let outerArea = document.getElementById("outerArea");
+        let shellArea = document.getElementById("shellArea");
         let innerArea = document.getElementById("innerArea");
         innerArea.maxFrameWidth = 500;
 
@@ -54,10 +44,10 @@
             import("/assist/getElementPagePositionAndViewPosition.js").then(model => {
                 window["getElementPagePosition"] = model.getElementPagePosition;
                 window["getElementViewPosition"] = model.getElementViewPosition;
-                horizontalScrollBar = new HorizontalScrollBar(500, outerArea, innerArea, innerArea.maxFrameWidth);
+                horizontalScrollBar = new HorizontalScrollBar(500, outerArea, shellArea, innerArea.maxFrameWidth);
                 document.body.appendChild(horizontalScrollBar.dom);
 
-                verticalScrollBar = new VerticalScrollBar(432, outerArea, innerArea);
+                verticalScrollBar = new VerticalScrollBar(432, outerArea, shellArea);
                 document.body.appendChild(verticalScrollBar.dom);
             })
         });

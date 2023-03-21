@@ -4,8 +4,14 @@
   overflow: hidden;
 }
 
-.InnerArea {
+.ShellArea {
+  display: flex;
+  width: fit-content;
+  height: fit-content;
   position: relative;
+}
+
+.InnerArea {
   width: 1200px;
   height: 1200px;
   background-image: linear-gradient(to right bottom, green, yellow, red);

@@ -17,6 +17,8 @@ import {
   PopupMenu,
 } from "../../../libs/ui.menu.js";
 import { GUIFrameLabel } from "./p_AnimationSystem_GUI_Frame.js";
+import { HorizontalScrollBar } from "../customScrollBar/HorizontalScrollBar.js";
+import { VerticalScrollBar } from "../customScrollBar/VerticalScrollBar.js";
 import { findWhichMenuThisClassBelongsTo } from "/menuGUI/findWhichMenuThisClassBelongsTo.js";
 
 function addResizerHandle(
@@ -890,10 +892,12 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
       that.sampleChangeReCalFrameSpace(newSample, that.sampleNumber);
     });
 
+    that.objAreaScroll = new UIDiv();
     that.objColumnCells = new UIDiv();
     that.objAttributeShowArea = new UIDiv();
     that.objAttributeShowArea.cellsArray = [];
     that.addPropertyButton = new AddPropertyButton("增加属性");
+    that.objAreaVerticalScrollBar = new VerticalScrollBar(105, that.objAreaScroll.dom, that.objColumnCells.dom);
 
     that.timeScaleBar = new UIDiv();
     that.eventShowArea = new UIDiv();
@@ -923,6 +927,8 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
 
     that.objColumnCells.setClass("TimeLineContainer");
     that.objColumnCells.addClass("ObjectColumnCells");
+
+    that.objAreaScroll.setClass("ObjAreaScroll");
 
     that.timeScaleBar.setClass("TimeScaleBar");
     that.eventShowArea.setClass("EventShowArea");
@@ -1130,7 +1136,10 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
     that.objColumn.add(that.selectSettingArea);
     let horizontalSplitLine_2 = new UIHorizontalSplitLine();
     that.objColumn.add(horizontalSplitLine_2);
-    that.objColumn.add(that.objColumnCells);
+    that.objColumn.add(that.objAreaScroll);
+
+    that.objAreaScroll.add(that.objColumnCells);
+    that.objAreaScroll.add(that.objAreaVerticalScrollBar);
 
     that.objColumnCells.add(that.objAttributeShowArea);
     that.objColumnCells.add(that.addPropertyButton);
@@ -1482,6 +1491,8 @@ class P_AnimationSystem_GUI_TimeLine extends UIDiv {
             }
           }
 
+          //这里更新obj属性栏滚动条的高度
+          that.objAreaVerticalScrollBar.refresh();
           //这里由于左边的属性列展开后高度发生变化，所以右边的事件列的高度也要随之改变。
           that.theEventColumnsHeightToConsistentWithTheObjColumnHeight();
         });
