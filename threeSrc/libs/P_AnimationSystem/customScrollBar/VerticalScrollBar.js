@@ -263,6 +263,14 @@ class VerticalScrollBar extends UIDiv {
     that.innerAreaDom.style.top = newInnerAreaTop + "px";
   }
 
+  changeThumbTopToFitInnerArea() {
+    let that = this;
+    let scale = that.track.dom.offsetHeight / that.innerAreaDom.offsetHeight;
+    let newThumbAreaTop = -that.innerAreaDom.offsetTop * scale;
+
+    that.thumb.setTop(newThumbAreaTop + "px");
+  }
+
   changeThumbHeightToFitInnerArea() {
     let that = this;
     let scale = that.track.dom.offsetHeight / that.innerAreaDom.offsetHeight;
@@ -274,7 +282,7 @@ class VerticalScrollBar extends UIDiv {
   refresh() {
     let that = this;
     that.changeThumbHeightToFitInnerArea();
-    that.changeInnerAreaTopToFitThumb();
+    that.changeThumbTopToFitInnerArea();
   }
 }
 

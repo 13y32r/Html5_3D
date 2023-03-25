@@ -983,9 +983,9 @@ class normalWindow extends UIDiv {
 
   addContent(uiObject) {
     this.content.add(uiObject);
-    let clearElement = document.createElement("br");
-    clearElement.style.clear = "both";
-    this.dom.appendChild(clearElement);
+    // let clearElement = document.createElement("br");
+    // clearElement.style.clear = "both";
+    // this.dom.appendChild(clearElement);
   }
 
   resizeEventStart(fn) {
@@ -1006,7 +1006,6 @@ function addResizeEventListener(dom) {
     let domAbsolutePosition = docuemntHtmlPageXY(dom);
     let relativeX = event.pageX - domAbsolutePosition.left;
     let relativeY = event.pageY - domAbsolutePosition.top;
-    // console.log(relativeX + " : " + relativeY);
 
     if (relativeX < dom.offsetWidth - 15 || relativeY < dom.offsetHeight - 15)
       return;

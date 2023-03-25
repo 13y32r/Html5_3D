@@ -1,0 +1,29 @@
+.outArea {
+  width: 500px;
+  height: 300px;
+  background-color: darkred;
+  --testColor: green;
+  --testWidth: 125px;
+  display: flex;
+  flex-direction: row;
+  resize: both;
+  overflow: hidden;
+}
+
+.innerArea_1 {
+  height: 100%;
+  width: calc(50% - var(--testWidth));
+  background-color: var(--testColor);
+}
+
+.innerArea_2 {
+  height: 100%;
+  width: calc(var(--testWidth) * 2);
+  background-color: rosybrown;
+}
+
+.innerArea_3 {
+  height: 100%;
+  width: calc(50% - var(--testWidth));
+  background-color: var(--testColor);
+}

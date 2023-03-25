@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cssVarAndResize</title>
+    <link rel="stylesheet" href="./cssVarAndResize.css">
+</head>
+
+<body>
+    <div class="outArea">
+        <div class="innerArea_1"></div>
+        <div class="innerArea_2"></div>
+        <div class="innerArea_3"></div>
+    </div>
+</body>
+
+<script>
+    let outArea = document.getElementsByClassName("outArea")[0];
+
+    let innerArea_1 = document.getElementsByClassName("innerArea_1")[0];
+    let innerArea_2 = document.getElementsByClassName("innerArea_2")[0];
+    let innerArea_3 = document.getElementsByClassName("innerArea_3")[0];
+
+    innerArea_1.addEventListener("pointerdown", function () {
+        outArea.style.setProperty('--testColor', 'blue');
+    });
+    innerArea_2.addEventListener("pointerdown", function () {
+        outArea.style.setProperty('--testColor', 'purple');
+    });
+    innerArea_3.addEventListener("pointerdown", function () {
+        outArea.style.setProperty('--testColor', 'pink');
+    });
+</script>
+
+</html>

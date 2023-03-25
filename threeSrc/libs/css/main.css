@@ -526,12 +526,11 @@ select:hover {
 
 .VerticalSplitLine {
   width: 0px;
-  height: auto;
+  height: 100%;
   margin: 0px;
   border-left: 1px solid #282828;
   border-right: 1px solid #6a6a6a;
 }
-
 
 /* */
 

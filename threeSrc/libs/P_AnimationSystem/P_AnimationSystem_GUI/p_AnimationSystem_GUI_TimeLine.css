@@ -2,7 +2,7 @@
   position: absolute;
   display: flex;
   width: 1px;
-  /* height: 100%; */
+  height: 100%;
   flex: 1;
   margin: 0px;
   background-color: rgb(255, 0, 0);
@@ -18,13 +18,18 @@
 
 .TimeLineDisplayArea {
   display: flex;
+  --objColumnWidth: 248px;
+  --overallWidth: 600px;
+  --overallHeight: 140px;
+  --rightAreaWidth: calc(var(--overallWidth) - var(--objColumnWidth) - 2px);
+  height: var(--overallHeight);
 }
 
 .ObjectColumn {
   display: flex;
   flex-direction: column;
-  width: 248px;
-  height: 100%;
+  width: var(--objColumnWidth);
+  height: calc(100% - 13px);
 }
 
 .ObjectColumn .ButtonArea {
@@ -84,8 +89,9 @@ input::-webkit-inner-spin-button {
 }
 
 .ObjectColumn .ObjAreaScroll {
+  position: relative;
   width: 100%;
-  height: 105px;
+  height: calc(var(--overallHeight) - 36px);
   display: flex;
   flex-direction: row;
   overflow-y: hidden;
@@ -95,6 +101,7 @@ input::-webkit-inner-spin-button {
 .ObjectColumn .ObjAreaScroll .ObjectColumnCells {
   width: 100%;
   position: relative;
+  top: 0px;
   height: fit-content;
   display: flex;
   flex-direction: column;
@@ -178,9 +185,9 @@ input::-webkit-inner-spin-button {
 }
 
 .EventAreaScroll {
-  width: 415px;
-  height: 125px;
-  overflow: scroll;
+  width: var(--rightAreaWidth);
+  height: calc(100% - 13px);
+  overflow: hidden;
 }
 
 .EventAreaScroll .EventUnitRowsScrollArea {
@@ -197,110 +204,9 @@ input::-webkit-inner-spin-button {
   opacity: 20%;
 }
 
-.EventAreaScroll::-webkit-scrollbar {
-  width: 15px;
-  height: 15px;
-  background: #2e2e2e;
-}
-
-.EventAreaScroll::-webkit-scrollbar-thumb {
-  display: block;
-  margin: 0 auto;
-  border-radius: 10px;
-  background: #494949;
-}
-
-.EventAreaScroll::-webkit-scrollbar-track {
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-  border-radius: 10px;
-}
-
-.EventAreaScroll::-webkit-scrollbar-corner {
-  background: #494949;
-  height: 0px !important;
-}
-
-.EventAreaScroll::-webkit-scrollbar-button:single-button {
-  background-color: #303030;
-  display: block;
-  background-size: 10px;
-  background-repeat: no-repeat;
-}
-
-/* Up */
-.ObjectColumnCells::-webkit-scrollbar-button:single-button:vertical:decrement {
-  height: 18px;
-  width: 16px;
-  background-position: center 4px;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(96, 96, 96)'><polygon points='50,00 0,50 100,50'/></svg>");
-}
-
-.EventAreaScroll::-webkit-scrollbar-button:single-button:vertical:decrement {
-  height: 54px;
-  width: 16px;
-  background-position: center 4px;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(96, 96, 96)'><polygon points='50,00 0,50 100,50'/></svg>");
-}
-
-::-webkit-scrollbar-button:single-button:vertical:decrement:hover {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(112, 112, 112)'><polygon points='50,00 0,50 100,50'/></svg>");
-}
-
-::-webkit-scrollbar-button:single-button:vertical:decrement:active {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(127, 144, 173)'><polygon points='50,00 0,50 100,50'/></svg>");
-}
-
-/* Down */
-::-webkit-scrollbar-button:single-button:vertical:increment {
-  height: 12px;
-  width: 16px;
-  background-position: center 2px;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(96, 96, 96)'><polygon points='0,0 100,0 50,50'/></svg>");
-}
-
-::-webkit-scrollbar-button:single-button:vertical:increment:hover {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(112, 112, 112)'><polygon points='0,0 100,0 50,50'/></svg>");
-}
-
-::-webkit-scrollbar-button:single-button:vertical:increment:active {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(127, 144, 173)'><polygon points='0,0 100,0 50,50'/></svg>");
-}
-
-/* Left */
-::-webkit-scrollbar-button:single-button:horizontal:decrement {
-  height: 12px;
-  width: 12px;
-  background-position: 3px 3px;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(96, 96, 96)'><polygon points='0,50 50,100 50,0'/></svg>");
-}
-
-::-webkit-scrollbar-button:single-button:horizontal:decrement:hover {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(112, 112, 112)'><polygon points='0,50 50,100 50,0'/></svg>");
-}
-
-::-webkit-scrollbar-button:single-button:horizontal:decrement:active {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(127, 144, 173)'><polygon points='0,50 50,100 50,0'/></svg>");
-}
-
-/* Right */
-::-webkit-scrollbar-button:single-button:horizontal:increment {
-  height: 12px;
-  width: 12px;
-  background-position: 3px 3px;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(96, 96, 96)'><polygon points='0,0 0,100 50,50'/></svg>");
-}
-
-::-webkit-scrollbar-button:single-button:horizontal:increment:hover {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(112, 112, 112)'><polygon points='0,0 0,100 50,50'/></svg>");
-}
-
-::-webkit-scrollbar-button:single-button:horizontal:increment:active {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(127, 144, 173)'><polygon points='0,0 0,100 50,50'/></svg>");
-}
-
 .NoObjectTips {
-  height: auto;
-  width: 415px;
+  height: 100%;
+  width: var(--rightAreaWidth);
   color: #b4b4b4;
   justify-content: center;
   align-items: center;
@@ -310,8 +216,8 @@ input::-webkit-inner-spin-button {
 
 .SelectedObjNoAnimationsTips {
   color: #b4b4b4;
-  height: auto;
-  width: 415px;
+  height: 100%;
+  width: var(--rightAreaWidth);
   justify-content: center;
   align-items: center;
   display: flex;
@@ -338,8 +244,8 @@ input::-webkit-inner-spin-button {
 .EventColumn {
   display: flex;
   flex-direction: column;
-  width: 400px;
-  height: auto;
+  width: calc(var(--rightAreaWidth) - 13px);
+  height: fit-content;
 }
 
 .EventColumn .TimeScaleBar {
@@ -372,7 +278,10 @@ input::-webkit-inner-spin-button {
 
 .EventColumn .EventColumnCells {
   width: 100%;
-  height: 56px;
+}
+
+.EventColumn .EventUnitShowArea {
+  width: 100%;
 }
 
 .ResizeHandle {
@@ -402,14 +311,14 @@ input::-webkit-inner-spin-button {
 }
 
 .ClipSelect {
-  width: 55%;
+  width: calc((var(--objColumnWidth) -2px) * 0.55);
   font-size: 12px;
   color: #b4b4b4;
   background-color: transparent;
 }
 
 .SampleArea {
-  width: calc(45% - 2px);
+  width: calc((var(--objColumnWidth) -2px) * 0.45);
   height: 100%;
   display: flex;
   justify-content: space-between;
