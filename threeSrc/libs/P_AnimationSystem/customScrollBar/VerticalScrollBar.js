@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2023-03-17 18:27:16
- * @LastEditTime: 2023-03-19 12:15:55
+ * @LastEditTime: 2023-04-05 18:01:57
  * @LastEditors: your name
  * @Description:
  * @FilePath: \Html5_3D\threeSrc\libs\P_AnimationSystem\customScrollBar\VerticalScrollBar.js
@@ -237,6 +237,23 @@ class VerticalScrollBar extends UIDiv {
       that.thumb.setTop(newThumbTop + "px");
     }
 
+    const scrollingEvent = new CustomEvent("scrolling", {
+      bubbles: true,
+      cancelable: true,
+      detail: that.scrollTop,
+    });
+    that.dom.dispatchEvent(scrollingEvent);
+
+    that.changeInnerAreaTopToFitThumb();
+  }
+
+  forceSetScrollTop(value) {
+    let that = this;
+
+    let newThumbTop = that.scrollTopToThumbTop(value);
+    that.scrollTop = value;
+    that.thumb.setTop(newThumbTop + "px");
+
     that.changeInnerAreaTopToFitThumb();
   }
 
@@ -267,6 +284,7 @@ class VerticalScrollBar extends UIDiv {
     let that = this;
     let scale = that.track.dom.offsetHeight / that.innerAreaDom.offsetHeight;
     let newThumbAreaTop = -that.innerAreaDom.offsetTop * scale;
+    console.log(that.innerAreaDom);
 
     that.thumb.setTop(newThumbAreaTop + "px");
   }

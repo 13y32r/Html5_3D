@@ -1,16 +1,16 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2023-03-11 16:37:36
- * @LastEditTime: 2023-03-17 22:01:10
- * @LastEditors: 邹岱志
+ * @LastEditTime: 2023-04-02 12:30:21
+ * @LastEditors: your name
  * @Description:
- * @FilePath: \Html5_3D\testWeb\customScrollBar\HorizontalScrollBar.js
+ * @FilePath: \Html5_3D\threeSrc\libs\P_AnimationSystem\customScrollBar\HorizontalScrollBar.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
 import { UIDiv, UIElement } from "/threeSrc/libs/ui.js";
 
 class HorizontalScrollBar extends UIDiv {
-  constructor(width, outerAreaDom, innerAreaDom, maxFrameWidth) {
+  constructor(outerAreaDom, innerAreaDom, maxFrameWidth) {
     super();
     let that = this;
 
@@ -27,8 +27,6 @@ class HorizontalScrollBar extends UIDiv {
     that.scrollLeft = 0;
 
     that.myCss = new dynamicCssFile("./customScrollBar.css");
-    that.setWidth(width + "px");
-    that.width = width;
 
     that.buttonArea = new UIDiv();
 
@@ -120,10 +118,7 @@ class HorizontalScrollBar extends UIDiv {
   initStyle() {
     let that = this;
 
-    let trackWidth = that.width - 32 + "px";
-    that.track.setWidth(trackWidth);
-    that.thumb.setWidth(trackWidth);
-    that.scrollLeft = that.width - 32 - 14;
+    that.scrollLeft = that.outerAreaDom.offsetWidth - 32 - 14;
 
     const detectWhetherComplete = new Promise((resolve) => {
       if (that.thumbRightHandle.dom) {
@@ -135,7 +130,7 @@ class HorizontalScrollBar extends UIDiv {
     });
   }
 
-  innerAreaDomChange(event) {}
+  innerAreaDomChange(event) { }
 
   trackDown(event) {
     event.preventDefault();
@@ -333,7 +328,7 @@ class HorizontalScrollBar extends UIDiv {
     let that = this;
 
     that.rightArrow.setBackgroundImage(
-      that.folderPath + "img/rightArrow_down.png)"
+      "url(" + that.folderPath + "img/rightArrow_down.png)"
     );
 
     that.rightArrow.isDowning = true;
@@ -354,7 +349,7 @@ class HorizontalScrollBar extends UIDiv {
     let that = this;
 
     that.rightArrow.setBackgroundImage(
-      that.folderPath + "img/rightArrow_normal.png)"
+      "url(" + that.folderPath + "img/rightArrow_normal.png)"
     );
 
     that.rightArrow.isDowning = false;
@@ -370,7 +365,7 @@ class HorizontalScrollBar extends UIDiv {
     let that = this;
 
     that.leftArrow.setBackgroundImage(
-      that.folderPath + "img/leftArrow_down.png)"
+      "url(" + that.folderPath + "img/leftArrow_down.png)"
     );
 
     that.leftArrow.isDowning = true;
@@ -390,7 +385,7 @@ class HorizontalScrollBar extends UIDiv {
     let that = this;
 
     that.leftArrow.setBackgroundImage(
-      that.folderPath + "img/leftArrow_normal.png)"
+      "url(" + that.folderPath + "img/leftArrow_normal.png)"
     );
 
     that.leftArrow.isDowning = false;

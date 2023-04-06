@@ -74,8 +74,8 @@ function addResizerHandle(
       clientX < offsetX + minLeftMargin
         ? offsetX + minLeftMargin
         : clientX > offsetWidth + offsetX - maxRightMargin
-        ? offsetWidth + offsetX - maxRightMargin
-        : clientX;
+          ? offsetWidth + offsetX - maxRightMargin
+          : clientX;
     // const cX = clientX;
 
     const x = cX - rootDom.offsetLeft;
@@ -86,7 +86,7 @@ function addResizerHandle(
 
     // dom1.style.width = x + "px";
     // dom2.style.width = overallSize - x + "px";
-    fDom.style.setProperty("--objColumnWidth", x + "px");
+    fDom.style.setProperty("--leftAreaWidth", x + "px");
     fDom.style.setProperty("--rightAreaWidth", overallSize - x + "px");
 
     if (dom3) {
@@ -781,11 +781,16 @@ class P_AnimationSystem_GUI_TimeLine {
 
     that.container = new UIDiv();
 
+    that.leftBigArea = new UIDiv();
+    that.leftBottomArea = new UIDiv();
     that.objColumn = new UIDiv();
+
     //这里创建时间轴面板右边的一个虚拟区域，用于变化的时候指代不同的显示对象
-    that.rightBigArea = null;
-    that.eventColumns = new UIDiv();
-    that.eventAreaScroll = new UIDiv();
+    that.rightBigArea = new UIDiv();
+    that.rightMainArea = new UIDiv();
+    that.rightBottomArea = new UIDiv();
+    that.rightScrollContent = new UIDiv();
+    that.rightScrollContainer = new UIDiv();
     that.noObjectTips = new UIDiv();
     that.noObjectTips.setInnerHTML(
       "还没有对象被选中欧~，请先在场景中选择一个对象。"
@@ -892,6 +897,7 @@ class P_AnimationSystem_GUI_TimeLine {
     });
 
     that.objAreaScroll = new UIDiv();
+    that.objColumnTopPlaceHolder = new UIDiv();
     that.objColumnCells = new UIDiv();
     that.objAttributeShowArea = new UIDiv();
     that.objAttributeShowArea.cellsArray = [];
@@ -900,22 +906,31 @@ class P_AnimationSystem_GUI_TimeLine {
       that.objAreaScroll.dom,
       that.objColumnCells.dom
     );
-    // that.eventAreaVerticalScrollBar = new VerticalScrollBar(that.
 
     that.timeScaleBar = new UIDiv();
     that.eventShowArea = new UIDiv();
     that.keyShowArea = new UIDiv();
     that.eventUnitShowArea = new UIDiv();
-    that.eventColumnCells = new UIDiv();
+    that.eventColumnCells_Container = new UIDiv();
+    that.eventColumnCells_Content = new UIDiv();
+    that.eventColumnCells_Content_BackgroundShowArea = new UIDiv();
     // that.eventUnitRowsScrollArea = new UIDiv();
     // that.eventUnitRowsShowArea = new UIDiv();
+    that.rightAreaHorizontalScrollBar = new HorizontalScrollBar(that.rightScrollContainer.dom, that.rightScrollContent.dom, 500);
+    that.rightVerticalScrollBarArea = new UIDiv();
+    that.rightAreaVerticalScrollBar = new VerticalScrollBar(that.eventColumnCells_Container.dom, that.eventColumnCells_Content.dom);
 
     that.container.setClass("TimeLineDisplayArea");
 
+    that.leftBigArea.setClass("LeftBigArea");
+    that.leftBottomArea.setClass("LeftBottomArea");
     that.objColumn.setClass("ObjectColumn");
-    that.eventColumns.addClass("EventColumn");
+    that.rightBigArea.setClass("RightBigArea");
+    that.rightMainArea.setClass("RightMainArea");
+    that.rightVerticalScrollBarArea.setClass("RightVerticalScrollBarArea");
+    that.rightScrollContent.addClass("RightScrollContent");
 
-    that.eventAreaScroll.addClass("EventAreaScroll");
+    that.rightScrollContainer.addClass("RightScrollContainer");
     that.noObjectTips.addClass("NoObjectTips");
     that.selectedObjNoAnimationsTips.addClass("SelectedObjNoAnimationsTips");
     that.createNewAnimationButton.addClass("CreateNewAnimationButton");
@@ -932,6 +947,8 @@ class P_AnimationSystem_GUI_TimeLine {
     that.objColumnCells.setClass("TimeLineContainer");
     that.objColumnCells.addClass("ObjectColumnCells");
 
+    that.objColumnTopPlaceHolder.setClass("ObjColumnTopPlaceHolder");
+
     that.objAreaScroll.setClass("ObjAreaScroll");
 
     that.timeScaleBar.setClass("TimeScaleBar");
@@ -939,8 +956,10 @@ class P_AnimationSystem_GUI_TimeLine {
     that.keyShowArea.setClass("KeyShowArea");
 
     that.eventUnitShowArea.setClass("EventUnitShowArea");
-    that.eventColumnCells.setClass("TimeLineContainer");
-    that.eventColumnCells.addClass("EventColumnCells");
+    that.eventColumnCells_Container.setClass("EventColumnCells_Container");
+    that.eventColumnCells_Content.setClass("TimeLineContainer");
+    that.eventColumnCells_Content.addClass("EventColumnCells_Content");
+    that.eventColumnCells_Content_BackgroundShowArea.setClass("EventColumnCells_Content_BackgroundShowArea");
 
     // that.eventUnitRowsScrollArea.setClass("EventUnitRowsScrollArea");
     // that.eventUnitRowsShowArea.setClass("EventUnitRowsShowArea");
@@ -964,6 +983,13 @@ class P_AnimationSystem_GUI_TimeLine {
       that.setPLPositionByPoint
     );
 
+    that.objAreaVerticalScrollBar.dom.addEventListener("scrolling", function (event) {
+      that.rightAreaVerticalScrollBar.forceSetScrollTop(event.detail);
+    })
+    that.rightAreaVerticalScrollBar.dom.addEventListener("scrolling", function (event) {
+      that.objAreaVerticalScrollBar.forceSetScrollTop(event.detail);
+    });
+
     that.calPromptLinePosition = that.calPromptLinePosition.bind(this);
     that.calKeyFrameOfPromptLine = that.calKeyFrameOfPromptLine.bind(this);
     that.calKeyFrameOfPL_Position = that.calKeyFrameOfPL_Position.bind(this);
@@ -975,9 +1001,9 @@ class P_AnimationSystem_GUI_TimeLine {
     );
 
     that.wheelEventInWindow = that.wheelEventInWindow.bind(this);
-    that.eventAreaScroll.dom.addEventListener("wheel", that.wheelEventInWindow);
+    that.rightScrollContainer.dom.addEventListener("wheel", that.wheelEventInWindow);
     that.eventColumnsPointerDown = that.eventColumnsPointerDown.bind(this);
-    that.eventColumns.dom.addEventListener(
+    that.rightScrollContent.dom.addEventListener(
       "pointerdown",
       that.eventColumnsPointerDown
     );
@@ -986,12 +1012,12 @@ class P_AnimationSystem_GUI_TimeLine {
 
     that.eventAreaScrollPointerDown =
       that.eventAreaScrollPointerDown.bind(this);
-    that.eventAreaScroll.dom.addEventListener(
+    that.rightScrollContainer.dom.addEventListener(
       "pointerdown",
       that.eventAreaScrollPointerDown
     );
     that.eventAreaScrollPointerUp = that.eventAreaScrollPointerUp.bind(this);
-    that.eventAreaScroll.dom.addEventListener(
+    that.rightScrollContainer.dom.addEventListener(
       "pointerup",
       that.eventAreaScrollPointerUp
     );
@@ -1013,89 +1039,45 @@ class P_AnimationSystem_GUI_TimeLine {
     that.signals.objectsChanged.add(that.updateAttributeParam);
   }
 
-  resizeEventStart() {
-    let that = this;
-
-    that.oldRightBigAreaWidth = that.rightBigArea.dom.offsetWidth;
-
-    if (that.rightBigArea == that.eventAreaScroll) {
-      that.oldEventAreaScrollWidth = that.oldRightBigAreaWidth;
-      that.oldEventColumnsWidth = that.eventColumns.dom.offsetWidth;
-    }
-
-    that.oldObjColumnWidth = that.objColumn.dom.offsetWidth;
-
-    that.oldTotalWidth = that.mainBody.dom.offsetWidth;
-    that.oldTotalHeight = that.mainBody.dom.offsetHeight;
-  }
-
+  //调整右边事件横向单元显示区域，以使其与that.ObjAttributeShowArea的单元数量一致
   adjustEventUnitRowsShowArea() {
     let that = this;
 
     // that.eventUnitRowsScrollArea.setWidth(
-    //   that.eventAreaScroll.dom.offsetWidth - 15 + "px"
+    //   that.rightScrollContainer.dom.offsetWidth - 15 + "px"
     // );
     // that.eventUnitRowsScrollArea.setHeight(
-    //   that.eventAreaScroll.dom.offsetHeight - 69 + "px"
+    //   that.rightScrollContainer.dom.offsetHeight - 69 + "px"
     // );
     // that.eventUnitRowsScrollArea.setTop(
-    //   that.eventAreaScroll.dom.offsetTop + 54 + "px"
+    //   that.rightScrollContainer.dom.offsetTop + 54 + "px"
     // );
     // that.eventUnitRowsScrollArea.setLeft(
-    //   that.eventAreaScroll.dom.offsetLeft + "px"
+    //   that.rightScrollContainer.dom.offsetLeft + "px"
     // );
   }
 
+  //这里当左边的对象列高度发生变化时，右边的事件列的高度要和左边的对象列的高度保持一致
   theEventColumnsHeightToConsistentWithTheObjColumnHeight() {
     let that = this;
 
-    let RefHeight = that.objAttributeShowArea.dom.offsetHeight + 48;
+    let RefHeight = that.objColumnCells.dom.offsetHeight;
 
     if (RefHeight > that.objAreaScroll.dom.offsetHeight) {
-      RefHeight -= 18;
-      that.eventColumnCells.setHeight(RefHeight + "px");
+      that.eventColumnCells_Content.setHeight(RefHeight + "px");
     } else {
-      that.eventColumnCells.setHeight(
-        that.objAreaScroll.dom.offsetHeight - 33 + "px"
+      that.eventColumnCells_Content.setHeight(
+        that.objAreaScroll.dom.offsetHeight + "px"
       );
     }
-  }
 
-  eventRightBigAreaOverAllChange(mNewWidth, mNewHeight) {
-    let that = this;
+    that.eventColumnCells_Content.setTop(that.objColumnCells.dom.offsetTop + "px");
 
-    if (that.rightBigArea == that.eventAreaScroll) {
-      that.eventAreaScroll.setHeight(that.objColumn.dom.offsetHeight + "px");
-      that.eventAreaScroll.setWidth(
-        mNewWidth - that.objColumn.dom.offsetWidth - 4 + "px"
-      );
+    //调整右边事件横向单元显示区域，以使其与that.ObjAttributeShowArea的单元数量一致
+    that.adjustEventUnitRowsShowArea();
 
-      if (
-        that.eventColumns.dom.offsetWidth > that.eventAreaScroll.dom.offsetWidth
-      ) {
-        let eventAreaScrollScaleFactorW =
-          that.eventAreaScroll.dom.offsetWidth / that.oldEventAreaScrollWidth;
-        that.eventColumns.setWidth(
-          that.oldEventColumnsWidth * eventAreaScrollScaleFactorW
-        );
-      } else {
-        that.eventColumns.setWidth(
-          that.eventAreaScroll.dom.offsetWidth - 15 + "px"
-        );
-      }
-
-      that.theEventColumnsHeightToConsistentWithTheObjColumnHeight();
-      that.adjustEventUnitRowsShowArea();
-
-      that.promptLine.setHeight(that.objColumn.dom.offsetHeight - 15 + "px");
-      let scale = that.eventColumns.dom.offsetWidth / that.oldEventColumnsWidth;
-      that.sizeChangeReCalFrameSpace(scale);
-    } else {
-      that.rightBigArea.setHeight(that.objColumn.dom.offsetHeight + "px");
-      that.rightBigArea.setWidth(
-        mNewWidth - that.objColumn.dom.offsetWidth - 4 + "px"
-      );
-    }
+    //高度发生变化时，更新右边竖直滚动条的参数
+    that.rightAreaVerticalScrollBar.refresh();
   }
 
   resizeEventing(e) {
@@ -1104,26 +1086,17 @@ class P_AnimationSystem_GUI_TimeLine {
     let minLeftMargin = 248;
     let maxRightMargin = 200;
 
-    let scaleFactorW = e.detail.newWidth / that.oldTotalWidth;
-    let scaleFactorH = e.detail.newHeight / that.oldTotalHeight;
-
     let newHeight = e.detail.newHeight - 25 + "px";
     let newWidth = e.detail.newWidth - 2 + "px";
     that.container.dom.style.setProperty("--overallHeight", newHeight);
     that.container.dom.style.setProperty("--overallWidth", newWidth);
-    // let newObjColumnWidth = that.oldObjColumnWidth * scaleFactorW;
-
-    // if (minLeftMargin < newObjColumnWidth) {
-    //   that.objColumn.setWidth(newObjColumnWidth + "px");
-    // }
-    // that.objAreaScroll.setHeight(e.detail.newHeight - 72 + "px");
+    let newRightAreaWidth = e.detail.newWidth - that.leftBigArea.dom.offsetWidth - 4 + "px";
+    that.container.dom.style.setProperty("--rightAreaWidth", newRightAreaWidth);
 
     that.whileObjAreaScrollHeightChangedAdjustObjColumnCellsTop();
     that.objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth();
-
-    // that.eventRightBigAreaOverAllChange(e.detail.newWidth, e.detail.newHeight);
-
-    that.resizeEventStart();
+    //这里当左边的对象列高度发生变化时，右边的事件列的高度要和左边的对象列的高度保持一致
+    that.theEventColumnsHeightToConsistentWithTheObjColumnHeight();
   }
 
   //当objAreaScrollHeight的高度发生变化时，同时根据条件来调整objColumnCells的Top值
@@ -1159,14 +1132,14 @@ class P_AnimationSystem_GUI_TimeLine {
     this.mainBody.setId("时间轴");
     this.dom = this.mainBody.dom;
 
-    that.resizeEventStart = that.resizeEventStart.bind(this);
     that.resizeEventing = that.resizeEventing.bind(this);
     this.mainBody.addContent(that.container);
-    this.mainBody.resizeEventStart(that.resizeEventStart);
     this.mainBody.resizeEventing(that.resizeEventing);
     this.mainBody.setOverflow("hidden");
 
-    that.container.add(that.objColumn);
+    that.leftBigArea.add(that.objColumn);
+    that.leftBigArea.add(that.leftBottomArea);
+    that.container.add(that.leftBigArea);
 
     that.objColumn.add(that.buttonArea);
     let horizontalSplitLine_1 = new UIHorizontalSplitLine();
@@ -1178,6 +1151,7 @@ class P_AnimationSystem_GUI_TimeLine {
 
     that.objAreaScroll.add(that.objColumnCells);
 
+    that.objColumnCells.add(that.objColumnTopPlaceHolder);
     that.objColumnCells.add(that.objAttributeShowArea);
     that.objColumnCells.add(that.addPropertyButton);
 
@@ -1224,28 +1198,39 @@ class P_AnimationSystem_GUI_TimeLine {
     that.selectedObjNoAnimationsTips.add(that.noAnimationsTipsLabel);
     that.selectedObjNoAnimationsTips.add(that.createNewAnimationButton);
 
-    that.eventAreaScroll.add(that.eventColumns);
-    // that.eventAreaScroll.add(that.eventUnitRowsScrollArea);
+    that.rightBigArea.add(that.rightMainArea);
+    that.rightBigArea.add(that.rightAreaHorizontalScrollBar);
+
+    that.rightMainArea.add(that.rightScrollContainer);
+    that.rightMainArea.add(that.rightVerticalScrollBarArea);
+    that.rightVerticalScrollBarArea.add(that.rightAreaVerticalScrollBar);
+
+    that.rightScrollContainer.add(that.rightScrollContent);
+    // that.rightScrollContainer.add(that.eventUnitRowsScrollArea);
     // that.eventUnitRowsScrollArea.add(that.eventUnitRowsShowArea);
 
-    that.eventColumns.add(that.timeScaleBar);
+    that.rightScrollContent.add(that.timeScaleBar);
     let horizontalSplitLine_3 = new UIHorizontalSplitLine();
     horizontalSplitLine_3.setTop("16px");
     horizontalSplitLine_3.setPosition("sticky");
-    that.eventColumns.add(horizontalSplitLine_3);
-    that.eventColumns.add(that.eventShowArea);
+    horizontalSplitLine_3.setZIndex(1);
+    that.rightScrollContent.add(horizontalSplitLine_3);
+    that.rightScrollContent.add(that.eventShowArea);
     let horizontalSplitLine_4 = new UIHorizontalSplitLine();
     horizontalSplitLine_4.setTop("34px");
     horizontalSplitLine_4.setPosition("sticky");
-    that.eventColumns.add(horizontalSplitLine_4);
-    that.eventColumns.add(that.keyShowArea);
+    horizontalSplitLine_4.setZIndex(1);
+    that.rightScrollContent.add(horizontalSplitLine_4);
+    that.eventColumnCells_Content.add(that.keyShowArea);
     let horizontalSplitLine_5 = new UIHorizontalSplitLine();
-    horizontalSplitLine_5.setTop("52px");
+    horizontalSplitLine_5.setTop("16px");
     horizontalSplitLine_5.setPosition("sticky");
-    that.eventColumns.add(horizontalSplitLine_5);
-    that.eventColumns.add(that.eventColumnCells);
-    that.eventColumns.add(that.promptLine);
-    that.promptLine.setHeight("110px");
+    horizontalSplitLine_5.setZIndex(1);
+    that.eventColumnCells_Content.add(horizontalSplitLine_5);
+    that.eventColumnCells_Content.add(that.eventColumnCells_Content_BackgroundShowArea);
+    that.eventColumnCells_Container.add(that.eventColumnCells_Content);
+    that.rightScrollContent.add(that.eventColumnCells_Container);
+    that.rightScrollContainer.add(that.promptLine);
 
     setTimeout(() => {
       that.updateAnimatedObject(editorOperate.selectionHelper.selectedObject);
@@ -1261,7 +1246,7 @@ class P_AnimationSystem_GUI_TimeLine {
     that.sampleNumber = parseInt(that.sampleNumber);
 
     setTimeout(() => {
-      let pixelTotalWidth = that.eventColumns.dom.offsetWidth - 75;
+      let pixelTotalWidth = that.rightScrollContent.dom.offsetWidth - 75;
       let totalWidthIncrement = pixelTotalWidth - that.markIncrement;
 
       let timeCell = 1 / that.sampleNumber;
@@ -1336,23 +1321,15 @@ class P_AnimationSystem_GUI_TimeLine {
     switch (panelState) {
       case AnimationEditorState.NOOBJSELECTED:
         that.disableAllButtonAndInput();
-        if (that.rightBigArea == that.eventAreaScroll) {
-          that.oldEventAreaScrollWidth = that.eventAreaScroll.dom.offsetWidth;
-        }
-        that.rightBigArea = that.noObjectTips;
         that.container.add(that.noObjectTips);
         // if (that.rightBigArea) {
         //   that.noObjectTips.setWidth(lastRightBigAreaWidth + "px");
         // }
-        // that.eventRightBigAreaOverAllChange(
-        //   that.mainBody.dom.offsetWidth,
-        //   that.mainBody.dom.offsetHeight
-        // );
 
         addResizerHandle(
           that.container.dom,
-          that.objColumn.dom,
-          that.rightBigArea.dom,
+          that.leftBigArea.dom,
+          that.noObjectTips.dom,
           null,
           that.mainBody.dom,
           that.resizeChange,
@@ -1362,25 +1339,17 @@ class P_AnimationSystem_GUI_TimeLine {
         break;
       case AnimationEditorState.SELECTEDOBJNOANIMATION:
         that.disableAllButtonAndInput();
-        if (that.rightBigArea == that.eventAreaScroll) {
-          that.oldEventAreaScrollWidth = that.eventAreaScroll.dom.offsetWidth;
-        }
-        that.rightBigArea = that.selectedObjNoAnimationsTips;
         that.container.add(that.selectedObjNoAnimationsTips);
         // if (that.rightBigArea) {
         //   that.selectedObjNoAnimationsTips.setWidth(
         //     lastRightBigAreaWidth + "px"
         //   );
         // }
-        // that.eventRightBigAreaOverAllChange(
-        //   that.mainBody.dom.offsetWidth,
-        //   that.mainBody.dom.offsetHeight
-        // );
 
         addResizerHandle(
           that.container.dom,
-          that.objColumn.dom,
-          that.rightBigArea.dom,
+          that.leftBigArea.dom,
+          that.selectedObjNoAnimationsTips.dom,
           null,
           that.mainBody.dom,
           that.resizeChange,
@@ -1389,22 +1358,15 @@ class P_AnimationSystem_GUI_TimeLine {
         );
         break;
       case AnimationEditorState.NORMAL:
-        that.rightBigArea = that.eventAreaScroll;
-        that.container.add(that.eventAreaScroll);
-        // if (that.rightBigArea) {
-        //   that.eventAreaScroll.setWidth(lastRightBigAreaWidth + "px");
-        // }
+        that.container.add(that.rightBigArea);
+
         that.enableAllButtonAndInput();
-        // that.eventRightBigAreaOverAllChange(
-        //   that.mainBody.dom.offsetWidth,
-        //   that.mainBody.dom.offsetHeight
-        // );
 
         addResizerHandle(
           that.container.dom,
-          that.objColumn.dom,
-          that.eventAreaScroll.dom,
-          that.eventColumns.dom,
+          that.leftBigArea.dom,
+          that.rightBigArea.dom,
+          that.rightScrollContent.dom,
           that.mainBody.dom,
           that.resizeChange,
           that.handle,
@@ -1412,6 +1374,9 @@ class P_AnimationSystem_GUI_TimeLine {
         );
         break;
     }
+
+    // 判断对象属性栏区域是否要添加或则删除VerticalScrollBar，并对that.objColumnCells的dom元素的宽做出调整
+    that.objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth();
   }
 
   enableAllButtonAndInput() {
@@ -1426,11 +1391,8 @@ class P_AnimationSystem_GUI_TimeLine {
     that.addEventButton.enable();
     that.clipSelect.setDisabled(false);
     that.sampleInput.changeAbility(true);
-    if (that.objColumnCells.getIndexOfChild(that.objAttributeShowArea) == -1) {
-      that.objColumnCells.add(that.objAttributeShowArea);
-    }
-    if (that.objColumnCells.getIndexOfChild(that.addPropertyButton) == -1) {
-      that.objColumnCells.add(that.addPropertyButton);
+    if (that.objAreaScroll.getIndexOfChild(that.objColumnCells) == -1) {
+      that.objAreaScroll.add(that.objColumnCells);
     }
   }
 
@@ -1447,11 +1409,8 @@ class P_AnimationSystem_GUI_TimeLine {
     that.clipSelect.clear();
     that.clipSelect.setDisabled(true);
     that.sampleInput.changeAbility(false);
-    if (that.objColumnCells.getIndexOfChild(that.objAttributeShowArea) != -1) {
-      that.objColumnCells.remove(that.objAttributeShowArea);
-    }
-    if (that.objColumnCells.getIndexOfChild(that.addPropertyButton) != -1) {
-      that.objColumnCells.remove(that.addPropertyButton);
+    if (that.objAreaScroll.getIndexOfChild(that.objColumnCells) != -1) {
+      that.objAreaScroll.remove(that.objColumnCells);
     }
   }
 
@@ -1558,9 +1517,8 @@ class P_AnimationSystem_GUI_TimeLine {
     });
     detectWhetherComplete.then((result) => {
       that.objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth();
-      that.eventColumnCells.setHeight(
-        that.objAreaScroll.dom.offsetHeight + "px"
-      );
+      //这里由于左边的属性列全部加载完后高度发生变化，所以右边的事件列的高度也要随之改变。
+      that.theEventColumnsHeightToConsistentWithTheObjColumnHeight();
     });
   }
 
@@ -1598,7 +1556,7 @@ class P_AnimationSystem_GUI_TimeLine {
 
     //这里先计算能显示的最大帧数，防止溢出
     let maxNumOfFrame =
-      (that.eventColumns.dom.offsetWidth - 60) / that.minuteUnitWidth;
+      (that.rightScrollContent.dom.offsetWidth - 60) / that.minuteUnitWidth;
     maxNumOfFrame = maxNumOfFrame * that.minuteUnit * that.sampleNumber;
 
     //这里判断，如果是在that.markIncrement为正（即最大显示帧数在不断增长的状态下），最大显示帧数是否超过阈值，如果超过了，将返回而不进行任何操作
@@ -1609,11 +1567,11 @@ class P_AnimationSystem_GUI_TimeLine {
     }
 
     let frameOfRp = that.calKeyFrameOfPL_Position(
-      rp + that.eventAreaScroll.dom.scrollLeft
+      rp + that.rightScrollContainer.dom.scrollLeft
     );
 
     let oldFrontLength = (frameOfRp * that.secondUnitWidth) / that.secondUnit;
-    let fixedFrontLength = oldFrontLength - that.eventAreaScroll.dom.scrollLeft;
+    let fixedFrontLength = oldFrontLength - that.rightScrollContainer.dom.scrollLeft;
 
     //判断最小单位类型是“秒”还是“分”
     if (that.myUnitType == UnitType.Second) {
@@ -1672,14 +1630,14 @@ class P_AnimationSystem_GUI_TimeLine {
 
     let incrementLength =
       (frameOfRp * that.secondUnitWidth) / that.secondUnit - oldFrontLength;
-    let oldWidth = that.eventColumns.dom.offsetWidth;
+    let oldWidth = that.rightScrollContent.dom.offsetWidth;
     let newWidth = oldWidth + incrementLength;
     let newFrontLength = (frameOfRp * that.secondUnitWidth) / that.secondUnit;
     let scrollLeft = newFrontLength - fixedFrontLength;
 
-    if (newWidth > that.eventAreaScroll.dom.offsetWidth - 16) {
-      that.eventColumns.setWidth(newWidth + "px");
-      that.eventAreaScroll.dom.scrollLeft = scrollLeft;
+    if (newWidth > that.rightScrollContainer.dom.offsetWidth - 16) {
+      that.rightScrollContent.setWidth(newWidth + "px");
+      that.rightScrollContainer.dom.scrollLeft = scrollLeft;
     }
 
     that.refreshFrame(rp);
@@ -1689,7 +1647,7 @@ class P_AnimationSystem_GUI_TimeLine {
   setPLPositionByPoint(event) {
     let that = this;
 
-    // let plPosition = (event.offsetX + that.eventColumns.dom.offsetLeft) + "px";
+    // let plPosition = (event.offsetX + that.rightScrollContent.dom.offsetLeft) + "px";
     // that.promptLine.setLeft(plPosition);
 
     let relPosition;
@@ -1715,10 +1673,10 @@ class P_AnimationSystem_GUI_TimeLine {
 
     let relPosition = Math.floor(suWidth * keyFrameValue);
     let absolutePosition =
-      that.eventColumns.dom.offsetLeft +
+      that.rightScrollContent.dom.offsetLeft +
       relPosition +
       40 -
-      that.eventAreaScroll.dom.scrollLeft;
+      that.rightScrollContainer.dom.scrollLeft;
     if (absolutePosition < that.objColumn.dom.offsetWidth + 2) {
       that.promptLine.setDisplay("none");
     } else if (that.promptLine.dom.display != "flex") {
@@ -1775,6 +1733,7 @@ class P_AnimationSystem_GUI_TimeLine {
     that.calPromptLinePosition(that.keyPosition);
   }
 
+  //采样频率改变时，重新计算各个帧之间的间隙
   sampleChangeReCalFrameSpace(newSample, oldSample) {
     let that = this;
 
@@ -1816,7 +1775,7 @@ class P_AnimationSystem_GUI_TimeLine {
     event.stopPropagation();
 
     let that = this;
-    that.eventAreaScroll.dom.scrollTop = event.srcElement.scrollTop;
+    that.rightScrollContainer.dom.scrollTop = event.srcElement.scrollTop;
     that.eventUnitRowsShowArea.setTop(-event.srcElement.scrollTop + "px");
 
     that.refreshFrame();
@@ -1836,7 +1795,7 @@ class P_AnimationSystem_GUI_TimeLine {
     let that = this;
 
     if (!that.eventAreaScrolling) {
-      that.eventAreaScroll.dom.addEventListener(
+      that.rightScrollContainer.dom.addEventListener(
         "scroll",
         that.eventAreaScrollEvent
       );
@@ -1851,7 +1810,7 @@ class P_AnimationSystem_GUI_TimeLine {
     let that = this;
 
     setTimeout(() => {
-      that.eventAreaScroll.dom.removeEventListener(
+      that.rightScrollContainer.dom.removeEventListener(
         "scroll",
         that.eventAreaScrollEvent
       );
@@ -1872,7 +1831,7 @@ class P_AnimationSystem_GUI_TimeLine {
     if (event.srcElement.scrollTop < maxScroll) {
       that.objColumnCells.dom.scrollTop = event.srcElement.scrollTop;
     } else {
-      that.eventAreaScroll.dom.scrollTop = maxScroll;
+      that.rightScrollContainer.dom.scrollTop = maxScroll;
       that.objColumnCells.dom.scrollTop = maxScroll;
     }
 
@@ -1962,15 +1921,16 @@ class P_AnimationSystem_GUI_TimeLine {
       40,
       10,
       showText,
-      that.eventColumnCells.dom.offsetHeight
+      that.eventColumnCells_Content.dom.offsetHeight
     );
     that.timeScaleBar.add(guiFrameLabel);
     that.labelFrameArray.push(guiFrameLabel);
+    that.addTickMarksEventColumnCellsContentBackgroundShowArea(40, 1);
 
     let frontIgnoredMinuteNumber;
-    if (that.eventAreaScroll.dom.scrollLeft - 40 > 0) {
+    if (that.rightScrollContainer.dom.scrollLeft - 40 > 0) {
       frontIgnoredMinuteNumber = Math.floor(
-        (that.eventAreaScroll.dom.scrollLeft - 40) / that.minuteUnitWidth
+        (that.rightScrollContainer.dom.scrollLeft - 40) / that.minuteUnitWidth
       );
       frontIgnoredMinuteNumber *= that.minuteUnit;
     } else {
@@ -1978,25 +1938,25 @@ class P_AnimationSystem_GUI_TimeLine {
     }
 
     let areaShowNumber;
-    if (that.eventAreaScroll.dom.scrollLeft < 40) {
-      let offsetWidth = 40 - that.eventAreaScroll.dom.scrollLeft;
+    if (that.rightScrollContainer.dom.scrollLeft < 40) {
+      let offsetWidth = 40 - that.rightScrollContainer.dom.scrollLeft;
       areaShowNumber = Math.floor(
-        ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
+        ((that.rightScrollContainer.dom.offsetWidth - 16 - offsetWidth) *
           that.secondUnit) /
-          that.secondUnitWidth
+        that.secondUnitWidth
       );
     } else {
       areaShowNumber = Math.floor(
-        ((that.eventAreaScroll.dom.offsetWidth - 16) * that.secondUnit) /
-          that.secondUnitWidth
+        ((that.rightScrollContainer.dom.offsetWidth - 16) * that.secondUnit) /
+        that.secondUnitWidth
       );
     }
 
     if (that.myUnitType == UnitType.Second) {
       let frontIgnoredSecondNumber;
-      if (that.eventAreaScroll.dom.scrollLeft - 40 > that.secondUnitWidth) {
+      if (that.rightScrollContainer.dom.scrollLeft - 40 > that.secondUnitWidth) {
         frontIgnoredSecondNumber = Math.floor(
-          (that.eventAreaScroll.dom.scrollLeft - 40) / that.secondUnitWidth
+          (that.rightScrollContainer.dom.scrollLeft - 40) / that.secondUnitWidth
         );
         frontIgnoredSecondNumber *= that.secondUnit;
       } else {
@@ -2018,10 +1978,11 @@ class P_AnimationSystem_GUI_TimeLine {
             theMinuteOffSet,
             10,
             showText,
-            that.eventColumnCells.dom.offsetHeight
+            that.eventColumnCells_Content.dom.offsetHeight
           );
           that.labelFrameArray.push(guiFrameLabel);
           that.timeScaleBar.add(guiFrameLabel);
+          that.addTickMarksEventColumnCellsContentBackgroundShowArea(theMinuteOffSet, 1);
         } else {
           if (i % that.secondUnit == 0) {
             let sTimesWidth = (i * that.secondUnitWidth) / that.secondUnit;
@@ -2048,16 +2009,18 @@ class P_AnimationSystem_GUI_TimeLine {
                 theSecondOffSet,
                 labelOffSetLeft / 8,
                 showText,
-                that.eventColumnCells.dom.offsetHeight
+                that.eventColumnCells_Content.dom.offsetHeight
               );
               that.labelFrameArray.push(guiFrameLabel);
+              that.addTickMarksEventColumnCellsContentBackgroundShowArea(theSecondOffSet, labelOffSetLeft / 80);
             } else {
               guiFrameLabel = new GUIFrameLabel(
                 theSecondOffSet,
                 that.secondUnitWidth / 5,
                 undefined,
-                that.eventColumnCells.dom.offsetHeight
+                that.eventColumnCells_Content.dom.offsetHeight
               );
+              that.addTickMarksEventColumnCellsContentBackgroundShowArea(theSecondOffSet, that.secondUnitWidth / 50);
             }
 
             that.timeScaleBar.add(guiFrameLabel);
@@ -2067,17 +2030,17 @@ class P_AnimationSystem_GUI_TimeLine {
     } else {
       let minuteShowNumber;
 
-      if (that.eventAreaScroll.dom.scrollLeft < 40) {
-        let offsetWidth = 40 - that.eventAreaScroll.dom.scrollLeft;
+      if (that.rightScrollContainer.dom.scrollLeft < 40) {
+        let offsetWidth = 40 - that.rightScrollContainer.dom.scrollLeft;
         minuteShowNumber = Math.floor(
-          ((that.eventAreaScroll.dom.offsetWidth - 16 - offsetWidth) *
+          ((that.rightScrollContainer.dom.offsetWidth - 16 - offsetWidth) *
             that.minuteUnit) /
-            that.minuteUnitWidth
+          that.minuteUnitWidth
         );
       } else {
         minuteShowNumber = Math.floor(
-          ((that.eventAreaScroll.dom.offsetWidth - 16) * that.minuteUnit) /
-            that.minuteUnitWidth
+          ((that.rightScrollContainer.dom.offsetWidth - 16) * that.minuteUnit) /
+          that.minuteUnitWidth
         );
       }
 
@@ -2099,37 +2062,51 @@ class P_AnimationSystem_GUI_TimeLine {
             theMinuteOffSet,
             labelOffSetLeft / 8,
             showText,
-            that.eventColumnCells.dom.offsetHeight
+            that.eventColumnCells_Content.dom.offsetHeight
           );
           that.labelFrameArray.push(guiFrameLabel);
+          that.addTickMarksEventColumnCellsContentBackgroundShowArea(theMinuteOffSet, labelOffSetLeft / 80);
         } else {
           guiFrameLabel = new GUIFrameLabel(
             theMinuteOffSet,
             that.minuteUnitWidth / 5,
             undefined,
-            that.eventColumnCells.dom.offsetHeight
+            that.eventColumnCells_Content.dom.offsetHeight
           );
+          that.addTickMarksEventColumnCellsContentBackgroundShowArea(theMinuteOffSet, that.minuteUnitWidth / 50);
         }
         that.timeScaleBar.add(guiFrameLabel);
       }
     }
 
     let reEventColumnsWidth =
-      that.eventAreaScroll.dom.scrollLeft +
-      that.eventAreaScroll.dom.offsetWidth -
+      that.rightScrollContainer.dom.scrollLeft +
+      that.rightScrollContainer.dom.offsetWidth -
       15;
 
     reEventColumnsWidth = Math.floor(reEventColumnsWidth);
-    // that.eventColumns.setWidth(reEventColumnsWidth + "px");
+    // that.rightScrollContent.setWidth(reEventColumnsWidth + "px");
 
     that.calPromptLinePosition(that.keyPosition);
+  }
+
+  addTickMarksEventColumnCellsContentBackgroundShowArea(preDistance, opacity) {
+    let that = this;
+
+    let tickMark = new UIDiv();
+    tickMark.setPosition("absolute");
+    tickMark.setWidth("1px");
+    tickMark.setHeight("100%");
+    tickMark.setBackgroundColor("#b4b4b4");
+    tickMark.dom.style.opacity = opacity;
+    tickMark.setLeft(preDistance + "px");
+    that.eventColumnCells_Content_BackgroundShowArea.add(tickMark);
   }
 
   resizeChange(self, param) {
     let that = self;
 
     let scale = param.newDom3Width / param.oldDom3Width;
-    that.adjustEventUnitRowsShowArea();
     that.sizeChangeReCalFrameSpace(scale);
   }
 
