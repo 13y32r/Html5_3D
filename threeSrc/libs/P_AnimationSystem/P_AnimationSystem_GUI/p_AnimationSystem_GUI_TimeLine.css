@@ -289,7 +289,7 @@ input::-webkit-inner-spin-button {
 .RightScrollContainer .RightScrollContent {
   display: flex;
   flex-direction: column;
-  width: calc(100% * var(--scrollContentWidthExpansionFactor));
+  width: calc(100% + var(--scrollContentWidthExpansionFactor));
   height: 100%;
   position: relative;
 }

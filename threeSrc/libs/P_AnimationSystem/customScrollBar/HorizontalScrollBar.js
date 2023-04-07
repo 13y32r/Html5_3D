@@ -1,7 +1,7 @@
 /*******
  * @Author: 邹岱志
  * @Date: 2023-03-11 16:37:36
- * @LastEditTime: 2023-04-02 12:30:21
+ * @LastEditTime: 2023-04-07 09:00:07
  * @LastEditors: your name
  * @Description:
  * @FilePath: \Html5_3D\threeSrc\libs\P_AnimationSystem\customScrollBar\HorizontalScrollBar.js
@@ -233,6 +233,14 @@ class HorizontalScrollBar extends UIDiv {
     that.thumbBody.setWidth(newThumbBodyWidth + "px");
     that.thumb.setWidth(newThumbWidth + "px");
     that.thumb.setLeft(thumbOffsetX + "px");
+
+    let newScalingRatio = that.track.dom.offsetWidth / newThumbWidth;
+    let thumbScalingEvent = new CustomEvent("thumbScaling", {
+      bubbles: true,
+      cancelable: true,
+      detail: newScalingRatio,
+    });
+    that.dom.dispatchEvent(thumbScalingEvent);
   }
 
   thumbLeftHandleUp(event) {
@@ -309,6 +317,14 @@ class HorizontalScrollBar extends UIDiv {
       that.thumb.dom.offsetLeft +
       that.thumbLeftHandle.dom.offsetWidth +
       newThumbBodyWidth;
+
+    let newScalingRatio = that.track.dom.offsetWidth / newThumbWidth;
+    let thumbScalingEvent = new CustomEvent("thumbScaling", {
+      bubbles: true,
+      cancelable: true,
+      detail: newScalingRatio,
+    });
+    that.dom.dispatchEvent(thumbScalingEvent);
   }
 
   thumbRightHandleUp(event) {
@@ -411,7 +427,25 @@ class HorizontalScrollBar extends UIDiv {
       that.thumb.setLeft(newThumbLeft + "px");
     }
 
+    const scrollingEvent = new CustomEvent("scrolling", {
+      bubbles: true,
+      cancelable: true,
+      detail: newThumbLeft,
+    });
+    that.dom.dispatchEvent(scrollingEvent);
+
     that.changeInnerAreaLeftToFitThumb();
+  }
+
+  forceScaleThumb() {
+    let that = this;
+
+    that.changeThumbLeftToFitInnerArea();
+    let scalingRatio = that.outerAreaDom.offsetWidth / that.innerAreaDom.offsetWidth;
+    let newThumbWidth = that.track.dom.offsetWidth * scalingRatio;
+    let newThumbBodyWidth = newThumbWidth - that.thumbLeftHandle.dom.offsetWidth - that.thumbRightHandle.dom.offsetWidth;
+    that.thumbBody.setWidth(newThumbBodyWidth + "px");
+    that.thumb.setWidth(newThumbWidth + "px");
   }
 
   scrollLeftToThumbLeft(scrollLeftValue) {
@@ -435,6 +469,15 @@ class HorizontalScrollBar extends UIDiv {
   getScrollLeft() {
     let that = this;
     return that.scrollLeft;
+  }
+
+  changeThumbLeftToFitInnerArea() {
+    let that = this;
+    let scale = that.innerAreaDom.offsetLeft / that.outerAreaDom.offsetWidth;
+    let newThumbLeft = that.thumb.dom.offsetWidth * scale;
+
+    that.thumb.setLeft(newThumbLeft + "px");
+    that.scrollLeft = that.thumbLeftToScrollLeft(newThumbLeft);
   }
 
   changeInnerAreaLeftToFitThumb() {

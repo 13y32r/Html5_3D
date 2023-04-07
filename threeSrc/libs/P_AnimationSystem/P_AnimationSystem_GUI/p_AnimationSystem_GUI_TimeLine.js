@@ -989,6 +989,9 @@ class P_AnimationSystem_GUI_TimeLine {
     that.rightAreaVerticalScrollBar.dom.addEventListener("scrolling", function (event) {
       that.objAreaVerticalScrollBar.forceSetScrollTop(event.detail);
     });
+    that.rightAreaHorizontalScrollBar.dom.addEventListener("scrolling", function (event) {
+      console.log(event.detail);
+    });
 
     that.calPromptLinePosition = that.calPromptLinePosition.bind(this);
     that.calKeyFrameOfPromptLine = that.calKeyFrameOfPromptLine.bind(this);
@@ -1639,6 +1642,7 @@ class P_AnimationSystem_GUI_TimeLine {
       that.rightScrollContent.setWidth(newWidth + "px");
       that.rightScrollContainer.dom.scrollLeft = scrollLeft;
     }
+    that.rightAreaHorizontalScrollBar.forceScaleThumb();
 
     that.refreshFrame(rp);
   }
@@ -2090,6 +2094,7 @@ class P_AnimationSystem_GUI_TimeLine {
     that.calPromptLinePosition(that.keyPosition);
   }
 
+  //添加竖向的刻度线到事件竖向元素内容的背景显示区域
   addTickMarksEventColumnCellsContentBackgroundShowArea(preDistance, opacity) {
     let that = this;
 

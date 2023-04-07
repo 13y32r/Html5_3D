@@ -133,4 +133,5 @@
   border-radius: 6.5px;
   border: solid 1px #3f3f3f;
   background-image: linear-gradient(to right, #505050, #363636);
+  flex-shrink: 0;
 }
