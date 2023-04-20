@@ -7,6 +7,8 @@
  * @FilePath: \Html5_3D\threeSrc\tools\transformBySelection.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
+import eventEmitter from "/assist/eventEmitter.js";
+import globalInstances from "/assist/GlobalInstances.js";
 
 import { TransformControls } from "../libs/TransformControls.js";
 import { Matrix4, Vector3, Quaternion } from "three";
@@ -17,9 +19,21 @@ import { SetScaleCommand } from "../editor/commands/SetScaleCommand.js";
 
 class TransformBySelection {
   constructor() {
+    let that = this;
+
     this.enabled = false;
 
-    this.editorOperate = window["editorOperate"];
+    // 首先尝试获取已经存在的 editorOperate 实例
+    const editorOperate = globalInstances.getEditorOperate();
+
+    if (editorOperate) {
+      that.editorOperate = editorOperate;
+    } else {
+      // 如果还没有 editorOperate 实例，订阅事件
+      eventEmitter.on("editorOperateReady", (editorOperate) => {
+        that.editorOperate = editorOperate;
+      });
+    }
 
     this.fatherArrayNumber = {};
 
@@ -64,19 +78,19 @@ class TransformBySelection {
     let objectsScaleOnDown = new Array();
 
     that.t_Control = new TransformControls(
-      window["editorOperate"].camera,
-      window["editorOperate"].renderer.domElement
+      that.editorOperate.camera,
+      that.editorOperate.renderer.domElement
     );
 
     that.t_Control.setSpace("local");
 
     that.t_Control.addEventListener("change", function () {
-      window["editorOperate"].render();
+      that.editorOperate.render();
     });
     that.t_Control.addEventListener("mouseDown", function () {
-      window["editorOperate"].tempState = window["editorOperate"].state;
-      window["editorOperate"].changeEditorState(EditorState.TRANSFORM);
-      window["editorOperate"].stopKeyEvent();
+      that.editorOperate.tempState = that.editorOperate.state;
+      that.editorOperate.changeEditorState(EditorState.TRANSFORM);
+      that.editorOperate.stopKeyEvent();
 
       that.transformStarted = true;
 
@@ -91,20 +105,15 @@ class TransformBySelection {
         that.selObjsStartQuaternion[i].copy(that.selectObj[i].quaternion);
       }
 
-      window["editorOperate"].domElement.addEventListener(
-        "keydown",
-        that.addCShort
-      );
-      window["editorOperate"].domElement.addEventListener(
+      that.editorOperate.domElement.addEventListener("keydown", that.addCShort);
+      that.editorOperate.domElement.addEventListener(
         "keyup",
         that.removeSShort
       );
     });
     that.t_Control.addEventListener("mouseUp", function () {
-      window["editorOperate"].changeEditorState(
-        window["editorOperate"].tempState
-      );
-      window["editorOperate"].reKeyEvent();
+      that.editorOperate.changeEditorState(that.editorOperate.tempState);
+      that.editorOperate.reKeyEvent();
 
       that.t_Control.setTranslationSnap(null);
       that.t_Control.setRotationSnap(null);
@@ -190,35 +199,29 @@ class TransformBySelection {
         }
       }
 
-      window["editorOperate"].domElement.removeEventListener(
+      that.editorOperate.domElement.removeEventListener(
         "keydown",
         that.addCShort
       );
-      window["editorOperate"].domElement.removeEventListener(
+      that.editorOperate.domElement.removeEventListener(
         "keyup",
         that.removeSShort
       );
     });
 
-    window["editorOperate"].selectionHelper.addEventListener(
-      "end",
-      that.getSelObj
-    );
-    window["editorOperate"].signals.hierarchyChange.add(that.getSelObj);
-    window["editorOperate"].signals.objectStartRemoving.add(that.toEmptyMode);
+    that.editorOperate.selectionHelper.addEventListener("end", that.getSelObj);
+    that.editorOperate.signals.hierarchyChange.add(that.getSelObj);
+    that.editorOperate.signals.objectStartRemoving.add(that.toEmptyMode);
 
-    window["editorOperate"].addEventListener(
-      "changeEditorState",
-      function (event) {
-        if (
-          event.state != EditorState.EDIT &&
-          event.state != EditorState.TRANSFORM
-        ) {
-          that.selectObj.length = 0;
-          that.refresh();
-        }
+    that.editorOperate.addEventListener("changeEditorState", function (event) {
+      if (
+        event.state != EditorState.EDIT &&
+        event.state != EditorState.TRANSFORM
+      ) {
+        that.selectObj.length = 0;
+        that.refresh();
       }
-    );
+    });
 
     this.getSelObj();
   }
@@ -290,7 +293,7 @@ class TransformBySelection {
 
   getSelectedObj() {
     if (!this.enabled) return;
-    this.selectObj = window["editorOperate"].selectionHelper.selectedObject;
+    this.selectObj = this.editorOperate.selectionHelper.selectedObject;
     this.refresh();
   }
 
@@ -318,7 +321,7 @@ class TransformBySelection {
     if (this.selectObj == undefined) return;
     if (this.selectObj.length == 0 || this.selectObj == null) {
       that.t_Control.detach();
-      window["editorOperate"].render();
+      that.editorOperate.render();
       return;
     }
 
@@ -340,11 +343,11 @@ class TransformBySelection {
       }
     }
 
-    if (!window["editorOperate"].scene.children.includes(that.t_Control)) {
-      window["editorOperate"].scene.add(that.t_Control);
+    if (!that.editorOperate.scene.children.includes(that.t_Control)) {
+      that.editorOperate.scene.add(that.t_Control);
     }
 
-    window["editorOperate"].render();
+    that.editorOperate.render();
   }
 
   translateChange() {
@@ -469,24 +472,21 @@ class TransformBySelection {
   dispose() {
     let that = this;
 
-    that.t_Control.removeEventListener(
-      "change",
-      window["editorOperate"].render
-    );
+    that.t_Control.removeEventListener("change", that.editorOperate.render);
     that.t_Control.dispose();
     that.t_Control = null;
-    window["editorOperate"].scene.remove(that.t_Control);
+    that.editorOperate.scene.remove(that.t_Control);
 
-    window["editorOperate"].selectionHelper.removeEventListener(
+    that.editorOperate.selectionHelper.removeEventListener(
       "selected",
       that.getSelObj
     );
 
-    window["editorOperate"].domElement.removeEventListener(
+    that.editorOperate.domElement.removeEventListener(
       "keydown",
       that.addCShort
     );
-    window["editorOperate"].domElement.removeEventListener(
+    that.editorOperate.domElement.removeEventListener(
       "keyup",
       that.removeSShort
     );

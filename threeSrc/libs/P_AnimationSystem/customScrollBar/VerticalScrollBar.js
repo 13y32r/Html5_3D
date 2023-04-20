@@ -7,6 +7,7 @@
  * @FilePath: \Html5_3D\threeSrc\libs\P_AnimationSystem\customScrollBar\VerticalScrollBar.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
+import globalInstances from "/assist/GlobalInstances.js";
 import { UIDiv, UIElement } from "/threeSrc/libs/ui.js";
 
 class VerticalScrollBar extends UIDiv {
@@ -22,6 +23,8 @@ class VerticalScrollBar extends UIDiv {
     that.dom.draggable = false;
     that.scrollTop = 0;
 
+    //导入本插件所需要的CSS文件
+    const dynamicCssFile = globalInstances.getPreloadItem("dynamicCssFile");
     that.myCss = new dynamicCssFile(that.folderPath + "customScrollBar.css");
 
     that.buttonArea = new UIDiv();
@@ -181,7 +184,9 @@ class VerticalScrollBar extends UIDiv {
 
     that.thumb.upY = event.layerY;
 
-    let myPosition = getElementPagePosition(that.dom);
+    let myPosition = globalInstances.getPreloadItem("getElementPagePosition")(
+      that.dom
+    );
     that.pageX = myPosition.x;
     that.pageY = myPosition.y;
 
@@ -284,7 +289,6 @@ class VerticalScrollBar extends UIDiv {
     let that = this;
     let scale = that.track.dom.offsetHeight / that.innerAreaDom.offsetHeight;
     let newThumbAreaTop = -that.innerAreaDom.offsetTop * scale;
-    console.log(that.innerAreaDom);
 
     that.thumb.setTop(newThumbAreaTop + "px");
   }

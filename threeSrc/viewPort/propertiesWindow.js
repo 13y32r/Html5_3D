@@ -1,3 +1,6 @@
+import eventEmitter from "/assist/eventEmitter.js";
+import globalInstances from "/assist/GlobalInstances.js";
+
 import { UITabbedPanel, documentBodyAdd, UIDiv } from "../libs/ui.js";
 import { normalWindow } from "../libs/ui.menu.js";
 
@@ -13,7 +16,30 @@ class PropertiesWindow extends UIDiv {
 
     this.setId("properties");
 
-    this.editor = window["editorOperate"];
+    // 首先尝试获取已经存在的 editorOperate 实例
+    const editorOperate = globalInstances.getEditorOperate();
+
+    if (editorOperate) {
+      this.editor = editorOperate;
+    } else {
+      // 如果还没有 editorOperate 实例，订阅事件
+      eventEmitter.on("editorOperateReady", (editorOperate) => {
+        this.editor = editorOperate;
+      });
+    }
+
+    // 尝试获取已经存在的 menuGUI 实例
+    const menuGUI = globalInstances.getInitItem("menuGUI");
+
+    if (menuGUI) {
+      this.menuGUI = menuGUI;
+    } else {
+      // 如果还没有 editorOperate 实例，订阅事件
+      eventEmitter.on("menuGUIReady", (menuGUI) => {
+        this.menuGUI = menuGUI;
+      });
+    }
+
     let strings = this.editor.strings;
     this.mainBody = null;
 
@@ -36,7 +62,7 @@ class PropertiesWindow extends UIDiv {
     );
     that.container.select("object");
 
-    if (window["menuGUI"].folderDictionary["Main-Menu"]) {
+    if (menuGUI.folderDictionary["Main-Menu"]) {
       that.initMainBody();
     } else {
       that.editor.signals.folderInitialized.add(function (folderName) {
@@ -52,7 +78,7 @@ class PropertiesWindow extends UIDiv {
 
     this.mainBody = new normalWindow(
       "检视面板",
-      window["menuGUI"].folderDictionary["Main-Menu"].cellBtns["检视面板"]
+      that.menuGUI.folderDictionary["Main-Menu"].cellBtns["检视面板"]
     );
     this.mainBody.addContent(that.container);
 

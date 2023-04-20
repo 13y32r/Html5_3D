@@ -7,6 +7,8 @@
  * @FilePath: \Html5_3D\threeSrc\tools\cutOffMesh.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
+import eventEmitter from "/assist/eventEmitter.js";
+import globalInstances from "/assist/GlobalInstances.js";
 
 import { Tool } from "./tool.js";
 import { SliceBufferGeometry } from "./slice2BG.js";
@@ -21,16 +23,30 @@ const _changeEvent = { type: "change" };
 
 class CutOffMesh extends Tool {
   constructor(camera, scene) {
-    let domElement = window["editorOperate"].domElement;
-    super("CutOff Mesh", domElement);
+    let domElement;
+    // 首先尝试获取已经存在的 editorOperate 实例
+    const editorOperate = globalInstances.getEditorOperate();
+
+    if (editorOperate) {
+      domElement = editorOperate.domElement;
+      super("CutOff Mesh", domElement);
+      this.editor = editorOperate;
+    } else {
+      // 如果还没有 editorOperate 实例，订阅事件
+      eventEmitter.on("editorOperateReady", (editorOperate) => {
+        domElement = editorOperate.domElement;
+        super("CutOff Mesh", domElement);
+        this.editor = editorOperate;
+      });
+    }
 
     this.activeLayer = new Layers();
-    this.activeLayer.set(window["editorOperate"].defaultLayerChannel);
+    this.activeLayer.set(this.editor.defaultLayerChannel);
 
     if (arguments.length < 2) {
-      this.camera = window["editorOperate"].camera;
-      this.scene = window["editorOperate"].scene;
-      this.render = window["editorOperate"].render;
+      this.camera = this.editor.camera;
+      this.scene = this.editor.scene;
+      this.render = this.editor.render;
     } else {
       this.camera = camera;
       this.scene = scene;
@@ -38,10 +54,10 @@ class CutOffMesh extends Tool {
 
     let that = this;
 
-    editorOperate.signals.loadNewScene.add(function () {
+    this.editor.signals.loadNewScene.add(function () {
       that.scene = null;
-      that.scene = editorOperate.scene;
-    })
+      that.scene = this.editor.scene;
+    });
 
     this.selectNotContainType = SelectNotContainType;
     this.selectNotContainName = SelectNotContainName;
@@ -65,8 +81,8 @@ class CutOffMesh extends Tool {
       this.crackSize = crackSize;
     }
 
-    this.editorState = window["editorOperate"].state;
-    window["editorOperate"].changeEditorState(EditorState.DRAW);
+    this.editorState = this.editor.state;
+    this.editor.changeEditorState(EditorState.DRAW);
 
     this.addListener("pointerdown", this.ocDown);
   }
@@ -170,7 +186,9 @@ class CutOffMesh extends Tool {
 
         // that.cutOBJ[ele].parent.add(mesh0, mesh1);
         // that.cutOBJ[ele].parent.remove(that.cutOBJ[ele]);
-        editorOperate.execute(new SliceObjectCommand(editorOperate, that.cutOBJ[ele], [mesh0, mesh1]));
+        this.editor.execute(
+          new SliceObjectCommand(this.editor, that.cutOBJ[ele], [mesh0, mesh1])
+        );
 
         if (that.render != undefined) {
           that.render();
@@ -185,7 +203,7 @@ class CutOffMesh extends Tool {
       that.planePoints.length = 0;
     }
 
-    // window["editorOperate"].signals.sceneGraphChanged.dispatch();
+    // this.editor.signals.sceneGraphChanged.dispatch();
     that.dispatchEvent(_changeEvent);
   }
 
@@ -193,7 +211,7 @@ class CutOffMesh extends Tool {
     let that = this;
 
     if (that.editorState != undefined) {
-      window["editorOperate"].changeEditorState(that.editorState);
+      this.editor.changeEditorState(that.editorState);
     }
 
     that.dispose();

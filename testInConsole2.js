@@ -114,7 +114,7 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 
 // (async () => {
 //     await Promise.all([timeOutFn, timeOutFn2, timeOutFn3]);
-//     console.log("我在这儿等着你。");
+//     console.log("我在这儿等着你�?");
 // })();
 
 // let testArray = [1, 2, 3, 4, 5, 6, 8, 9];
@@ -139,7 +139,7 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 
 // let testObj = {
 //   "Main-Menu": {
-//     Title: "主菜单",
+//     Title: "主菜�?",
 //     EditorMode: {
 //       name: "编辑模式",
 //       type: "folder",
@@ -151,12 +151,12 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 //       image_url: "./menuGUI/img/gridFolder.png",
 //     },
 //     Tools: {
-//       name: "工具箱",
+//       name: "工具�?",
 //       type: "folder",
 //       image_url: "./menuGUI/img/toolsFolder.png",
 //     },
 //     AxisScale: {
-//       name: "坐标轴",
+//       name: "坐标�?",
 //       type: "folder",
 //       image_url: "./menuGUI/img/axisFolder.png",
 //     },
@@ -232,7 +232,7 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 //       preEditorCondition: "EDIT",
 //     },
 //     WholeTool: {
-//       name: "整体或单独工具",
+//       name: "整体或单独工�?",
 //       type: "button",
 //       class: "TransformWhole",
 //       btnUp: "independent",
@@ -243,46 +243,46 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 //     },
 //   },
 //   AxisScale: {
-//     Title: "坐标轴",
+//     Title: "坐标�?",
 //     "X-Axis": {
-//       name: "X坐标轴",
+//       name: "X坐标�?",
 //       type: "button",
 //       class: "AxisScale",
 //       btnUp: "hideXAxis",
 //       btnDown: "showXAxis",
 //       param: {
 //         大小: 30,
-//         最小刻度: 1,
+//         最小刻�?: 1,
 //       },
 //       image_url: "./menuGUI/img/xAxis.png",
 //     },
 //     "Y-Axis": {
-//       name: "Y坐标轴",
+//       name: "Y坐标�?",
 //       type: "button",
 //       class: "AxisScale",
 //       btnUp: "hideYAxis",
 //       btnDown: "showYAxis",
 //       param: {
 //         大小: 30,
-//         最小刻度: 1,
+//         最小刻�?: 1,
 //       },
 //       image_url: "./menuGUI/img/yAxis.png",
 //     },
 //     "Z-Axis": {
-//       name: "Z坐标轴",
+//       name: "Z坐标�?",
 //       type: "button",
 //       class: "AxisScale",
 //       btnUp: "hideZAxis",
 //       btnDown: "showZAxis",
 //       param: {
 //         大小: 30,
-//         最小刻度: 1,
+//         最小刻�?: 1,
 //       },
 //       image_url: "./menuGUI/img/zAxis.png",
 //     },
 //   },
 //   Tools: {
-//     Title: "工具箱",
+//     Title: "工具�?",
 //     Rule: {
 //       name: "标尺工具",
 //       type: "button",
@@ -290,7 +290,7 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 //       btnUp: "stopMeasure",
 //       btnDown: "measure",
 //       param: {
-//         最小刻度: 1,
+//         最小刻�?: 1,
 //       },
 //       image_url: "./menuGUI/img/ruler.png",
 //       preEditorCondition: "OBSERVER",
@@ -311,38 +311,38 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 //   Grids: {
 //     Title: "网格",
 //     "X-Grid": {
-//       name: "X面网格",
+//       name: "X面网�?",
 //       type: "button",
 //       class: "Grids",
 //       btnUp: "hideXGrid",
 //       btnDown: "showXGrid",
 //       param: {
 //         大小: 30,
-//         最小刻度: 1,
+//         最小刻�?: 1,
 //       },
 //       image_url: "./menuGUI/img/xGrid.png",
 //     },
 //     "Y-Grid": {
-//       name: "Y面网格",
+//       name: "Y面网�?",
 //       type: "button",
 //       class: "Grids",
 //       btnUp: "hideYGrid",
 //       btnDown: "showYGrid",
 //       param: {
 //         大小: 30,
-//         最小刻度: 1,
+//         最小刻�?: 1,
 //       },
 //       image_url: "./menuGUI/img/yGrid.png",
 //     },
 //     "Z-Grid": {
-//       name: "Z面网格",
+//       name: "Z面网�?",
 //       type: "button",
 //       class: "Grids",
 //       btnUp: "hideZGrid",
 //       btnDown: "showZGrid",
 //       param: {
 //         大小: 30,
-//         最小刻度: 1,
+//         最小刻�?: 1,
 //       },
 //       image_url: "./menuGUI/img/zGrid.png",
 //     },
@@ -394,5 +394,3 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 //   newFun();
 // }
 // sayHello();
-
-console.log(5 % 3);

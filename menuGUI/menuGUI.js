@@ -7,11 +7,26 @@
  * @FilePath: \Html5_3D\menuGUI\menuGUI.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
+import eventEmitter from "/assist/eventEmitter.js";
+import globalInstances from "/assist/GlobalInstances.js";
+
 import { EditorState } from "../threeSrc/editor/EditorState.js";
 import { MenuObject } from "../threeSrc/libs/ui.menu.js";
 
 class MenuGUI {
   constructor() {
+    // 首先尝试获取已经存在的 editorOperate 实例
+    const editorOperate = globalInstances.getEditorOperate();
+
+    if (editorOperate) {
+      this.editor = editorOperate;
+    } else {
+      // 如果还没有 editorOperate 实例，订阅事件
+      eventEmitter.on("editorOperateReady", (editorOperate) => {
+        this.editor = editorOperate;
+      });
+    }
+
     this.listJson;
     this.class4Menu = {};
     this.folderDictionary = {};
@@ -64,12 +79,15 @@ class MenuGUI {
         for (let ele3 in jsonFile[ele1][ele2]) {
           if (ele3 == "class") {
             if (!that.class4Menu.hasOwnProperty(jsonFile[ele1][ele2][ele3])) {
+              const item = globalInstances.getPreloadItem(
+                jsonFile[ele1][ele2][ele3]
+              );
               window[
                 jsonFile[ele1]["Title"] + "_" + jsonFile[ele1][ele2][ele3]
-              ] = new window[jsonFile[ele1][ele2][ele3]]();
+              ] = new item();
               that.class4Menu[jsonFile[ele1][ele2][ele3]] =
                 window[
-                jsonFile[ele1]["Title"] + "_" + jsonFile[ele1][ele2][ele3]
+                  jsonFile[ele1]["Title"] + "_" + jsonFile[ele1][ele2][ele3]
                 ];
             }
           }
@@ -95,7 +113,7 @@ class MenuGUI {
         that.folderDictionary
       );
 
-      window["editorOperate"].signals.folderInitialized.dispatch(ele1);
+      this.editor.signals.folderInitialized.dispatch(ele1);
     }
 
     that.initMainGUI();

@@ -1,3 +1,6 @@
+import eventEmitter from "/assist/eventEmitter.js";
+import globalInstances from "/assist/GlobalInstances.js";
+
 import {
   UIElement,
   UIDiv,
@@ -464,6 +467,17 @@ class MenuContent extends UIDiv {
 class MenuCellBtn extends UIElement {
   constructor(name, image_url, shortcut, combkey, preEditorCondition) {
     super(document.createElement("button"));
+    // 首先尝试获取已经存在的 editorOperate 实例
+    const editorOperate = globalInstances.getEditorOperate();
+
+    if (editorOperate) {
+      this.editor = editorOperate;
+    } else {
+      // 如果还没有 editorOperate 实例，订阅事件
+      eventEmitter.on("editorOperateReady", (editorOperate) => {
+        this.editor = editorOperate;
+      });
+    }
 
     let that = this;
 
@@ -511,7 +525,7 @@ class MenuCellBtn extends UIElement {
     function changeBtnState() {
       if (!that.btnPress) {
         if (preEditorCondition != undefined) {
-          if (window["editorOperate"].state != preEditorCondition) {
+          if (that.editor.state != preEditorCondition) {
             return;
           }
         }
@@ -790,9 +804,21 @@ class MenuObject {
 
 class ParamWindow {
   constructor(paramObj) {
-    let tempEditorState = window["editorOperate"].state;
-    window["editorOperate"].changeEditorState(EditorState.INPUT);
-    window["editorOperate"].stopKeyEvent();
+    // 首先尝试获取已经存在的 editorOperate 实例
+    const editorOperate = globalInstances.getEditorOperate();
+
+    if (editorOperate) {
+      this.editor = editorOperate;
+    } else {
+      // 如果还没有 editorOperate 实例，订阅事件
+      eventEmitter.on("editorOperateReady", (editorOperate) => {
+        this.editor = editorOperate;
+      });
+    }
+
+    let tempEditorState = this.editor.state;
+    this.editor.changeEditorState(EditorState.INPUT);
+    this.editor.stopKeyEvent();
 
     let that = this;
 
@@ -887,8 +913,8 @@ class ParamWindow {
           }
         }
 
-      window["editorOperate"].changeEditorState(tempEditorState);
-      window["editorOperate"].reKeyEvent();
+      this.editor.changeEditorState(tempEditorState);
+      this.editor.reKeyEvent();
 
       this.initParam_body.dom.dispatchEvent(
         new CustomEvent("endParam", {

@@ -3,14 +3,29 @@
  * @Date: 2022-10-09 17:18:30
  * @LastEditTime: 2022-10-09 18:08:40
  * @LastEditors: your name
- * @Description: 
+ * @Description:
  * @FilePath: \Html5_3D\threeSrc\tools\cloudInteractive\uploadModel.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
+import eventEmitter from "/assist/eventEmitter.js";
+import globalInstances from "/assist/GlobalInstances.js";
+
 import { UpOrDownFile } from "./upOrDownFile.js";
+
 class UpLoadModelOrScene {
   constructor() {
-    this.editor = editorOperate;
+    // 首先尝试获取已经存在的 editorOperate 实例
+    const editorOperate = globalInstances.getEditorOperate();
+
+    if (editorOperate) {
+      this.editor = editorOperate;
+    } else {
+      // 如果还没有 editorOperate 实例，订阅事件
+      eventEmitter.on("editorOperateReady", (editorOperate) => {
+        this.editor = editorOperate;
+      });
+    }
+
     this.uploadTool = new UpOrDownFile();
   }
 
@@ -28,7 +43,7 @@ class UpLoadModelOrScene {
     this.uploadTool.uploadModel(obj, "BBQ");
   }
 
-  stop() { }
+  stop() {}
 }
 
 export { UpLoadModelOrScene };

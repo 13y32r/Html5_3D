@@ -1,3 +1,6 @@
+import eventEmitter from "/assist/eventEmitter.js";
+import globalInstances from "/assist/GlobalInstances.js";
+
 import { normalWindow } from "../libs/ui.menu.js";
 import { UIOutliner } from "../libs/ui.three.js";
 import { Layers } from "three";
@@ -8,7 +11,29 @@ class HierarchyWindow {
 
     this.showLayers = new Layers();
 
-    this.editor = window["editorOperate"];
+    // 首先尝试获取已经存在的 editorOperate 实例
+    const editorOperate = globalInstances.getEditorOperate();
+
+    if (editorOperate) {
+      this.editor = editorOperate;
+    } else {
+      // 如果还没有 editorOperate 实例，订阅事件
+      eventEmitter.on("editorOperateReady", (editorOperate) => {
+        this.editor = editorOperate;
+      });
+    }
+
+    // 尝试获取已经存在的 menuGUI 实例
+    const menuGUI = globalInstances.getInitItem("menuGUI");
+
+    if (menuGUI) {
+      this.menuGUI = menuGUI;
+    } else {
+      // 如果还没有 editorOperate 实例，订阅事件
+      eventEmitter.on("menuGUIReady", (menuGUI) => {
+        this.menuGUI = menuGUI;
+      });
+    }
 
     this.outliner = new UIOutliner(that.editor);
     that.outliner.setId("outliner");
@@ -73,7 +98,7 @@ class HierarchyWindow {
     this.editor.signals.sceneGraphChanged.add(that.refreshUI);
     this.editor.signals.objectNameChanged.add(that.refreshUI);
 
-    if (window["menuGUI"].folderDictionary["Main-Menu"]) {
+    if (this.menuGUI.folderDictionary["Main-Menu"]) {
       that.initMainBody();
     } else {
       that.editor.signals.folderInitialized.add(function (folderName) {
@@ -89,7 +114,7 @@ class HierarchyWindow {
 
     this.mainBody = new normalWindow(
       "层级面板",
-      window["menuGUI"].folderDictionary["Main-Menu"].cellBtns["层级面板"]
+      this.menuGUI.folderDictionary["Main-Menu"].cellBtns["层级面板"]
     );
     this.mainBody.addContent(that.outliner);
 

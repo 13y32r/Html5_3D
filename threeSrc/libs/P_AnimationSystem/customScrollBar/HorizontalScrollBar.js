@@ -7,6 +7,7 @@
  * @FilePath: \Html5_3D\threeSrc\libs\P_AnimationSystem\customScrollBar\HorizontalScrollBar.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
+import globalInstances from "/assist/GlobalInstances.js";
 import { UIDiv, UIElement } from "/threeSrc/libs/ui.js";
 
 class HorizontalScrollBar extends UIDiv {
@@ -26,6 +27,8 @@ class HorizontalScrollBar extends UIDiv {
     that.dom.draggable = false;
     that.scrollLeft = 0;
 
+    //导入本插件所需要的CSS文件
+    const dynamicCssFile = globalInstances.getPreloadItem("dynamicCssFile");
     that.myCss = new dynamicCssFile("./customScrollBar.css");
 
     that.buttonArea = new UIDiv();
@@ -118,19 +121,29 @@ class HorizontalScrollBar extends UIDiv {
   initStyle() {
     let that = this;
 
-    that.scrollLeft = that.outerAreaDom.offsetWidth - 32 - 14;
+    // 创建 IntersectionObserver 实例
+    const observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        // 当目标元素出现在视口中时
+        if (entry.isIntersecting) {
+          // 停止监听
+          // observer.unobserve(entry.target);
+          if (entry.target == that.outerAreaDom) {
+            // 触发你想要执行的事件
+            that.scrollLeft = that.outerAreaDom.offsetWidth - 32 - 14;
+          } else if (entry.target == that.innerAreaDom) {
+            that.changeThumbWidthToFitInnerArea();
+          }
+        }
+      });
+    });
 
-    const detectWhetherComplete = new Promise((resolve) => {
-      if (that.thumbRightHandle.dom) {
-        resolve("complete");
-      }
-    });
-    detectWhetherComplete.then((result) => {
-      that.changeThumbWidthToFitInnerArea();
-    });
+    // 开始监听目标元素
+    observer.observe(that.outerAreaDom);
+    observer.observe(that.innerAreaDom);
   }
 
-  innerAreaDomChange(event) { }
+  innerAreaDomChange(event) {}
 
   trackDown(event) {
     event.preventDefault();
@@ -150,7 +163,9 @@ class HorizontalScrollBar extends UIDiv {
 
     that.thumbBody.frontX = event.layerX;
 
-    let myPosition = getElementPagePosition(that.dom);
+    let myPosition = globalInstances.getPreloadItem("getElementPagePosition")(
+      that.dom
+    );
     that.pageX = myPosition.x;
     that.pageY = myPosition.y;
 
@@ -192,7 +207,9 @@ class HorizontalScrollBar extends UIDiv {
 
     that.thumbLeftHandle.frontX = event.layerX;
 
-    let myPosition = getElementPagePosition(that.dom);
+    let myPosition = globalInstances.getPreloadItem("getElementPagePosition")(
+      that.dom
+    );
     that.pageX = myPosition.x;
     that.pageY = myPosition.y;
 
@@ -264,7 +281,9 @@ class HorizontalScrollBar extends UIDiv {
       that.thumbLeftHandle.dom.offsetWidth -
       that.thumbBody.dom.offsetWidth;
 
-    let myPosition = getElementPagePosition(that.dom);
+    let myPosition = globalInstances.getPreloadItem("getElementPagePosition")(
+      that.dom
+    );
     that.pageX = myPosition.x;
     that.pageY = myPosition.y;
 
@@ -441,9 +460,13 @@ class HorizontalScrollBar extends UIDiv {
     let that = this;
 
     that.changeThumbLeftToFitInnerArea();
-    let scalingRatio = that.outerAreaDom.offsetWidth / that.innerAreaDom.offsetWidth;
+    let scalingRatio =
+      that.outerAreaDom.offsetWidth / that.innerAreaDom.offsetWidth;
     let newThumbWidth = that.track.dom.offsetWidth * scalingRatio;
-    let newThumbBodyWidth = newThumbWidth - that.thumbLeftHandle.dom.offsetWidth - that.thumbRightHandle.dom.offsetWidth;
+    let newThumbBodyWidth =
+      newThumbWidth -
+      that.thumbLeftHandle.dom.offsetWidth -
+      that.thumbRightHandle.dom.offsetWidth;
     that.thumbBody.setWidth(newThumbBodyWidth + "px");
     that.thumb.setWidth(newThumbWidth + "px");
   }

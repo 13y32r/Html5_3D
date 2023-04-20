@@ -8,6 +8,8 @@
  * @可以输入预定的版权声明、个性签名、空行等
  */
 import { EventDispatcher, Sphere, Vector3, Box3, Layers } from "three";
+import eventEmitter from "/assist/eventEmitter.js";
+import globalInstances from "/assist/GlobalInstances.js";
 
 import { Config } from "./Config.js";
 
@@ -32,6 +34,18 @@ class EditorOperate extends EventDispatcher {
 
     let that = this;
     that.keyevent = "";
+
+    // 首先尝试获取已经预加载的实例
+    const THREE = globalInstances.getPreloadItem("THREE");
+
+    if (THREE) {
+      this.THREE = THREE;
+    } else {
+      // 如果还没有 editorOperate 实例，订阅事件
+      eventEmitter.on("THREEReady", (THREE) => {
+        this.THREE = THREE;
+      });
+    }
 
     this.IS_MAC = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
 
@@ -86,7 +100,7 @@ class EditorOperate extends EventDispatcher {
     this.materials = {};
     this.helpers = {};
 
-    this.clock = new window["THREE"].Clock(); // only used for animations
+    this.clock = new THREE.Clock(); // only used for animations
 
     this.width = window.innerWidth; //窗口宽度
     this.height = window.innerHeight; //窗口高度
