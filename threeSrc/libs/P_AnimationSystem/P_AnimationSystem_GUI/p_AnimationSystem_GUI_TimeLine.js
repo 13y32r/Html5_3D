@@ -799,6 +799,8 @@ class P_AnimationSystem_GUI_TimeLine {
 
     //带有文本的标签数组
     that.labelFrameArray = new Array();
+    //时间轴下半部分刻度线的数组
+    that.bottomTickMarkArray = new Array();
 
     //分的单位倍数
     that.minuteUnit = 1;
@@ -1241,8 +1243,6 @@ class P_AnimationSystem_GUI_TimeLine {
     that.rightVerticalScrollBarArea.add(that.rightAreaVerticalScrollBar);
 
     that.rightScrollContainer.add(that.rightScrollContent);
-    // that.rightScrollContainer.add(that.eventUnitRowsScrollArea);
-    // that.eventUnitRowsScrollArea.add(that.eventUnitRowsShowArea);
 
     that.rightScrollContent.add(that.timeScaleBar);
     let horizontalSplitLine_3 = new UIHorizontalSplitLine();
@@ -1868,6 +1868,14 @@ class P_AnimationSystem_GUI_TimeLine {
 
     that.timeScaleBar.clear();
     that.labelFrameArray.length = 0;
+    //这里先清空底部刻度线
+    while (that.bottomTickMarkArray.length) {
+      let lastId = that.bottomTickMarkArray.length - 1;
+      let lastElement = that.bottomTickMarkArray[lastId].dom;
+      lastElement.parentNode.removeChild(lastElement);
+      that.bottomTickMarkArray.pop();
+      lastElement = null;
+    }
 
     let showText;
 
@@ -1951,7 +1959,6 @@ class P_AnimationSystem_GUI_TimeLine {
               i - frontIgnoredMinuteNumber * that.sampleNumber;
 
             let theSecondOffSet = 40 + Math.floor(sTimesWidth);
-            // console.log("theSecondOffSet is:" + theSecondOffSet);
             let guiFrameLabel;
 
             let labelOffSetLeft =
@@ -1959,7 +1966,6 @@ class P_AnimationSystem_GUI_TimeLine {
             let theMinuteOffSet =
               40 +
               Math.floor((frontIgnoredMinuteNumber + 1) * that.minuteUnitWidth);
-            // console.log("theMinuteOffSet is:" + theMinuteOffSet);
 
             if (
               labelOffSetLeft > 40 &&
@@ -2058,7 +2064,6 @@ class P_AnimationSystem_GUI_TimeLine {
       15;
 
     reEventColumnsWidth = Math.floor(reEventColumnsWidth);
-    // that.rightScrollContent.setWidth(reEventColumnsWidth + "px");
 
     that.calPromptLinePosition(that.keyPosition);
   }
@@ -2075,6 +2080,7 @@ class P_AnimationSystem_GUI_TimeLine {
     tickMark.dom.style.opacity = opacity;
     tickMark.setLeft(preDistance + "px");
     that.eventColumnCells_Content_BackgroundShowArea.add(tickMark);
+    that.bottomTickMarkArray.push(tickMark);
   }
 
   resizeChange(self, param) {

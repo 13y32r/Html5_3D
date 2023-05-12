@@ -5,7 +5,7 @@
  * @LastEditors: your name
  * @Description:
  * @FilePath: \Html5_3D\testInConsole2.js
- * @可以输入预定的版权声明、个性签名、空行等
+ * @閸欘垯浜掓潏鎾冲弳妫板嫬鐣鹃惃鍕閺夊啫锛愰弰搴涒偓浣烽嚋閹咁劮閸氬秲鈧胶鈹栫悰宀€鐡�
  */
 
 import * as THREE from "./threeSrc/three.module.js";
@@ -114,7 +114,7 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 
 // (async () => {
 //     await Promise.all([timeOutFn, timeOutFn2, timeOutFn3]);
-//     console.log("我在这儿等着你�?");
+//     console.log("閹存垵婀潻娆忓姽缁涘娼冩担鐙呮嫹?");
 // })();
 
 // let testArray = [1, 2, 3, 4, 5, 6, 8, 9];
@@ -139,39 +139,39 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 
 // let testObj = {
 //   "Main-Menu": {
-//     Title: "主菜�?",
+//     Title: "娑撴槒褰嶉敓锟�?",
 //     EditorMode: {
-//       name: "编辑模式",
+//       name: "缂傛牞绶Ο鈥崇础",
 //       type: "folder",
 //       image_url: "./menuGUI/img/editorMode.png",
 //     },
 //     Grids: {
-//       name: "网格",
+//       name: "缂冩垶鐗�",
 //       type: "folder",
 //       image_url: "./menuGUI/img/gridFolder.png",
 //     },
 //     Tools: {
-//       name: "工具�?",
+//       name: "瀹搞儱鍙块敓锟�?",
 //       type: "folder",
 //       image_url: "./menuGUI/img/toolsFolder.png",
 //     },
 //     AxisScale: {
-//       name: "坐标�?",
+//       name: "閸ф劖鐖ｉ敓锟�?",
 //       type: "folder",
 //       image_url: "./menuGUI/img/axisFolder.png",
 //     },
 //     "2D-Shape": {
-//       name: "二维形状",
+//       name: "娴滃瞼娣ぐ銏㈠Ц",
 //       type: "folder",
 //       image_url: "./menuGUI/img/2D-Shape.png",
 //     },
 //     "3D-Shape": {
-//       name: "三维形状",
+//       name: "娑撳娣ぐ銏㈠Ц",
 //       type: "folder",
 //       image_url: "./menuGUI/img/3D-Shape.png",
 //     },
 //     PropertiesWindow: {
-//       name: "对象属性窗",
+//       name: "鐎电钖勭仦鐐粹偓褏鐛�",
 //       type: "button",
 //       class: "PropertiesWindow",
 //       btnUp: "closeWindow",
@@ -180,7 +180,7 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 //       shortcut: ["P", "p"],
 //     },
 //     FullScreen: {
-//       name: "全屏显示",
+//       name: "閸忋劌鐫嗛弰鍓с仛",
 //       type: "button",
 //       class: "FullScreen",
 //       btnUp: "exitFullScreen",
@@ -190,9 +190,9 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 //     },
 //   },
 //   EditorMode: {
-//     Title: "编辑模式",
+//     Title: "缂傛牞绶Ο鈥崇础",
 //     SelectTool: {
-//       name: "选择工具",
+//       name: "闁瀚ㄥ銉ュ徔",
 //       type: "button",
 //       class: "SelectionTool",
 //       btnUp: "selectionUp",
@@ -202,7 +202,7 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 //       preEditorCondition: "OBSERVER",
 //     },
 //     MoveTool: {
-//       name: "移动工具",
+//       name: "缁夎濮╁銉ュ徔",
 //       type: "radio",
 //       class: "TransformBySelection",
 //       btnUp: "toTranslateModeUp",
@@ -212,7 +212,7 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 //       preEditorCondition: "EDIT",
 //     },
 //     RotateTool: {
-//       name: "旋转工具",
+//       name: "閺冨娴嗗銉ュ徔",
 //       type: "radio",
 //       class: "TransformBySelection",
 //       btnUp: "toRotateModeUp",
@@ -222,7 +222,7 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 //       preEditorCondition: "EDIT",
 //     },
 //     ScaleTool: {
-//       name: "缩放工具",
+//       name: "缂傗晜鏂佸銉ュ徔",
 //       type: "radio",
 //       class: "TransformBySelection",
 //       btnUp: "toScaleModeUp",
@@ -232,7 +232,7 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 //       preEditorCondition: "EDIT",
 //     },
 //     WholeTool: {
-//       name: "整体或单独工�?",
+//       name: "閺佺繝缍嬮幋鏍у礋閻欘剙浼愰敓锟�?",
 //       type: "button",
 //       class: "TransformWhole",
 //       btnUp: "independent",
@@ -243,106 +243,106 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 //     },
 //   },
 //   AxisScale: {
-//     Title: "坐标�?",
+//     Title: "閸ф劖鐖ｉ敓锟�?",
 //     "X-Axis": {
-//       name: "X坐标�?",
+//       name: "X閸ф劖鐖ｉ敓锟�?",
 //       type: "button",
 //       class: "AxisScale",
 //       btnUp: "hideXAxis",
 //       btnDown: "showXAxis",
 //       param: {
-//         大小: 30,
-//         最小刻�?: 1,
+//         婢堆冪毈: 30,
+//         閺堚偓鐏忓繐鍩㈤敓锟�?: 1,
 //       },
 //       image_url: "./menuGUI/img/xAxis.png",
 //     },
 //     "Y-Axis": {
-//       name: "Y坐标�?",
+//       name: "Y閸ф劖鐖ｉ敓锟�?",
 //       type: "button",
 //       class: "AxisScale",
 //       btnUp: "hideYAxis",
 //       btnDown: "showYAxis",
 //       param: {
-//         大小: 30,
-//         最小刻�?: 1,
+//         婢堆冪毈: 30,
+//         閺堚偓鐏忓繐鍩㈤敓锟�?: 1,
 //       },
 //       image_url: "./menuGUI/img/yAxis.png",
 //     },
 //     "Z-Axis": {
-//       name: "Z坐标�?",
+//       name: "Z閸ф劖鐖ｉ敓锟�?",
 //       type: "button",
 //       class: "AxisScale",
 //       btnUp: "hideZAxis",
 //       btnDown: "showZAxis",
 //       param: {
-//         大小: 30,
-//         最小刻�?: 1,
+//         婢堆冪毈: 30,
+//         閺堚偓鐏忓繐鍩㈤敓锟�?: 1,
 //       },
 //       image_url: "./menuGUI/img/zAxis.png",
 //     },
 //   },
 //   Tools: {
-//     Title: "工具�?",
+//     Title: "瀹搞儱鍙块敓锟�?",
 //     Rule: {
-//       name: "标尺工具",
+//       name: "閺嶅洤鏄傚銉ュ徔",
 //       type: "button",
 //       class: "Ruler",
 //       btnUp: "stopMeasure",
 //       btnDown: "measure",
 //       param: {
-//         最小刻�?: 1,
+//         閺堚偓鐏忓繐鍩㈤敓锟�?: 1,
 //       },
 //       image_url: "./menuGUI/img/ruler.png",
 //       preEditorCondition: "OBSERVER",
 //     },
 //     SliceTool: {
-//       name: "切割工具",
+//       name: "閸掑洤澹婂銉ュ徔",
 //       type: "button",
 //       class: "CutOffMesh",
 //       btnUp: "stopCut",
 //       btnDown: "startCut",
 //       param: {
-//         分裂距离: 1,
+//         閸掑棜顥囩捄婵堫瀲: 1,
 //       },
 //       image_url: "./menuGUI/img/cuttingTool.png",
 //       preEditorCondition: "OBSERVER",
 //     },
 //   },
 //   Grids: {
-//     Title: "网格",
+//     Title: "缂冩垶鐗�",
 //     "X-Grid": {
-//       name: "X面网�?",
+//       name: "X闂堛垻缍夐敓锟�?",
 //       type: "button",
 //       class: "Grids",
 //       btnUp: "hideXGrid",
 //       btnDown: "showXGrid",
 //       param: {
-//         大小: 30,
-//         最小刻�?: 1,
+//         婢堆冪毈: 30,
+//         閺堚偓鐏忓繐鍩㈤敓锟�?: 1,
 //       },
 //       image_url: "./menuGUI/img/xGrid.png",
 //     },
 //     "Y-Grid": {
-//       name: "Y面网�?",
+//       name: "Y闂堛垻缍夐敓锟�?",
 //       type: "button",
 //       class: "Grids",
 //       btnUp: "hideYGrid",
 //       btnDown: "showYGrid",
 //       param: {
-//         大小: 30,
-//         最小刻�?: 1,
+//         婢堆冪毈: 30,
+//         閺堚偓鐏忓繐鍩㈤敓锟�?: 1,
 //       },
 //       image_url: "./menuGUI/img/yGrid.png",
 //     },
 //     "Z-Grid": {
-//       name: "Z面网�?",
+//       name: "Z闂堛垻缍夐敓锟�?",
 //       type: "button",
 //       class: "Grids",
 //       btnUp: "hideZGrid",
 //       btnDown: "showZGrid",
 //       param: {
-//         大小: 30,
-//         最小刻�?: 1,
+//         婢堆冪毈: 30,
+//         閺堚偓鐏忓繐鍩㈤敓锟�?: 1,
 //       },
 //       image_url: "./menuGUI/img/zGrid.png",
 //     },
@@ -394,3 +394,7 @@ let arr = [123, 321, 456, 987, 46587, 156, 3879, 98654, 158];
 //   newFun();
 // }
 // sayHello();
+
+let abb = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+abb.unshift(123);
+console.log(abb);
