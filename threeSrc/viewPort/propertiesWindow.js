@@ -1,4 +1,4 @@
-import eventEmitter from "/assist/eventEmitter.js";
+import eventEmitter from "/assist/EventEmitter.js";
 import globalInstances from "/assist/GlobalInstances.js";
 
 import { UITabbedPanel, documentBodyAdd, UIDiv } from "../libs/ui.js";

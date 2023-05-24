@@ -8,7 +8,7 @@
  * @可以输入预定的版权声明、个性签名、空行等
  */
 import { EventDispatcher, Sphere, Vector3, Box3, Layers } from "three";
-import eventEmitter from "/assist/eventEmitter.js";
+import eventEmitter from "/assist/EventEmitter.js";
 import globalInstances from "/assist/GlobalInstances.js";
 
 import { Config } from "./Config.js";

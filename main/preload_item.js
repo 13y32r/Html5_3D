@@ -7,7 +7,7 @@
  * @FilePath: \Html5_3D\main\preload_item.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
-import eventEmitter from "/assist/eventEmitter.js";
+import eventEmitter from "/assist/EventEmitter.js";
 import globalInstances from "/assist/GlobalInstances.js";
 
 import { plugInLoadingTips } from "../assist/plug-inLoadingTips.js";

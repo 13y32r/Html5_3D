@@ -11,7 +11,7 @@ import { preloadItem } from "./preload_item.js";
 import { MenuGUI } from "../menuGUI/menuGUI.js";
 import { SelectState } from "../threeSrc/tools/selectionControl/SelectState.js";
 import { EditorState } from "../threeSrc/editor/EditorState.js";
-import eventEmitter from "/assist/eventEmitter.js";
+import eventEmitter from "/assist/EventEmitter.js";
 import globalInstances from "/assist/GlobalInstances.js";
 
 async function init() {

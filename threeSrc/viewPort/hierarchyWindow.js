@@ -1,4 +1,4 @@
-import eventEmitter from "/assist/eventEmitter.js";
+import eventEmitter from "/assist/EventEmitter.js";
 import globalInstances from "/assist/GlobalInstances.js";
 
 import { normalWindow } from "../libs/ui.menu.js";
