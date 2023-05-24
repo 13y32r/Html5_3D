@@ -11,7 +11,6 @@ import {
   documentBodyAdd,
   documentBodyRemove,
 } from "../../../libs/ui.js";
-// import { dynamicCssFile } from "../../../../assist/dynamicCssFile.js";
 import { Vector3, Quaternion } from "three";
 import {
   normalWindow,
@@ -743,8 +742,8 @@ class P_AnimationSystem_GUI_TimeLine {
     let that = this;
 
     //导入本插件所需要的CSS文件
-    const dynamicCssFile = globalInstances.getPreloadItem("dynamicCssFile");
-    that.myCss = new dynamicCssFile(
+    const DynamicCssFile = globalInstances.getPreloadItem("DynamicCssFile");
+    that.myCss = new DynamicCssFile(
       "./threeSrc/libs/P_AnimationSystem/P_AnimationSystem_GUI/p_AnimationSystem_GUI_TimeLine.css"
     );
 
@@ -1013,10 +1012,6 @@ class P_AnimationSystem_GUI_TimeLine {
     }, 200);
 
     that.isPointerEnter = false;
-
-    that.resizeChange = that.resizeChange.bind(this);
-
-    that.setPLPositionByPoint = that.setPLPositionByPoint.bind(this);
     that.timeScaleBar.dom.addEventListener(
       "pointerdown",
       that.setPLPositionByPoint
@@ -1048,27 +1043,10 @@ class P_AnimationSystem_GUI_TimeLine {
       }
     );
 
-    that.calPromptLinePosition = that.calPromptLinePosition.bind(this);
-    that.calKeyFrameOfPromptLine = that.calKeyFrameOfPromptLine.bind(this);
-    that.calKeyFrameOfPL_Position = that.calKeyFrameOfPL_Position.bind(this);
-
-    that.wheelEventInWindow = that.wheelEventInWindow.bind(this);
     that.rightScrollContainer.dom.addEventListener(
       "wheel",
       that.wheelEventInWindow
     );
-
-    that.displayContentAccordingToPanelState =
-      that.displayContentAccordingToPanelState.bind(this);
-    that.updateAnimatedObject = that.updateAnimatedObject.bind(this);
-    that.updateAttributeParam = that.updateAttributeParam.bind(this);
-    that.initFrameBar = that.initFrameBar.bind(this);
-
-    that.openPanel = that.openPanel.bind(this);
-    that.closePanel = that.closePanel.bind(this);
-
-    that.theEventColumnsHeightToConsistentWithTheObjColumnHeight =
-      that.theEventColumnsHeightToConsistentWithTheObjColumnHeight.bind(this);
 
     that.signals.objectSelected.add(that.updateAnimatedObject);
     that.signals.hierarchyChange.add(that.updateAnimatedObject);
@@ -1076,7 +1054,7 @@ class P_AnimationSystem_GUI_TimeLine {
   }
 
   //调整右边事件横向单元显示区域，以使其与that.ObjAttributeShowArea的单元数量一致
-  adjustEventUnitRowsShowArea() {
+  adjustEventUnitRowsShowArea = () => {
     let that = this;
 
     // that.eventUnitRowsScrollArea.setWidth(
@@ -1091,10 +1069,10 @@ class P_AnimationSystem_GUI_TimeLine {
     // that.eventUnitRowsScrollArea.setLeft(
     //   that.rightScrollContainer.dom.offsetLeft + "px"
     // );
-  }
+  };
 
   //这里当左边的对象列高度发生变化时，右边的事件列的高度要和左边的对象列的高度保持一致
-  theEventColumnsHeightToConsistentWithTheObjColumnHeight() {
+  theEventColumnsHeightToConsistentWithTheObjColumnHeight = () => {
     let that = this;
 
     let RefHeight = that.objColumnCells.dom.offsetHeight;
@@ -1116,10 +1094,10 @@ class P_AnimationSystem_GUI_TimeLine {
 
     //高度发生变化时，更新右边竖直滚动条的参数
     that.rightAreaVerticalScrollBar.refresh();
-  }
+  };
 
   //这里是Animation窗口的宽高发生变化时，调整各个区域的宽高的函数
-  resizeEventing(e) {
+  resizeEventing = (e) => {
     let that = this;
 
     let newHeight = e.detail.newHeight - 25 + "px";
@@ -1134,10 +1112,10 @@ class P_AnimationSystem_GUI_TimeLine {
     that.objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth();
     //这里当左边的对象列高度发生变化时，右边的事件列的高度要和左边的对象列的高度保持一致
     that.theEventColumnsHeightToConsistentWithTheObjColumnHeight();
-  }
+  };
 
   //当objAreaScrollHeight的高度发生变化时，同时根据条件来调整objColumnCells的Top值
-  whileObjAreaScrollHeightChangedAdjustObjColumnCellsTop() {
+  whileObjAreaScrollHeightChangedAdjustObjColumnCellsTop = () => {
     let that = this;
 
     //这里判断如果that.objAreaScroll的高度大于了that.objColumnCells的显示高度，则判断that.objColumnCells的Top距离
@@ -1157,9 +1135,9 @@ class P_AnimationSystem_GUI_TimeLine {
         that.objColumnCells.setTop("0px");
       }
     }
-  }
+  };
 
-  createGUI() {
+  createGUI = () => {
     let that = this;
 
     this.mainBody = new normalWindow(
@@ -1273,10 +1251,10 @@ class P_AnimationSystem_GUI_TimeLine {
       that.updateAnimatedObject(that.editor.selectionHelper.selectedObject);
       // that.closePanel();
     }, 500);
-  }
+  };
 
   //初始化帧频显示数据
-  initFrameBar(maxTime) {
+  initFrameBar = (maxTime) => {
     let that = this;
 
     that.sampleNumber = that.sampleInput.getValue();
@@ -1304,10 +1282,10 @@ class P_AnimationSystem_GUI_TimeLine {
 
       that.refreshFrame();
     }, 100);
-  }
+  };
 
   //更新动画面板对象
-  updateAnimatedObject(objects) {
+  updateAnimatedObject = (objects) => {
     let that = this;
 
     //这里根据主编辑器反馈回的选中物体，来进一步的判断动画面板的状态
@@ -1331,9 +1309,9 @@ class P_AnimationSystem_GUI_TimeLine {
 
     that.displayContentAccordingToPanelState(that.animationEditorState);
     that.stateChange();
-  }
+  };
 
-  stateChange() {
+  stateChange = () => {
     let that = this;
 
     that.dom.dispatchEvent(
@@ -1343,10 +1321,10 @@ class P_AnimationSystem_GUI_TimeLine {
         detail: { state: that.animationEditorState },
       })
     );
-  }
+  };
 
   //通过动画面板的状态来显示不同的内容
-  displayContentAccordingToPanelState(panelState) {
+  displayContentAccordingToPanelState = (panelState) => {
     let that = this;
 
     that.container.removeTheLastChild();
@@ -1401,9 +1379,9 @@ class P_AnimationSystem_GUI_TimeLine {
 
     // 判断对象属性栏区域是否要添加或则删除VerticalScrollBar，并对that.objColumnCells的dom元素的宽做出调整
     that.objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth();
-  }
+  };
 
-  enableAllButtonAndInput() {
+  enableAllButtonAndInput = () => {
     let that = this;
 
     that.recordButton.enable();
@@ -1418,9 +1396,9 @@ class P_AnimationSystem_GUI_TimeLine {
     if (that.objAreaScroll.getIndexOfChild(that.objColumnCells) == -1) {
       that.objAreaScroll.add(that.objColumnCells);
     }
-  }
+  };
 
-  disableAllButtonAndInput() {
+  disableAllButtonAndInput = () => {
     let that = this;
 
     that.recordButton.disable();
@@ -1436,9 +1414,9 @@ class P_AnimationSystem_GUI_TimeLine {
     if (that.objAreaScroll.getIndexOfChild(that.objColumnCells) != -1) {
       that.objAreaScroll.remove(that.objColumnCells);
     }
-  }
+  };
 
-  updateAttributeParam(object, animationClip) {
+  updateAttributeParam = (object, animationClip) => {
     let that = this;
 
     //这里获取动画剪辑的最大动画时间，并刷新时间轴。
@@ -1544,10 +1522,10 @@ class P_AnimationSystem_GUI_TimeLine {
       //这里由于左边的属性列全部加载完后高度发生变化，所以右边的事件列的高度也要随之改变。
       that.theEventColumnsHeightToConsistentWithTheObjColumnHeight();
     });
-  }
+  };
 
   //判断对象属性栏区域是否要添加或则删除VerticalScrollBar，并对that.objColumnCells的dom元素的宽做出调整
-  objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth() {
+  objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth = () => {
     let that = this;
 
     if (
@@ -1572,10 +1550,10 @@ class P_AnimationSystem_GUI_TimeLine {
       that.objAreaScroll.remove(that.objAreaVerticalScrollBar);
       that.objColumnCells.setTop("0px");
     }
-  }
+  };
 
   //滚轮控制帧间隙的函数
-  wheelFrameSpace(rp) {
+  wheelFrameSpace = (rp) => {
     let that = this;
 
     //这里先计算能显示的最大帧数，防止溢出
@@ -1667,10 +1645,10 @@ class P_AnimationSystem_GUI_TimeLine {
     that.rightAreaHorizontalScrollBar.forceScaleThumb();
 
     that.refreshFrame(rp);
-  }
+  };
 
   //监听鼠标点放关键帧的位置
-  setPLPositionByPoint(event) {
+  setPLPositionByPoint = (event) => {
     let that = this;
 
     // let plPosition = (event.offsetX + that.rightScrollContent.dom.offsetLeft) + "px";
@@ -1684,10 +1662,10 @@ class P_AnimationSystem_GUI_TimeLine {
     }
 
     that.calKeyFrameOfPromptLine(relPosition);
-  }
+  };
 
   //计算关键帧轴线应属于哪一个位置，并重置PromptLine的位置
-  calPromptLinePosition(keyFrameValue) {
+  calPromptLinePosition = (keyFrameValue) => {
     let that = this;
 
     let suWidth;
@@ -1710,10 +1688,10 @@ class P_AnimationSystem_GUI_TimeLine {
     }
 
     that.promptLine.setLeft(absolutePosition + "px");
-  }
+  };
 
   //计算屏幕像素所对应时间轴上的哪一个帧
-  calKeyFrameOfPL_Position(pl_position) {
+  calKeyFrameOfPL_Position = (pl_position) => {
     let that = this;
 
     //首先算出关键帧所在的位置属于哪一个“分”
@@ -1747,20 +1725,20 @@ class P_AnimationSystem_GUI_TimeLine {
     let keyFrameValue = minuteID * that.sampleNumber + secondID;
 
     return keyFrameValue;
-  }
+  };
 
   //计算关键帧轴线在位置上具体所属于哪一个帧，并在对应关键帧Input.value中改为相应的值
-  calKeyFrameOfPromptLine(pl_position) {
+  calKeyFrameOfPromptLine = (pl_position) => {
     let that = this;
 
     that.keyPosition = that.calKeyFrameOfPL_Position(pl_position);
     that.keyPositionInput.setValue(that.keyPosition);
 
     that.calPromptLinePosition(that.keyPosition);
-  }
+  };
 
   //采样频率改变时，重新计算各个帧之间的间隙
-  sampleChangeReCalFrameSpace(newSample, oldSample) {
+  sampleChangeReCalFrameSpace = (newSample, oldSample) => {
     let that = this;
 
     that.secondUnitWidth =
@@ -1793,10 +1771,10 @@ class P_AnimationSystem_GUI_TimeLine {
     that.sampleNumber = parseInt(that.sampleNumber);
 
     that.refreshFrame();
-  }
+  };
 
   //当尺寸改变时，重新计算帧的间隙函数
-  sizeChangeReCalFrameSpace(scale) {
+  sizeChangeReCalFrameSpace = (scale) => {
     let that = this;
 
     //判断最小单位类型是“秒”还是“分”
@@ -1856,10 +1834,10 @@ class P_AnimationSystem_GUI_TimeLine {
     }
 
     that.refreshFrame();
-  }
+  };
 
   //刷新时间轴上的显示帧
-  refreshFrame(rp) {
+  refreshFrame = (rp) => {
     let that = this;
     let refPoint = 0;
     if (rp) {
@@ -2066,10 +2044,13 @@ class P_AnimationSystem_GUI_TimeLine {
     reEventColumnsWidth = Math.floor(reEventColumnsWidth);
 
     that.calPromptLinePosition(that.keyPosition);
-  }
+  };
 
   //添加竖向的刻度线到事件竖向元素内容的背景显示区域
-  addTickMarksEventColumnCellsContentBackgroundShowArea(preDistance, opacity) {
+  addTickMarksEventColumnCellsContentBackgroundShowArea = (
+    preDistance,
+    opacity
+  ) => {
     let that = this;
 
     let tickMark = new UIDiv();
@@ -2081,16 +2062,18 @@ class P_AnimationSystem_GUI_TimeLine {
     tickMark.setLeft(preDistance + "px");
     that.eventColumnCells_Content_BackgroundShowArea.add(tickMark);
     that.bottomTickMarkArray.push(tickMark);
-  }
+  };
 
-  resizeChange(self, param) {
+  //当动画面板窗口的尺寸被改变时，触发该函数，以调整动画面板中个元素的尺寸以及比例关系。
+  resizeChange = (self, param) => {
     let that = self;
 
     let scale = param.newDom3Width / param.oldDom3Width;
     that.sizeChangeReCalFrameSpace(scale);
-  }
+  };
 
-  wheelEventInWindow(event) {
+  //当鼠标滚轮在动画面板的事件区域内滚动时，触发该函数，以缩放动画面板的时间轴刻度。
+  wheelEventInWindow = (event) => {
     event.preventDefault();
 
     let that = this;
@@ -2104,15 +2087,17 @@ class P_AnimationSystem_GUI_TimeLine {
     that.markIncrement = Math.sign(event.deltaY) * 2;
     that.wheelFrameSpace(pointer_X - 40);
     that.markIncrement = 0;
-  }
+  };
 
-  closePanel() {
+  //隐藏动画面板
+  closePanel = () => {
     this.mainBody.setDisplay("none");
-  }
+  };
 
-  openPanel() {
+  //显示动画面板
+  openPanel = () => {
     this.mainBody.setDisplay("flex");
-  }
+  };
 }
 
 class AddPropertyButton extends UIElement {

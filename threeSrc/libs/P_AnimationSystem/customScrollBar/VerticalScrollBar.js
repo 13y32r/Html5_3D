@@ -24,8 +24,8 @@ class VerticalScrollBar extends UIDiv {
     that.scrollTop = 0;
 
     //导入本插件所需要的CSS文件
-    const dynamicCssFile = globalInstances.getPreloadItem("dynamicCssFile");
-    that.myCss = new dynamicCssFile(that.folderPath + "customScrollBar.css");
+    const DynamicCssFile = globalInstances.getPreloadItem("DynamicCssFile");
+    that.myCss = new DynamicCssFile(that.folderPath + "customScrollBar.css");
 
     that.buttonArea = new UIDiv();
 

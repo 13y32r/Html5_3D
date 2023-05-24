@@ -35,10 +35,10 @@ class MenuGUI {
 
   //实例化GUI
   async init() {
-    await this.guiLoadingTips("./menuGUI/menu_list.json");
+    await this.guiLoadingTips("./menuGUI/Menu_list.json");
   }
 
-  async guiLoadingTips(list_url = "./menuGUI/menu_list.json") {
+  async guiLoadingTips(list_url = "./menuGUI/Menu_list.json") {
     let that = this;
     return new Promise(async (resolve, reject) => {
       //加载GUI的配置列表
@@ -50,7 +50,7 @@ class MenuGUI {
         if (request.status == 200) {
           var json = JSON.parse(request.responseText);
           that.listJson = json;
-          that.linkCSS("./menuGUI/menuGUI.css");
+          that.linkCSS("./menuGUI/MenuGUI.css");
           that.linkCSS("../threeSrc/libs/css/main.css");
           that.initClass4Menu(that.listJson);
           that.initFolder(that.listJson);

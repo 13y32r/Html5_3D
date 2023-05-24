@@ -24,7 +24,7 @@ class HorizontalScrollBar extends UIDiv {
     that.dom.draggable = false;
     that.scrollLeft = 0;
 
-    that.myCss = new dynamicCssFile("./customScrollBar.css");
+    that.myCss = new DynamicCssFile("./customScrollBar.css");
     that.setWidth(width + "px");
     that.width = width;
 

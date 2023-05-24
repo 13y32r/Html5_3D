@@ -28,8 +28,8 @@ class HorizontalScrollBar extends UIDiv {
     that.scrollLeft = 0;
 
     //导入本插件所需要的CSS文件
-    const dynamicCssFile = globalInstances.getPreloadItem("dynamicCssFile");
-    that.myCss = new dynamicCssFile("./customScrollBar.css");
+    const DynamicCssFile = globalInstances.getPreloadItem("DynamicCssFile");
+    that.myCss = new DynamicCssFile("./customScrollBar.css");
 
     that.buttonArea = new UIDiv();
 

@@ -1,4 +1,4 @@
-class dynamicCssFile {
+class DynamicCssFile {
   constructor(url) {
     let that = this;
 
@@ -35,4 +35,4 @@ class dynamicCssFile {
   }
 }
 
-export { dynamicCssFile };
+export { DynamicCssFile };

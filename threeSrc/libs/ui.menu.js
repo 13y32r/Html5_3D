@@ -779,7 +779,6 @@ class MenuObject {
   }
 
   changeDirectionState(state) {
-    console.log(state);
 
     this.mainMenu.changeDirectionState(state);
     this.directionMenu.changeDirectionState(state);

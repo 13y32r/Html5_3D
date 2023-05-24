@@ -12,46 +12,55 @@ class GlobalInstances {
   constructor() {
     this.editorOperate = null;
     //这里将项目的编辑器部分根据editoroperate实例化的时间点来分为三部分：
-    //第一部分是预加载项目‘preloadItems’，这些项目是在editoroperate实例化之前就一定要在项目中加载的，加载完毕之后，所有的项目会用于editoroperate的装配，也可以看作editoroperate的“零件”。
+    //第一部分是预加载项目‘preloadItems’，这些对象是在editoroperate实例化之前就一定要在浏览器后台加载的，加载完毕之后，所有的项目会用于editoroperate的装配，或是被editoroperate的“零件”所引用。
     this.preloadItems = {};
-    //第二部分是在“editoroperate”实例化之后需要加载的‘initItems’，这部分的项目是编辑器初始化所需要的“零配件”，但由于这部分的组件都会用到“editoroperate”或是一定会与“editoroperate”进行交互，所以必须是在“editoroperate”初始化完成之后进行加载。但又由于它们是整个编辑器系统正常运行的保障，所以必须在“editoroperate”实例化之后进行加载并实例化。
+    //第二部分是在“editoroperate”实例化之后需要加载的‘initItems’，这部分的对象是编辑器初始化所需要的“零配件”，但由于这部分的组件都会用到“editoroperate”或是一定会与“editoroperate”进行交互，所以必须是在“editoroperate”初始化完成之后进行加载。但又由于它们是整个编辑器系统正常运行的保障，所以必须在“editoroperate”实例化之后进行加载并实例化。
     this.initItems = {};
     //第三个部分，是动态加载部分‘dynamicLoadItems’，这部分的组件会根据客户的需求，从服务器动态的拉取现有的组件。
     this.dynamicLoadItems = {};
   }
 
+  //为全局单例对象设置唯一的editoroperate对象
   setEditorOperate(editorOperate) {
     this.editorOperate = editorOperate;
   }
 
+  //获取全局单例对象所引用的唯一editoroperate对象
   getEditorOperate() {
     return this.editorOperate;
   }
 
+  //在全局单例对象中添加一个预加载对象
   addPreloadItem(name, item) {
     this.preloadItems[name] = item;
   }
 
+  //通过“对象名字”，在全局单例对象中获取一个预加载对象
   getPreloadItem(name) {
     return this.preloadItems[name];
   }
 
+  //在全局单例对象中添加一个初始化对象
   addInitItem(name, item) {
     this.initItems[name] = item;
   }
 
+  //通过“对象名字”，在全局单例对象中获取一个初始化对象
   getInitItem(name) {
     return this.initItems[name];
   }
 
+  //在全局单例对象中添加一个动态加载对象
   addDynamicLoadItem(name, item) {
     this.dynamicLoadItems[name] = item;
   }
 
+  //通过“对象名字”，在全局单例对象中获取一个动态加载对象
   getDynamicLoadItem(name) {
     return this.dynamicLoadItems[name];
   }
 
+  //通过“对象名字”，在全局单例对象中删除一个动态加载对象
   removeDynamicLoadItem(name) {
     if (typeof this.dynamicLoadItems[name].dispose === "function") {
       this.dynamicLoadItems[name].dispose();

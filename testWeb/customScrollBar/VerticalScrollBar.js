@@ -21,7 +21,7 @@ class VerticalScrollBar extends UIDiv {
     that.dom.draggable = false;
     that.scrollTop = 0;
 
-    that.myCss = new dynamicCssFile("./customScrollBar.css");
+    that.myCss = new DynamicCssFile("./customScrollBar.css");
     that.setHeight(height + "px");
 
     that.buttonArea = new UIDiv();
