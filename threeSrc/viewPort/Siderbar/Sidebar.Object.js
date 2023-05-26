@@ -14,12 +14,12 @@ import {
 } from "../../libs/ui.js";
 import { UIBoolean } from "../../libs/ui.three.js";
 
-import { SetUuidCommand } from "../../editor/commands/SetUuidCommand.js";
-import { SetValueCommand } from "../../editor/commands/SetValueCommand.js";
-import { SetPositionCommand } from "../../editor/commands/SetPositionCommand.js";
-import { SetRotationCommand } from "../../editor/commands/SetRotationCommand.js";
-import { SetScaleCommand } from "../../editor/commands/SetScaleCommand.js";
-import { SetColorCommand } from "../../editor/commands/SetColorCommand.js";
+import { SetUuidCommand } from "../../editor/commands/EditorCommands/SetUuidCommand.js";
+import { SetValueCommand } from "../../editor/commands/EditorCommands/SetValueCommand.js";
+import { SetPositionCommand } from "../../editor/commands/EditorCommands/SetPositionCommand.js";
+import { SetRotationCommand } from "../../editor/commands/EditorCommands/SetRotationCommand.js";
+import { SetScaleCommand } from "../../editor/commands/EditorCommands/SetScaleCommand.js";
+import { SetColorCommand } from "../../editor/commands/EditorCommands/SetColorCommand.js";
 
 function SidebarObject(editor) {
   const strings = editor.strings;

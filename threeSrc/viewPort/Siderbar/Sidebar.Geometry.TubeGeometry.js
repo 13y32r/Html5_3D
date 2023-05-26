@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { UIDiv, UIRow, UIText, UIInteger, UISelect, UICheckbox, UINumber } from '../../libs/ui.js';
 import { UIPoints3 } from '../../libs/ui.three.js';
 
-import { SetGeometryCommand } from '../../editor/commands/SetGeometryCommand.js';
+import { SetGeometryCommand } from '../../editor/commands/EditorCommands/SetGeometryCommand.js';
 
 function GeometryParametersPanel( editor, object ) {
 

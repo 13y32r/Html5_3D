@@ -24,7 +24,7 @@ import { Strings } from "./Strings.js";
 import { Storage as _Storage } from "./Storage.js";
 import { History as _History } from "./History.js";
 
-import { RemoveObjectCommand } from "./commands/RemoveObjectCommand.js";
+import { RemoveObjectCommand } from "./commands/EditorCommands/RemoveObjectCommand.js";
 
 import * as initSignals from "../libs/signals.dynamic.js";
 

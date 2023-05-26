@@ -1,41 +1,46 @@
-import { Command } from './Command.js';
+import { Command } from '../Command.js';
 
 /**
  * @param editor Editor
  * @param object THREE.Object3D
  * @param attributeName string
- * @param newValue number, string, boolean or object
+ * @param newValue integer representing a hex color value
  * @constructor
  */
-class SetGeometryValueCommand extends Command {
+class SetColorCommand extends Command {
 
 	constructor( editor, object, attributeName, newValue ) {
 
 		super( editor );
 
-		this.type = 'SetGeometryValueCommand';
-		this.name = `Set Geometry.${attributeName}`;
+		this.type = 'SetColorCommand';
+		this.name = `Set ${attributeName}`;
+		this.updatable = true;
 
 		this.object = object;
 		this.attributeName = attributeName;
-		this.oldValue = ( object !== undefined ) ? object.geometry[ attributeName ] : undefined;
+		this.oldValue = ( object !== undefined ) ? this.object[ this.attributeName ].getHex() : undefined;
 		this.newValue = newValue;
 
 	}
 
 	execute() {
 
-		this.object.geometry[ this.attributeName ] = this.newValue;
+		this.object[ this.attributeName ].setHex( this.newValue );
 		this.editor.signals.objectsChanged.dispatch( this.object );
-		this.editor.signals.geometryChanged.dispatch();
 
 	}
 
 	undo() {
 
-		this.object.geometry[ this.attributeName ] = this.oldValue;
+		this.object[ this.attributeName ].setHex( this.oldValue );
 		this.editor.signals.objectsChanged.dispatch( this.object );
-		this.editor.signals.geometryChanged.dispatch();
+
+	}
+
+	update( cmd ) {
+
+		this.newValue = cmd.newValue;
 
 	}
 
@@ -65,4 +70,4 @@ class SetGeometryValueCommand extends Command {
 
 }
 
-export { SetGeometryValueCommand };
+export { SetColorCommand };

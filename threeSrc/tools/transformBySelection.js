@@ -13,9 +13,9 @@ import globalInstances from "/assist/GlobalInstances.js";
 import { TransformControls } from "../libs/TransformControls.js";
 import { Matrix4, Vector3, Quaternion } from "three";
 import { EditorState } from "../editor/EditorState.js";
-import { SetPositionCommand } from "../editor/commands/SetPositionCommand.js";
-import { SetRotationCommand } from "../editor/commands/SetRotationCommand.js";
-import { SetScaleCommand } from "../editor/commands/SetScaleCommand.js";
+import { SetPositionCommand } from "../editor/commands/EditorCommands/SetPositionCommand.js";
+import { SetRotationCommand } from "../editor/commands/EditorCommands/SetRotationCommand.js";
+import { SetScaleCommand } from "../editor/commands/EditorCommands/SetScaleCommand.js";
 
 class TransformBySelection {
   constructor() {

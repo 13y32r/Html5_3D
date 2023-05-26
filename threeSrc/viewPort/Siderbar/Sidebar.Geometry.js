@@ -9,7 +9,7 @@ import {
   UISpan,
 } from "../../libs/ui.js";
 
-import { SetGeometryValueCommand } from "../../editor/commands/SetGeometryValueCommand.js";
+import { SetGeometryValueCommand } from "../../editor/commands/EditorCommands/SetGeometryValueCommand.js";
 
 import { SidebarGeometryBufferGeometry } from "./Sidebar.Geometry.BufferGeometry.js";
 import { SidebarGeometryModifiers } from "./Sidebar.Geometry.Modifiers.js";

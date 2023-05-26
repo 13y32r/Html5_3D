@@ -8,7 +8,7 @@
  * @可以输入预定的版权声明、个性签名、空行等
  */
 
-import { Command } from "./Command.js";
+import { Command } from "../Command.js";
 import { Matrix4 } from "three";
 
 /**

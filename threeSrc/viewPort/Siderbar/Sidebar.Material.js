@@ -10,8 +10,8 @@ import {
   UITextArea,
 } from "../../libs/ui.js";
 
-import { SetMaterialCommand } from "../../editor/commands/SetMaterialCommand.js";
-import { SetMaterialValueCommand } from "../../editor/commands/SetMaterialValueCommand.js";
+import { SetMaterialCommand } from "../../editor/commands/EditorCommands/SetMaterialCommand.js";
+import { SetMaterialValueCommand } from "../../editor/commands/EditorCommands/SetMaterialValueCommand.js";
 
 import { SidebarMaterialBooleanProperty } from "./Sidebar.Material.BooleanProperty.js";
 import { SidebarMaterialColorProperty } from "./Sidebar.Material.ColorProperty.js";
