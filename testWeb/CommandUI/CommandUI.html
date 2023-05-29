@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command UI Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.11/dist/gsap.min.js"></script>
+</head>
+
+<body>
+    <div id="GaoDaShang"
+        style="position:absolute;top:100px;left: 400px;background-color: brown;width: 500px;height: 500px;"></div>
+</body>
+
+<script>
+    let element = document.getElementById("GaoDaShang");
+    element.addEventListener("click", function () {
+        gsap.globalTimeline.pause();
+        console.log(gsap);
+        let x = Math.random() * 1000;
+        let y = Math.random() * 1000;
+        gsap.to("#GaoDaShang", { x: x, y: y, duration: 5 })
+        gsap.globalTimeline.play();
+    });
+</script>
+
+</html>
