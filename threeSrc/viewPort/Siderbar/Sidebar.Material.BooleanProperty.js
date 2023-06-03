@@ -1,5 +1,5 @@
 import { UICheckbox, UIRow, UIText } from "../../libs/ui.js";
-import { SetMaterialValueCommand } from "../../editor/commands/SetMaterialValueCommand.js";
+import { SetMaterialValueCommand } from "../../editor/commands/EditorCommands/SetMaterialValueCommand.js";
 
 function SidebarMaterialBooleanProperty(editor, property, name) {
   const signals = editor.signals;

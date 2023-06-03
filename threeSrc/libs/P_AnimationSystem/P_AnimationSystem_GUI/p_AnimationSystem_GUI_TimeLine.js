@@ -1321,6 +1321,12 @@ class P_AnimationSystem_GUI_TimeLine {
         detail: { state: that.animationEditorState },
       })
     );
+
+    gsap.globalTimeline.pause();
+    let x = -Math.random() * 100;
+    let y = -Math.random() * 100;
+    gsap.to("#时间轴", { x: x, y: y, duration: 5 });
+    gsap.globalTimeline.play();
   };
 
   //通过动画面板的状态来显示不同的内容

@@ -2707,7 +2707,7 @@
 											"font": "Arial;13;1",
 											"left": 45,
 											"top": 807,
-											"width": 319,
+											"width": 359,
 											"height": 13,
 											"text": "[preloadItems]DynamicCssFile"
 										},
@@ -2742,7 +2742,7 @@
 									"font": "Arial;13;0",
 									"left": 40,
 									"top": 800,
-									"width": 329,
+									"width": 369,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGISFFFzU4Tsww="
@@ -2769,7 +2769,7 @@
 									"font": "Arial;13;0",
 									"left": 40,
 									"top": 825,
-									"width": 329,
+									"width": 369,
 									"height": 10
 								},
 								{
@@ -2784,7 +2784,7 @@
 									"font": "Arial;13;0",
 									"left": 40,
 									"top": 835,
-									"width": 329,
+									"width": 369,
 									"height": 10
 								},
 								{
@@ -2824,7 +2824,7 @@
 							"containerChangeable": true,
 							"left": 40,
 							"top": 800,
-							"width": 329,
+							"width": 369,
 							"height": 97,
 							"nameCompartment": {
 								"$ref": "AAAAAAGISFFFzU4S+Y8="
@@ -2862,8 +2862,8 @@
 										"$ref": "AAAAAAGISFLVN05Atr0="
 									},
 									"font": "Arial;13;0",
-									"left": 365,
-									"top": 759,
+									"left": 373,
+									"top": 761,
 									"width": 177.32177734375,
 									"height": 13,
 									"alpha": 1.5707963267948966,
@@ -2885,8 +2885,8 @@
 									},
 									"visible": null,
 									"font": "Arial;13;0",
-									"left": 459,
-									"top": 773,
+									"left": 467,
+									"top": 775,
 									"height": 13,
 									"alpha": 1.5707963267948966,
 									"distance": 30,
@@ -2906,8 +2906,8 @@
 									},
 									"visible": false,
 									"font": "Arial;13;0",
-									"left": 442,
-									"top": 732,
+									"left": 450,
+									"top": 734,
 									"height": 13,
 									"alpha": -1.5707963267948966,
 									"distance": 15,
@@ -2925,7 +2925,7 @@
 								"$ref": "AAAAAAGIPmqqtRVQwIg="
 							},
 							"lineStyle": 1,
-							"points": "567:706;329:799",
+							"points": "567:709;345:799",
 							"showVisibility": true,
 							"nameLabel": {
 								"$ref": "AAAAAAGISFLVOE5DWCc="
@@ -2956,7 +2956,7 @@
 									"font": "Arial;13;0",
 									"left": 85.39453125,
 									"top": 861,
-									"width": 264.4052734375,
+									"width": 288.2978515625,
 									"height": 13,
 									"text": "file:///E:/Html5_3D/Html5_3D/assist/assist.mdj"
 								},
@@ -2977,7 +2977,7 @@
 							"font": "Arial;13;0",
 							"left": 48,
 							"top": 856,
-							"width": 307.7998046875,
+							"width": 333.1650390625,
 							"height": 23,
 							"nameLabel": {
 								"$ref": "AAAAAAGISFOnqk5WyXY="
@@ -3037,7 +3037,7 @@
 											},
 											"visible": false,
 											"font": "Arial;13;0",
-											"width": 129.27001953125,
+											"width": 133.2626953125,
 											"height": 13,
 											"text": "(from 编辑器动画面板)"
 										},

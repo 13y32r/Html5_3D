@@ -1,5 +1,5 @@
 import { UIRow, UISelect, UIText } from "../../libs/ui.js";
-import { SetMaterialValueCommand } from "../../editor/commands/SetMaterialValueCommand.js";
+import { SetMaterialValueCommand } from "../../editor/commands/EditorCommands/SetMaterialValueCommand.js";
 
 function SidebarMaterialConstantProperty(editor, property, name, options) {
   const signals = editor.signals;

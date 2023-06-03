@@ -1,13 +1,6 @@
-import { Command } from './Command.js';
+import { Command } from '../Command.js';
 
-/**
- * @param editor Editor
- * @param object THREE.Object3D
- * @param attributeName string
- * @param newValue integer representing a hex color value
- * @constructor
- */
-class SetMaterialColorCommand extends Command {
+class SetMaterialVectorCommand extends Command {
 
 	constructor( editor, object, attributeName, newValue, materialSlot ) {
 
@@ -18,9 +11,9 @@ class SetMaterialColorCommand extends Command {
 		this.updatable = true;
 
 		this.object = object;
-		this.material = ( this.object !== undefined ) ? this.editor.getObjectMaterial( object, materialSlot ) : undefined;
+		this.material = this.editor.getObjectMaterial( object, materialSlot );
 
-		this.oldValue = ( this.material !== undefined ) ? this.material[ attributeName ].getHex() : undefined;
+		this.oldValue = ( this.material !== undefined ) ? this.material[ attributeName ].toArray() : undefined;
 		this.newValue = newValue;
 
 		this.attributeName = attributeName;
@@ -29,7 +22,7 @@ class SetMaterialColorCommand extends Command {
 
 	execute() {
 
-		this.material[ this.attributeName ].setHex( this.newValue );
+		this.material[ this.attributeName ].fromArray( this.newValue );
 
 		this.editor.signals.materialChanged.dispatch( this.material );
 
@@ -37,7 +30,7 @@ class SetMaterialColorCommand extends Command {
 
 	undo() {
 
-		this.material[ this.attributeName ].setHex( this.oldValue );
+		this.material[ this.attributeName ].fromArray( this.oldValue );
 
 		this.editor.signals.materialChanged.dispatch( this.material );
 
@@ -75,4 +68,4 @@ class SetMaterialColorCommand extends Command {
 
 }
 
-export { SetMaterialColorCommand };
+export { SetMaterialVectorCommand };

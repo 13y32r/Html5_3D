@@ -1,6 +1,6 @@
 import { UIColor, UINumber, UIRow, UIText } from "../../libs/ui.js";
-import { SetMaterialColorCommand } from "../../editor/commands/SetMaterialColorCommand.js";
-import { SetMaterialValueCommand } from "../../editor/commands/SetMaterialValueCommand.js";
+import { SetMaterialColorCommand } from "../../editor/commands/EditorCommands/SetMaterialColorCommand.js";
+import { SetMaterialValueCommand } from "../../editor/commands/EditorCommands/SetMaterialValueCommand.js";
 
 function SidebarMaterialColorProperty(editor, property, name) {
   const signals = editor.signals;

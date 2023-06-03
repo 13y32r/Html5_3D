@@ -1,38 +1,20 @@
-import { Command } from './Command.js';
-import { SetUuidCommand } from './SetUuidCommand.js';
-import { SetValueCommand } from './SetValueCommand.js';
-import { AddObjectCommand } from './AddObjectCommand.js';
+import { Command } from '../Command.js';
 
 /**
  * @param editor Editor
- * @param scene containing children to import
+ * @param cmdArray array containing command objects
  * @constructor
  */
-class SetSceneCommand extends Command {
+class MultiCmdsCommand extends Command {
 
-	constructor( editor, scene ) {
+	constructor( editor, cmdArray ) {
 
 		super( editor );
 
-		this.type = 'SetSceneCommand';
-		this.name = 'Set Scene';
+		this.type = 'MultiCmdsCommand';
+		this.name = 'Multiple Changes';
 
-		this.cmdArray = [];
-
-		if ( scene !== undefined ) {
-
-			this.cmdArray.push( new SetUuidCommand( this.editor, this.editor.scene, scene.uuid ) );
-			this.cmdArray.push( new SetValueCommand( this.editor, this.editor.scene, 'name', scene.name ) );
-			this.cmdArray.push( new SetValueCommand( this.editor, this.editor.scene, 'userData', JSON.parse( JSON.stringify( scene.userData ) ) ) );
-
-			while ( scene.children.length > 0 ) {
-
-				const child = scene.children.pop();
-				this.cmdArray.push( new AddObjectCommand( this.editor, child ) );
-
-			}
-
-		}
+		this.cmdArray = ( cmdArray !== undefined ) ? cmdArray : [];
 
 	}
 
@@ -100,4 +82,4 @@ class SetSceneCommand extends Command {
 
 }
 
-export { SetSceneCommand };
+export { MultiCmdsCommand };

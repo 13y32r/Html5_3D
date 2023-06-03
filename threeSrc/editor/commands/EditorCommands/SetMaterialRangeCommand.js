@@ -1,27 +1,28 @@
-import { Command } from './Command.js';
+import { Command } from '../Command.js';
 
 /**
  * @param editor Editor
  * @param object THREE.Object3D
  * @param attributeName string
- * @param newValue number, string, boolean or object
+ * @param newMinValue number
+ * @param newMaxValue number
  * @constructor
  */
-class SetMaterialValueCommand extends Command {
+class SetMaterialRangeCommand extends Command {
 
-	constructor( editor, object, attributeName, newValue, materialSlot ) {
+	constructor( editor, object, attributeName, newMinValue, newMaxValue, materialSlot ) {
 
 		super( editor );
 
-		this.type = 'SetMaterialValueCommand';
+		this.type = 'SetMaterialRangeCommand';
 		this.name = `Set Material.${attributeName}`;
 		this.updatable = true;
 
 		this.object = object;
 		this.material = this.editor.getObjectMaterial( object, materialSlot );
 
-		this.oldValue = ( this.material !== undefined ) ? this.material[ attributeName ] : undefined;
-		this.newValue = newValue;
+		this.oldRange = ( this.material !== undefined && this.material[ attributeName ] !== undefined ) ? [ ...this.material[ attributeName ] ] : undefined;
+		this.newRange = [ newMinValue, newMaxValue ];
 
 		this.attributeName = attributeName;
 
@@ -29,7 +30,7 @@ class SetMaterialValueCommand extends Command {
 
 	execute() {
 
-		this.material[ this.attributeName ] = this.newValue;
+		this.material[ this.attributeName ] = [ ...this.newRange ];
 		this.material.needsUpdate = true;
 
 		this.editor.signals.objectsChanged.dispatch( this.object );
@@ -39,7 +40,7 @@ class SetMaterialValueCommand extends Command {
 
 	undo() {
 
-		this.material[ this.attributeName ] = this.oldValue;
+		this.material[ this.attributeName ] = [ ...this.oldRange ];
 		this.material.needsUpdate = true;
 
 		this.editor.signals.objectsChanged.dispatch( this.object );
@@ -49,7 +50,7 @@ class SetMaterialValueCommand extends Command {
 
 	update( cmd ) {
 
-		this.newValue = cmd.newValue;
+		this.newRange = [ ...cmd.newRange ];
 
 	}
 
@@ -59,8 +60,8 @@ class SetMaterialValueCommand extends Command {
 
 		output.objectUuid = this.object.uuid;
 		output.attributeName = this.attributeName;
-		output.oldValue = this.oldValue;
-		output.newValue = this.newValue;
+		output.oldRange = [ ...this.oldRange ];
+		output.newRange = [ ...this.newRange ];
 
 		return output;
 
@@ -71,12 +72,12 @@ class SetMaterialValueCommand extends Command {
 		super.fromJSON( json );
 
 		this.attributeName = json.attributeName;
-		this.oldValue = json.oldValue;
-		this.newValue = json.newValue;
+		this.oldRange = [ ...json.oldRange ];
+		this.newRange = [ ...json.newRange ];
 		this.object = this.editor.objectByUuid( json.objectUuid );
 
 	}
 
 }
 
-export { SetMaterialValueCommand };
+export { SetMaterialRangeCommand };

@@ -2,10 +2,10 @@ import * as THREE from "three";
 
 import { UICheckbox, UIDiv, UINumber, UIRow, UIText } from "../../libs/ui.js";
 import { UITexture } from "../../libs/ui.three.js";
-import { SetMaterialMapCommand } from "../../editor/commands/SetMaterialMapCommand.js";
-import { SetMaterialValueCommand } from "../../editor/commands/SetMaterialValueCommand.js";
-import { SetMaterialRangeCommand } from "../../editor/commands/SetMaterialRangeCommand.js";
-import { SetMaterialVectorCommand } from "../../editor/commands/SetMaterialVectorCommand.js";
+import { SetMaterialMapCommand } from "../../editor/commands/EditorCommands/SetMaterialMapCommand.js";
+import { SetMaterialValueCommand } from "../../editor/commands/EditorCommands/SetMaterialValueCommand.js";
+import { SetMaterialRangeCommand } from "../../editor/commands/EditorCommands/SetMaterialRangeCommand.js";
+import { SetMaterialVectorCommand } from "../../editor/commands/EditorCommands/SetMaterialVectorCommand.js";
 
 function SidebarMaterialMapProperty(editor, property, name) {
   const signals = editor.signals;

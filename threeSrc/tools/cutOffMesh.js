@@ -13,7 +13,7 @@ import globalInstances from "/assist/GlobalInstances.js";
 import { Tool } from "./tool.js";
 import { SliceBufferGeometry } from "./slice2BG.js";
 import { Raycaster, Vector2, Vector3, Plane, Layers } from "three";
-import { SliceObjectCommand } from "../editor/commands/SliceObjectCommand.js";
+import { SliceObjectCommand } from "../editor/commands/EditorCommands/SliceObjectCommand.js";
 import {
   SelectNotContainName,
   SelectNotContainType,
