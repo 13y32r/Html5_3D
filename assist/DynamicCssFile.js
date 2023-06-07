@@ -1,5 +1,5 @@
 class DynamicCssFile {
-  constructor(url) {
+  constructor(url, loadedCallback) {
     let that = this;
 
     if (that.checkIfIncluded(url)) return;
@@ -9,6 +9,8 @@ class DynamicCssFile {
     this.linkFile.type = "text/css";
     this.linkFile.href = url;
     document.getElementsByTagName("head")[0].appendChild(that.linkFile);
+    //CSS文件加载完成后执行回调函数loadedCallback
+    this.linkFile.addEventListener("load", loadedCallback);
   }
 
   checkIfIncluded(file) {
@@ -18,8 +20,7 @@ class DynamicCssFile {
 
     for (var i = 0; i < links.length; i++) {
       let linkLastName = links[i].href.split("/").pop();
-      if (linkLastName === fileLastName)
-        return true;
+      if (linkLastName === fileLastName) return true;
     }
 
     return false;

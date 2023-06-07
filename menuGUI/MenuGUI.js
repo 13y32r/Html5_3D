@@ -10,7 +10,6 @@
 import eventEmitter from "/assist/EventEmitter.js";
 import globalInstances from "/assist/GlobalInstances.js";
 
-import { EditorState } from "../threeSrc/editor/EditorState.js";
 import { MenuObject } from "../threeSrc/libs/ui.menu.js";
 
 class MenuGUI {

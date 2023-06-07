@@ -743,8 +743,12 @@ class P_AnimationSystem_GUI_TimeLine {
 
     //导入本插件所需要的CSS文件
     const DynamicCssFile = globalInstances.getPreloadItem("DynamicCssFile");
+    const loadCssCallBack = () => {
+      console.log("P_AnimationSystem_GUI_TimeLine.css load success");
+    };
     that.myCss = new DynamicCssFile(
-      "./threeSrc/libs/P_AnimationSystem/P_AnimationSystem_GUI/p_AnimationSystem_GUI_TimeLine.css"
+      "./threeSrc/libs/P_AnimationSystem/P_AnimationSystem_GUI/p_AnimationSystem_GUI_TimeLine.css",
+      loadCssCallBack
     );
 
     // 尝试获取已经存在的 menuGUI 实例
@@ -759,11 +763,11 @@ class P_AnimationSystem_GUI_TimeLine {
       });
     }
 
-    //面板状态
-    that.animationEditorState = AnimationEditorState.NOOBJSELECTED;
-
     // 首先尝试获取已经存在的 editorOperate 实例
     const editorOperate = globalInstances.getEditorOperate();
+
+    //面板状态
+    that.animationEditorState = AnimationEditorState.NOOBJSELECTED;
 
     if (editorOperate) {
       that.editor = editorOperate;
@@ -1050,7 +1054,7 @@ class P_AnimationSystem_GUI_TimeLine {
 
     that.signals.objectSelected.add(that.updateAnimatedObject);
     that.signals.hierarchyChange.add(that.updateAnimatedObject);
-    that.signals.objectsChanged.add(that.updateAttributeParam);
+    // that.signals.objectsChanged.add(that.updateAttributeParam);
   }
 
   //调整右边事件横向单元显示区域，以使其与that.ObjAttributeShowArea的单元数量一致
