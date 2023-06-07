@@ -62,6 +62,7 @@ class MenuGUI {
     });
   }
 
+  //加载必要的CSS文件
   linkCSS(url) {
     var link = document.createElement("link");
     link.rel = "stylesheet";

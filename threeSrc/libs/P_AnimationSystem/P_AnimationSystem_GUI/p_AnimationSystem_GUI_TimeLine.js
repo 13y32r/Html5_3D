@@ -904,8 +904,7 @@ class P_AnimationSystem_GUI_TimeLine {
         console.log("老子要创建新动画了！闲杂人等给老子爬！~");
       } else {
         that.disableAllButtonAndInput();
-        let objects = that.editor.selectionHelper.selectedObject;
-        that.updateAnimatedObject(objects);
+        that.updateAnimatedObject();
       }
     }
 
@@ -1054,7 +1053,7 @@ class P_AnimationSystem_GUI_TimeLine {
 
     that.signals.objectSelected.add(that.updateAnimatedObject);
     that.signals.hierarchyChange.add(that.updateAnimatedObject);
-    // that.signals.objectsChanged.add(that.updateAttributeParam);
+    that.signals.objectsChanged.add(that.updateAttributeParam);
   }
 
   //调整右边事件横向单元显示区域，以使其与that.ObjAttributeShowArea的单元数量一致
@@ -1289,8 +1288,11 @@ class P_AnimationSystem_GUI_TimeLine {
   };
 
   //更新动画面板对象
-  updateAnimatedObject = (objects) => {
+  updateAnimatedObject = () => {
     let that = this;
+
+    //获取当前选中的物体
+    let objects = that.editor.selectionHelper.selectedObject;
 
     //这里根据主编辑器反馈回的选中物体，来进一步的判断动画面板的状态
     if (objects.length) {
@@ -1421,6 +1423,8 @@ class P_AnimationSystem_GUI_TimeLine {
   };
 
   updateAttributeParam = (object, animationClip) => {
+    if (!animationClip) return;
+
     let that = this;
 
     //这里获取动画剪辑的最大动画时间，并刷新时间轴。

@@ -8,7 +8,7 @@
  * @可以输入预定的版权声明、个性签名、空行等
  */
 import { preloadItem } from "./preload_item.js";
-import { MenuGUI } from "../menuGUI/menuGUI.js";
+import { MenuGUI } from "../menuGUI/MenuGUI.js";
 import { SelectState } from "../threeSrc/tools/selectionControl/SelectState.js";
 import { EditorState } from "../threeSrc/editor/EditorState.js";
 import eventEmitter from "/assist/EventEmitter.js";
