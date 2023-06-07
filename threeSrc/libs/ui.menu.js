@@ -779,7 +779,6 @@ class MenuObject {
   }
 
   changeDirectionState(state) {
-
     this.mainMenu.changeDirectionState(state);
     this.directionMenu.changeDirectionState(state);
     this.directionMenuBtn.changeDirectionState(state);
@@ -1128,10 +1127,9 @@ function bigBtnUp(target) {
 }
 
 function dragElement(target, moveObj) {
-  var pos1 = 0,
-    pos2 = 0,
-    pos3 = 0,
-    pos4 = 0;
+  // 定义变量以存储鼠标在元素上的位置
+  var offsetX = 0;
+  var offsetY = 0;
 
   target = target.dom;
   moveObj = moveObj.dom;
@@ -1143,8 +1141,9 @@ function dragElement(target, moveObj) {
 
     if (!e.defaultPrevented) e.preventDefault();
 
-    pos3 = e.clientX;
-    pos4 = e.clientY;
+    // 计算鼠标在元素上的位置
+    offsetX = e.clientX - moveObj.getBoundingClientRect().left;
+    offsetY = e.clientY - moveObj.getBoundingClientRect().top;
 
     document.body.addEventListener("pointerup", closeDragElement);
     document.body.addEventListener("pointercancel", closeDragElement);
@@ -1155,27 +1154,23 @@ function dragElement(target, moveObj) {
 
   function elementDragProcessingFn(e) {
     if (!e.defaultPrevented) e.preventDefault();
-
     document.body.setPointerCapture(e.pointerId);
-
-    // calculate the new cursor position:
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
+    // 计算元素应该在的新位置
+    var x = e.clientX - offsetX;
+    var y = e.clientY - offsetY;
 
     // set the element's new position:
-    if (moveObj.offsetTop - pos2 < 2) {
+    if (y < 2) {
       moveObj.style.top = 3 + "px";
-    } else if (moveObj.offsetTop - pos2 > window.innerHeight - 20) {
+    } else if (y > window.innerHeight - 20) {
       moveObj.style.top = window.innerHeight - 21 + "px";
-    } else if (moveObj.offsetLeft - pos1 > window.innerWidth - 30) {
+    } else if (x > window.innerWidth - 30) {
       moveObj.style.left = window.innerWidth - 31 + "px";
-    } else if (moveObj.offsetLeft - pos1 < -21) {
+    } else if (x < -21) {
       moveObj.style.left = -20 + "px";
     } else {
-      moveObj.style.top = moveObj.offsetTop - pos2 + "px";
-      moveObj.style.left = moveObj.offsetLeft - pos1 + "px";
+      moveObj.style.top = y + "px";
+      moveObj.style.left = x + "px";
     }
   }
 
