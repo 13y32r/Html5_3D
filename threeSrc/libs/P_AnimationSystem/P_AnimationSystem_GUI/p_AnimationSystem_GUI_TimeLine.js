@@ -215,7 +215,7 @@ class ClipSelect extends UIElement {
 }
 
 class AnimationButton extends UIElement {
-  constructor(imgURL, width, height, isSwitch) {
+  constructor(imgURL, width, height, isLatch) {
     super(document.createElement("button"));
 
     let that = this;
@@ -224,10 +224,10 @@ class AnimationButton extends UIElement {
     that.upFun = null;
 
     that.imgURL = imgURL;
-    that.isSwitch = isSwitch;
+    that.isLatch = isLatch;
 
-    if (that.isSwitch) {
-      that.openState = false;
+    if (that.isLatch) {
+      that.pressState = false;
     }
 
     this.setClass("AnimationButton_UP");
@@ -239,64 +239,67 @@ class AnimationButton extends UIElement {
     this.dom.setAttribute("name", "AnimationButton");
     this.dom.setAttribute("title", "关闭菜单栏");
 
-    that.enable = that.enable.bind(this);
-    that.disable = that.disable.bind(this);
-    that.setDownFun = that.setDownFun.bind(this);
-    that.setUpFun = that.setUpFun.bind(this);
-
     that.enable();
   }
 
-  enable() {
+  enable = () => {
     let that = this;
 
     this.setBackgroundImage(that.imgURL);
 
     this.dom.onpointerdown = function () {
-      if (!that.isSwitch) {
+      if (!that.isLatch) {
         if (that.dom.classList.contains("AnimationButton_UP"))
           that.dom.classList.remove("AnimationButton_UP");
         if (!that.dom.classList.contains("AnimationButton_DOWN"))
           that.dom.classList.add("AnimationButton_DOWN");
+
+        if (that.downFun) {
+          that.downFun();
+        }
       } else {
-        that.openState = !that.openState;
-        if (that.openState) {
+        that.pressState = !that.pressState;
+        if (that.pressState) {
           if (that.dom.classList.contains("AnimationButton_UP"))
             that.dom.classList.remove("AnimationButton_UP");
           if (!that.dom.classList.contains("AnimationButton_DOWN"))
             that.dom.classList.add("AnimationButton_DOWN");
+
+          if (that.downFun) {
+            that.downFun();
+          }
         } else {
           if (that.dom.classList.contains("AnimationButton_DOWN"))
             that.dom.classList.remove("AnimationButton_DOWN");
           if (!that.dom.classList.contains("AnimationButton_UP"))
             that.dom.classList.add("AnimationButton_UP");
-        }
-      }
 
-      if (that.downFun) {
-        that.downFun();
+          if (that.upFun) {
+            that.upFun();
+          }
+        }
       }
     };
     this.dom.onpointerup = function () {
-      if (!that.isSwitch) {
+      if (!that.isLatch) {
         if (that.dom.classList.contains("AnimationButton_DOWN"))
           that.dom.classList.remove("AnimationButton_DOWN");
         if (!that.dom.classList.contains("AnimationButton_UP"))
           that.dom.classList.add("AnimationButton_UP");
-      }
 
-      if (that.upFun) {
-        that.upFun();
+        if (that.upFun) {
+          that.upFun();
+        }
       }
     };
-  }
+  };
 
-  disable() {
+  disable = () => {
     let that = this;
 
-    if (that.isSwitch) {
-      if (that.openState) {
-        that.openState = false;
+    if (that.isLatch) {
+      if (that.pressState) {
+        that.pressState = false;
 
         if (that.dom.classList.contains("AnimationButton_DOWN"))
           that.dom.classList.remove("AnimationButton_DOWN");
@@ -312,15 +315,15 @@ class AnimationButton extends UIElement {
 
     this.dom.onpointerdown = null;
     this.dom.onpointerup = null;
-  }
+  };
 
-  setDownFun(downFun) {
+  setDownFun = (downFun) => {
     this.downFun = downFun;
-  }
+  };
 
-  setUpFun(upFun) {
+  setUpFun = (upFun) => {
     this.upFun = upFun;
-  }
+  };
 }
 
 class RollButton extends UIElement {
@@ -375,28 +378,20 @@ class AttributeCellLastButton extends UIDiv {
     that.setBackgroundImage(that.normalImg);
     that.animationPanel = animationPanel;
 
-    that.pointerHover = that.pointerHover.bind(this);
-    that.pointerOut = that.pointerOut.bind(this);
-    that.pointerDown = that.pointerDown.bind(this);
     that.dom.onpointerover = that.pointerHover;
     that.dom.onpointerout = that.pointerOut;
     that.dom.onpointerdown = that.pointerDown;
 
-    that.updateAnimationPanelState = that.updateAnimationPanelState.bind(this);
     animationPanel.dom.addEventListener(
       "animationPanelStateChange",
       that.updateAnimationPanelState
     );
-
-    that.resPopupMenu = that.resPopupMenu.bind(this);
   }
 
-  addPopupMenu() {
+  addPopupMenu = () => {
     let that = this;
 
-    if (
-      that.animationPanel.animationEditorState == AnimationEditorState.EDITING
-    ) {
+    if (that.animationPanel.selfState == AnimationEditorState.EDITING) {
       that.setRecordPopupMenu();
     } else {
       that.setNormalPopupMenu();
@@ -440,9 +435,9 @@ class AttributeCellLastButton extends UIDiv {
       "popupMenuOptionDown",
       that.resPopupMenu
     );
-  }
+  };
 
-  removePopupMenu() {
+  removePopupMenu = () => {
     let that = this;
 
     that.popupMenu.dom.removeEventListener(
@@ -452,17 +447,17 @@ class AttributeCellLastButton extends UIDiv {
     documentBodyRemove(that.popupMenu);
     that.popupMenu.dispose();
     that.popupMenu = null;
-  }
+  };
 
-  setNormalPopupMenu() {
+  setNormalPopupMenu = () => {
     let that = this;
 
     that.options.length = 0;
     let option = new PopupMenuOption(0, "删除属性");
     that.options.push(option);
-  }
+  };
 
-  setRecordPopupMenu() {
+  setRecordPopupMenu = () => {
     let that = this;
 
     let option_0 = new PopupMenuOption(0, "删除属性");
@@ -471,23 +466,21 @@ class AttributeCellLastButton extends UIDiv {
     let option_2 = new PopupMenuOption(2, "删除帧");
     that.options.length = 0;
     that.options = [option_0, option_splitLine, option_1, option_2];
-  }
+  };
 
-  resPopupMenu(event) {
+  resPopupMenu = (event) => {
     let that = this;
 
     let order = event.detail;
     console.log(event.detail);
 
     that.removePopupMenu();
-  }
+  };
 
-  updateAnimationPanelState() {
+  updateAnimationPanelState = () => {
     let that = this;
 
-    if (
-      that.animationPanel.animationEditorState == AnimationEditorState.EDITING
-    ) {
+    if (that.animationPanel.selfState == AnimationEditorState.EDITING) {
       that.normalImg =
         "url(/menuGUI/img/attributeCellLastButton_Record_Normal.png)";
       that.hoverImg =
@@ -498,25 +491,25 @@ class AttributeCellLastButton extends UIDiv {
     }
 
     that.pointerOut();
-  }
+  };
 
-  pointerDown() {
+  pointerDown = () => {
     let that = this;
 
     that.addPopupMenu();
-  }
+  };
 
-  pointerHover() {
+  pointerHover = () => {
     let that = this;
     that.setBackgroundImage(that.hoverImg);
     that.setBackgroundColor("#282828");
-  }
+  };
 
-  pointerOut() {
+  pointerOut = () => {
     let that = this;
     that.setBackgroundImage(that.normalImg);
     that.setBackgroundColor("transparent");
-  }
+  };
 }
 
 class AttributeCell extends UIDiv {
@@ -735,6 +728,7 @@ const AnimationEditorState = {
   SELECTEDOBJNOANIMATION: 1,
   NORMAL: 2,
   EDITING: 3,
+  PLAYING: 4,
 };
 
 class P_AnimationSystem_GUI_TimeLine {
@@ -767,7 +761,7 @@ class P_AnimationSystem_GUI_TimeLine {
     const editorOperate = globalInstances.getEditorOperate();
 
     //面板状态
-    that.animationEditorState = AnimationEditorState.NOOBJSELECTED;
+    that.selfState = AnimationEditorState.NOOBJSELECTED;
 
     if (editorOperate) {
       that.editor = editorOperate;
@@ -845,15 +839,8 @@ class P_AnimationSystem_GUI_TimeLine {
       "100%",
       true
     );
-    function recordButtonDown() {
-      if (that.animationEditorState == AnimationEditorState.EDITING) {
-        that.animationEditorState = AnimationEditorState.NORMAL;
-      } else {
-        that.animationEditorState = AnimationEditorState.EDITING;
-      }
-      that.stateChange();
-    }
-    that.recordButton.setDownFun(recordButtonDown);
+    that.recordButton.setDownFun(that.recordButtonDown);
+    that.recordButton.setUpFun(that.recordButtonUp);
 
     that.playButton = new AnimationButton(
       "url(../../../menuGUI/img/playButton.png)",
@@ -861,16 +848,23 @@ class P_AnimationSystem_GUI_TimeLine {
       "100%",
       true
     );
+    that.playButton.setDownFun(that.playButtonDown);
+    that.playButton.setUpFun(that.playButtonUp);
+
     that.previousKeyButton = new AnimationButton(
       "url(../../../menuGUI/img/previousKeyButton.png)",
       "20px",
       "100%"
     );
+    that.previousKeyButton.setDownFun(that.previousKeyButtonDown);
+
     that.nextKeyButton = new AnimationButton(
       "url(../../../menuGUI/img/nextKeyButton.png)",
       "20px",
       "100%"
     );
+    that.nextKeyButton.setDownFun(that.nextKeyButtonDown);
+
     that.keyPositionInput = new AnimationPannelInput();
     that.keyPosition = that.keyPositionInput.getValue();
     that.keyPositionInput.changed(function () {
@@ -889,11 +883,15 @@ class P_AnimationSystem_GUI_TimeLine {
       "25px",
       "100%"
     );
+    that.addKeyButton.setDownFun(that.addKeyButtonDown);
+
     that.addEventButton = new AnimationButton(
       "url(../../../menuGUI/img/addEventButton.png)",
       "25px",
       "100%"
     );
+    that.addEventButton.setDownFun(that.addEventButtonDown);
+
     that.selectSettingArea = new UIDiv();
     that.clipSelect = new ClipSelect();
     that.clipSelect.onChange(onSelectNewAnimationClip);
@@ -1053,8 +1051,59 @@ class P_AnimationSystem_GUI_TimeLine {
 
     that.signals.objectSelected.add(that.updateAnimatedObject);
     that.signals.hierarchyChange.add(that.updateAnimatedObject);
-    that.signals.objectsChanged.add(that.updateAttributeParam);
   }
+
+  // #region 面板的按钮功能区域
+
+  //录制按钮按下函数
+  recordButtonDown = () => {
+    let that = this;
+
+    that.changeSelfState(AnimationEditorState.EDITING);
+  };
+
+  //录制按钮抬起函数
+  recordButtonUp = () => {
+    let that = this;
+
+    that.changeSelfState(AnimationEditorState.NORMAL);
+  };
+
+  //播放按钮按下函数
+  playButtonDown = () => {
+    let that = this;
+
+    that.changeSelfState(AnimationEditorState.PLAYING);
+  };
+
+  //播放按钮抬起函数
+  playButtonUp = () => {
+    let that = this;
+
+    that.changeSelfState(AnimationEditorState.NORMAL);
+  };
+
+  //上一关键帧按钮按下函数
+  previousKeyButtonDown = () => {
+    console.log("previousKeyButton down right now");
+  };
+
+  //下一关键帧按钮按下函数
+  nextKeyButtonDown = () => {
+    console.log("nextKeyButton down right now");
+  };
+
+  //添加关键帧按钮按下函数
+  addKeyButtonDown = () => {
+    console.log("addKeyButton down right now");
+  };
+
+  //添加事件按钮按下函数
+  addEventButtonDown = () => {
+    console.log("addEventButton down right now");
+  };
+
+  // #endregion
 
   //调整右边事件横向单元显示区域，以使其与that.ObjAttributeShowArea的单元数量一致
   adjustEventUnitRowsShowArea = () => {
@@ -1251,7 +1300,7 @@ class P_AnimationSystem_GUI_TimeLine {
     that.rightScrollContainer.add(that.promptLine);
 
     setTimeout(() => {
-      that.updateAnimatedObject(that.editor.selectionHelper.selectedObject);
+      that.updateAnimatedObject();
       // that.closePanel();
     }, 500);
   };
@@ -1291,53 +1340,53 @@ class P_AnimationSystem_GUI_TimeLine {
   updateAnimatedObject = () => {
     let that = this;
 
-    //获取当前选中的物体
-    let objects = that.editor.selectionHelper.selectedObject;
+    //更新动画面板的编辑对象
+    that.object = that.editor.selectionHelper.selectedObject[0];
 
     //这里根据主编辑器反馈回的选中物体，来进一步的判断动画面板的状态
-    if (objects.length) {
-      if (objects[0].animations.length) {
-        that.animationEditorState = AnimationEditorState.NORMAL;
-        let animationOption = {};
-        for (let i = 0; i < objects[0].animations.length; i++) {
-          animationOption[i] = objects[0].animations[i].name;
-        }
-        animationOption[objects[0].animations.length] = "创建新动画";
-        that.clipSelect.setOptions(animationOption);
-        that.clipSelect.setValue(0);
-        that.updateAttributeParam(objects[0], objects[0].animations[0]);
+    if (that.object) {
+      if (that.object.animations.length) {
+        that.changeSelfState(AnimationEditorState.NORMAL);
+        // that.updateClipSelect();
+        // that.clipSelect.setValue(0);
+        // that.updateAttributeParam(that.object, that.object.animations[0]);
       } else {
-        that.animationEditorState = AnimationEditorState.SELECTEDOBJNOANIMATION;
+        that.changeSelfState(AnimationEditorState.SELECTEDOBJNOANIMATION);
       }
     } else {
-      that.animationEditorState = AnimationEditorState.NOOBJSELECTED;
+      that.changeSelfState(AnimationEditorState.NOOBJSELECTED);
     }
-
-    that.displayContentAccordingToPanelState(that.animationEditorState);
-    that.stateChange();
   };
 
-  stateChange = () => {
+  //为选中物体创建新的动画剪辑
+  createNewAnimationClip = () => {
     let that = this;
 
-    that.dom.dispatchEvent(
-      new CustomEvent("animationPanelStateChange", {
-        bubbles: false,
-        cancelable: true,
-        detail: { state: that.animationEditorState },
-      })
-    );
+    let animationClip = new THREE.AnimationClip("newAnimation", 0, []);
+    that.object.animations.push(animationClip);
+    that.updateAnimationClip(animationClip);
   };
 
-  //通过动画面板的状态来显示不同的内容
-  displayContentAccordingToPanelState = (panelState) => {
+  //更新动画剪辑
+  updateAnimationClip = (animationClip) => {
     let that = this;
 
-    that.container.removeTheLastChild();
+    that.animationClip = animationClip;
+    that.updateAttributeParam(that.editor.selectionHelper.selectedObject[0]);
+  };
 
-    switch (panelState) {
+  //更改动画面板的状态
+  changeSelfState = (state) => {
+    let that = this;
+
+    that.lastState = that.selfState;
+    that.selfState = state;
+
+    switch (that.selfState) {
       case AnimationEditorState.NOOBJSELECTED:
         that.disableAllButtonAndInput();
+
+        that.container.removeTheLastChild();
         that.container.add(that.noObjectTips);
 
         addResizerHandle(
@@ -1353,6 +1402,8 @@ class P_AnimationSystem_GUI_TimeLine {
         break;
       case AnimationEditorState.SELECTEDOBJNOANIMATION:
         that.disableAllButtonAndInput();
+
+        that.container.removeTheLastChild();
         that.container.add(that.selectedObjNoAnimationsTips);
 
         addResizerHandle(
@@ -1367,7 +1418,13 @@ class P_AnimationSystem_GUI_TimeLine {
         );
         break;
       case AnimationEditorState.NORMAL:
+        that.updateClipSelect();
+        that.clipSelect.setValue(0);
+        that.updateAttributeParam(that.object, that.object.animations[0]);
+
+        that.container.removeTheLastChild();
         that.container.add(that.rightBigArea);
+
         that.enableAllButtonAndInput();
 
         addResizerHandle(
@@ -1381,10 +1438,37 @@ class P_AnimationSystem_GUI_TimeLine {
           that
         );
         break;
+      case AnimationEditorState.EDITING:
+        break;
+      case AnimationEditorState.PLAYING:
+        break;
+      default:
+        console.error("AnimationEditorState error");
+        break;
     }
 
     // 判断对象属性栏区域是否要添加或则删除VerticalScrollBar，并对that.objColumnCells的dom元素的宽做出调整
     that.objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth();
+
+    that.dom.dispatchEvent(
+      new CustomEvent("animationPanelStateChange", {
+        bubbles: false,
+        cancelable: true,
+        detail: { state: that.selfState },
+      })
+    );
+  };
+
+  //更新动画面板的剪辑下拉选项
+  updateClipSelect = () => {
+    let that = this;
+
+    let animationOption = {};
+    for (let i = 0; i < that.object.animations.length; i++) {
+      animationOption[i] = that.object.animations[i].name;
+    }
+    animationOption[that.object.animations.length] = "创建新动画";
+    that.clipSelect.setOptions(animationOption);
   };
 
   enableAllButtonAndInput = () => {
@@ -1422,7 +1506,7 @@ class P_AnimationSystem_GUI_TimeLine {
     }
   };
 
-  updateAttributeParam = (object, animationClip) => {
+  updateAttributeParam = (objName, animationClip) => {
     if (!animationClip) return;
 
     let that = this;
@@ -1431,7 +1515,6 @@ class P_AnimationSystem_GUI_TimeLine {
     let theFirstAnimationClipMaxTime = animationClip.duration;
     that.initFrameBar(theFirstAnimationClipMaxTime);
 
-    let objName = object.name;
     that.objAttributeShowArea.cellsArray.length = 0;
     that.objAttributeShowArea.clear();
 
