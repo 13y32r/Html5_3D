@@ -267,12 +267,7 @@ class AnimationButton extends UIElement {
 
     if (that.isLatch) {
       if (that.pressState) {
-        that.pressState = false;
-
-        if (that.dom.classList.contains("AnimationButton_DOWN"))
-          that.dom.classList.remove("AnimationButton_DOWN");
-        if (!that.dom.classList.contains("AnimationButton_UP"))
-          that.dom.classList.add("AnimationButton_UP");
+        that.upFun();
       }
     }
 
@@ -960,8 +955,7 @@ class P_AnimationSystem_GUI_TimeLine {
     that.eventColumnCells_Container = new UIDiv();
     that.eventColumnCells_Content = new UIDiv();
     that.eventColumnCells_Content_BackgroundShowArea = new UIDiv();
-    // that.eventUnitRowsScrollArea = new UIDiv();
-    // that.eventUnitRowsShowArea = new UIDiv();
+    that.eventUnitRowsScrollArea = new UIDiv();
     that.rightAreaHorizontalScrollBar = new HorizontalScrollBar(
       that.rightScrollContainer.dom,
       that.rightScrollContent.dom,
@@ -1016,8 +1010,7 @@ class P_AnimationSystem_GUI_TimeLine {
       "EventColumnCells_Content_BackgroundShowArea"
     );
 
-    // that.eventUnitRowsScrollArea.setClass("EventUnitRowsScrollArea");
-    // that.eventUnitRowsShowArea.setClass("EventUnitRowsShowArea");
+    that.eventUnitRowsScrollArea.setClass("EventUnitRowsScrollArea");
 
     that.verticalSplitLine = new UIVerticalSplitLine();
     that.horizontalSplitLine = new UIHorizontalSplitLine();
@@ -1158,21 +1151,19 @@ class P_AnimationSystem_GUI_TimeLine {
   // #endregion
 
   //调整右边事件横向单元显示区域，以使其与that.ObjAttributeShowArea的单元数量一致
-  adjustEventUnitRowsShowArea = () => {
+  updateEventUnitRowsShowArea = () => {
     let that = this;
 
-    // that.eventUnitRowsScrollArea.setWidth(
-    //   that.rightScrollContainer.dom.offsetWidth - 15 + "px"
-    // );
-    // that.eventUnitRowsScrollArea.setHeight(
-    //   that.rightScrollContainer.dom.offsetHeight - 69 + "px"
-    // );
-    // that.eventUnitRowsScrollArea.setTop(
-    //   that.rightScrollContainer.dom.offsetTop + 54 + "px"
-    // );
-    // that.eventUnitRowsScrollArea.setLeft(
-    //   that.rightScrollContainer.dom.offsetLeft + "px"
-    // );
+    that.eventUnitRowsScrollArea.clear();
+
+    for (let i = 0; i < that.objAttributeShowArea.cellsArray.length; i++) {
+      let eventUnitRow = new UIDiv();
+      eventUnitRow.setClass("EventUnitRowsShowArea");
+      eventUnitRow.rowNumber = i + 1;
+      eventUnitRow.setId(eventUnitRow.rowNumber);
+      that.eventUnitRowsScrollArea.add(eventUnitRow);
+      console.log(eventUnitRow.dom.offsetHeight);
+    }
   };
 
   //这里当左边的对象列高度发生变化时，右边的事件列的高度要和左边的对象列的高度保持一致
@@ -1193,8 +1184,8 @@ class P_AnimationSystem_GUI_TimeLine {
       that.objColumnCells.dom.offsetTop + "px"
     );
 
-    //调整右边事件横向单元显示区域，以使其与that.ObjAttributeShowArea的单元数量一致
-    that.adjustEventUnitRowsShowArea();
+    //更新右边事件横向单元显示区域，以使其与that.ObjAttributeShowArea的单元数量一致
+    that.updateEventUnitRowsShowArea();
 
     //高度发生变化时，更新右边竖直滚动条的参数
     that.rightAreaVerticalScrollBar.refresh();
@@ -1347,6 +1338,7 @@ class P_AnimationSystem_GUI_TimeLine {
     that.eventColumnCells_Content.add(
       that.eventColumnCells_Content_BackgroundShowArea
     );
+    that.eventColumnCells_Content.add(that.eventUnitRowsScrollArea);
     that.eventColumnCells_Container.add(that.eventColumnCells_Content);
     that.rightScrollContent.add(that.eventColumnCells_Container);
     that.rightScrollContainer.add(that.promptLine);
@@ -1534,6 +1526,7 @@ class P_AnimationSystem_GUI_TimeLine {
     console.log(that.selfControlState);
   };
 
+  //启用面板的所有按钮和输入框
   enableAllButtonAndInput = () => {
     let that = this;
 
@@ -1551,6 +1544,7 @@ class P_AnimationSystem_GUI_TimeLine {
     }
   };
 
+  //禁用面板的所有按钮和输入框
   disableAllButtonAndInput = () => {
     let that = this;
 
@@ -1569,6 +1563,7 @@ class P_AnimationSystem_GUI_TimeLine {
     }
   };
 
+  //更新影片剪辑的属性参数
   updateAttributeParam = (objName, animationClip) => {
     if (!animationClip) return;
 

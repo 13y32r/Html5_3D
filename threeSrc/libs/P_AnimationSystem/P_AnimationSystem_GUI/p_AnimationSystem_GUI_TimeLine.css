@@ -236,12 +236,17 @@ input::-webkit-inner-spin-button {
 }
 
 .RightScrollContainer .EventUnitRowsScrollArea {
-  position: absolute;
+  width: calc(var(--rightAreaWidth) - 13px);
+  height: 100%;
+  position: sticky;
+  top: 0px;
   overflow: hidden;
 }
 
 .EventUnitRowsScrollArea .EventUnitRowsShowArea {
   position: relative;
+  margin-top: 2px;
+  margin-bottom: 2px;
   width: 100%;
   height: 16px;
   border: solid 1px #fff;
@@ -340,7 +345,9 @@ input::-webkit-inner-spin-button {
   flex-direction: column;
 }
 
-.RightScrollContent .EventColumnCells_Content .EventColumnCells_Content_BackgroundShowArea {
+.RightScrollContent
+  .EventColumnCells_Content
+  .EventColumnCells_Content_BackgroundShowArea {
   width: 100%;
   height: 100%;
   position: absolute;
