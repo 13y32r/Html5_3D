@@ -384,7 +384,7 @@ class AttributeCellLastButton extends UIDiv {
     that.dom.onpointerdown = that.pointerDown;
 
     animationPanel.dom.addEventListener(
-      "animationPanelStateChange",
+      "animationPanelControlStateChanged",
       that.updateAnimationPanelState
     );
   }
@@ -393,7 +393,7 @@ class AttributeCellLastButton extends UIDiv {
     let that = this;
 
     if (
-      that.animationPanel.selfObjectState == AnimationEditObjectState.EDITING
+      that.animationPanel.selfControlState == AnimationEditOrPlayState.EDITING
     ) {
       that.setRecordPopupMenu();
     } else {
@@ -484,7 +484,7 @@ class AttributeCellLastButton extends UIDiv {
     let that = this;
 
     if (
-      that.animationPanel.selfObjectState == AnimationEditObjectState.EDITING
+      that.animationPanel.selfControlState == AnimationEditOrPlayState.EDITING
     ) {
       that.normalImg =
         "url(/menuGUI/img/attributeCellLastButton_Record_Normal.png)";
@@ -523,6 +523,9 @@ class AttributeCell extends UIDiv {
     let that = this;
 
     that.setClass("AttributeCell");
+
+    that.floorNumber = 0;
+    that.promptBar = null;
 
     that.myInnerOffsetLeft = 0;
     if (!objectName) {
@@ -652,23 +655,17 @@ class AttributeCell extends UIDiv {
 
     that.add(that.setKeyFrameValueArea);
 
-    that.pointerHover = that.pointerHover.bind(this);
-    that.pointerOut = that.pointerOut.bind(this);
-    that.elementActive = that.elementActive.bind(this);
-    that.elementNoActive = that.elementNoActive.bind(this);
     that.dom.onpointerover = that.pointerHover;
     that.dom.onpointerout = that.pointerOut;
     that.dom.onpointerdown = that.elementActive;
 
-    that.animationPanelStateChange = that.animationPanelStateChange.bind(this);
-
     animationPanel.dom.addEventListener(
-      "animationPanelStateChange",
-      that.animationPanelStateChange
+      "animationPanelControlStateChanged",
+      that.animationPanelControlStateChanged
     );
   }
 
-  animationPanelStateChange(event) {
+  animationPanelControlStateChanged = (event) => {
     let that = this;
     let state = event.detail.state;
 
@@ -686,23 +683,42 @@ class AttributeCell extends UIDiv {
       that.setKeyFrameValueArea.clear();
       that.setKeyFrameValueArea.add(that.lastButton);
     }
-  }
+  };
 
-  pointerHover() {
+  pointerHover = () => {
     let that = this;
     that.lastBackgroundColor = that.dom.style.backgroundColor;
     that.setBackgroundColor("#4d4d4d");
-  }
 
-  pointerOut() {
+    if (that.promptBar) {
+      that.promptBar.attributeCellObj = null;
+      that.promptBar.pointerHover();
+      that.promptBar.attributeCellObj = that;
+    }
+  };
+
+  pointerOut = () => {
     let that = this;
     that.setBackgroundColor(that.lastBackgroundColor);
-  }
 
-  elementActive() {
+    if (that.promptBar) {
+      that.promptBar.attributeCellObj = null;
+      that.promptBar.pointerOut();
+      that.promptBar.attributeCellObj = that;
+    }
+  };
+
+  elementActive = () => {
     let that = this;
     that.setBackgroundColor("#3e5f96");
     that.lastBackgroundColor = that.dom.style.backgroundColor;
+
+    if (that.promptBar) {
+      that.promptBar.attributeCellObj = null;
+      that.promptBar.elementActive();
+      that.promptBar.attributeCellObj = that;
+    }
+
     that.dom.dispatchEvent(
       new CustomEvent("attrCellPointerDown", {
         bubbles: false,
@@ -710,9 +726,9 @@ class AttributeCell extends UIDiv {
         detail: { sourceObj: that },
       })
     );
-  }
+  };
 
-  elementNoActive() {
+  elementNoActive = () => {
     let that = this;
     if (!that.isOdd) {
       that.setBackgroundColor("#3f3f3f");
@@ -720,7 +736,76 @@ class AttributeCell extends UIDiv {
       that.setBackgroundColor("transparent");
     }
     that.lastBackgroundColor = that.dom.style.backgroundColor;
+
+    if (that.promptBar) {
+      that.promptBar.attributeCellObj = null;
+      that.promptBar.elementNoActive();
+      that.promptBar.attributeCellObj = that;
+    }
+  };
+}
+
+class AttributeCellPromptBar extends UIDiv {
+  constructor(AttributeCellObj) {
+    super("AttributeCellPromptBar");
+    let that = this;
+
+    that.attributeCellObj = AttributeCellObj;
+    that.setClass("AttributeCellPromptBar");
+
+    that.dom.onpointerover = that.pointerHover;
+    that.dom.onpointerout = that.pointerOut;
+    that.dom.onpointerdown = that.elementActive;
   }
+
+  pointerHover = () => {
+    let that = this;
+    that.lastBackgroundColor = that.dom.style.backgroundColor;
+    that.setBackgroundColor("#4d4d4d");
+
+    if (that.attributeCellObj) {
+      that.attributeCellObj.promptBar = null;
+      that.attributeCellObj.pointerHover();
+      that.attributeCellObj.promptBar = that;
+    }
+  };
+
+  pointerOut = () => {
+    let that = this;
+    that.setBackgroundColor(that.lastBackgroundColor);
+
+    if (that.attributeCellObj) {
+      that.attributeCellObj.promptBar = null;
+      that.attributeCellObj.pointerOut();
+      that.attributeCellObj.promptBar = that;
+    }
+  };
+
+  elementActive = () => {
+    let that = this;
+
+    that.setBackgroundColor("#3e5f96");
+    that.lastBackgroundColor = that.dom.style.backgroundColor;
+
+    if (that.attributeCellObj) {
+      that.attributeCellObj.promptBar = null;
+      that.attributeCellObj.elementActive();
+      that.attributeCellObj.promptBar = that;
+    }
+  };
+
+  elementNoActive = () => {
+    let that = this;
+
+    that.setBackgroundColor("#6e6e6e");
+    that.lastBackgroundColor = that.dom.style.backgroundColor;
+
+    if (that.attributeCellObj) {
+      that.attributeCellObj.promptBar = null;
+      that.attributeCellObj.elementNoActive();
+      that.attributeCellObj.promptBar = that;
+    }
+  };
 }
 
 const UnitType = {
@@ -1108,44 +1193,28 @@ class P_AnimationSystem_GUI_TimeLine {
   previousKeyButtonDown = () => {
     let that = this;
 
-    if (that.selfControlState === AnimationEditOrPlayState.PLAYING) {
-      that.playButton.upFun();
-    }
-
-    that.changePanelControlState(AnimationEditOrPlayState.EDITING);
+    that.recordButton.downFun();
   };
 
   //下一关键帧按钮按下函数
   nextKeyButtonDown = () => {
     let that = this;
 
-    if (that.selfControlState === AnimationEditOrPlayState.PLAYING) {
-      that.playButton.upFun();
-    }
-
-    that.changePanelControlState(AnimationEditOrPlayState.EDITING);
+    that.recordButton.downFun();
   };
 
   //添加关键帧按钮按下函数
   addKeyButtonDown = () => {
     let that = this;
 
-    if (that.selfControlState === AnimationEditOrPlayState.PLAYING) {
-      that.playButton.upFun();
-    }
-
-    that.changePanelControlState(AnimationEditOrPlayState.EDITING);
+    that.recordButton.downFun();
   };
 
   //添加事件按钮按下函数
   addEventButtonDown = () => {
     let that = this;
 
-    if (that.selfControlState === AnimationEditOrPlayState.PLAYING) {
-      that.playButton.upFun();
-    }
-
-    that.changePanelControlState(AnimationEditOrPlayState.EDITING);
+    that.recordButton.downFun();
   };
 
   // #endregion
@@ -1162,7 +1231,6 @@ class P_AnimationSystem_GUI_TimeLine {
       eventUnitRow.rowNumber = i + 1;
       eventUnitRow.setId(eventUnitRow.rowNumber);
       that.eventUnitRowsScrollArea.add(eventUnitRow);
-      console.log(eventUnitRow.dom.offsetHeight);
     }
   };
 
