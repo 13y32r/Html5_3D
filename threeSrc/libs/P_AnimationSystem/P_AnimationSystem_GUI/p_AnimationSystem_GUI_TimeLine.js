@@ -554,6 +554,7 @@ class AttributeCell extends UIDiv {
     that.setKeyFrameValueArea.add(that.lastButton);
 
     let showName;
+    that.promptBar = new AttributeCellPromptBar(that);
 
     if (attType == "vector" || attType == "quaternion") {
       that.isRoll = true;
@@ -625,6 +626,7 @@ class AttributeCell extends UIDiv {
       } else {
         showName = attName + "." + paramName;
         that.label.setColor("#808080");
+        that.promptBar.setOpacity("5%");
       }
     } else {
       that.isRoll = false;
@@ -1044,7 +1046,7 @@ class P_AnimationSystem_GUI_TimeLine {
     that.rightAreaHorizontalScrollBar = new HorizontalScrollBar(
       that.rightScrollContainer.dom,
       that.rightScrollContent.dom,
-      500
+      10
     );
     that.rightVerticalScrollBarArea = new UIDiv();
     that.rightAreaVerticalScrollBar = new VerticalScrollBar(
@@ -1134,7 +1136,12 @@ class P_AnimationSystem_GUI_TimeLine {
     that.rightAreaHorizontalScrollBar.dom.addEventListener(
       "thumbScaling",
       function (event) {
-        console.log(event.detail);
+        let newScalingRatio = event.detail;
+        let newWidth =
+          that.rightScrollContainer.dom.offsetWidth * newScalingRatio;
+
+        that.rightScrollContent.setWidth(newWidth + "px");
+        that.refreshFrame();
       }
     );
 
@@ -1219,21 +1226,6 @@ class P_AnimationSystem_GUI_TimeLine {
 
   // #endregion
 
-  //调整右边事件横向单元显示区域，以使其与that.ObjAttributeShowArea的单元数量一致
-  updateEventUnitRowsShowArea = () => {
-    let that = this;
-
-    that.eventUnitRowsScrollArea.clear();
-
-    for (let i = 0; i < that.objAttributeShowArea.cellsArray.length; i++) {
-      let eventUnitRow = new UIDiv();
-      eventUnitRow.setClass("EventUnitRowsShowArea");
-      eventUnitRow.rowNumber = i + 1;
-      eventUnitRow.setId(eventUnitRow.rowNumber);
-      that.eventUnitRowsScrollArea.add(eventUnitRow);
-    }
-  };
-
   //这里当左边的对象列高度发生变化时，右边的事件列的高度要和左边的对象列的高度保持一致
   theEventColumnsHeightToConsistentWithTheObjColumnHeight = () => {
     let that = this;
@@ -1252,9 +1244,6 @@ class P_AnimationSystem_GUI_TimeLine {
       that.objColumnCells.dom.offsetTop + "px"
     );
 
-    //更新右边事件横向单元显示区域，以使其与that.ObjAttributeShowArea的单元数量一致
-    that.updateEventUnitRowsShowArea();
-
     //高度发生变化时，更新右边竖直滚动条的参数
     that.rightAreaVerticalScrollBar.refresh();
   };
@@ -1267,9 +1256,28 @@ class P_AnimationSystem_GUI_TimeLine {
     let newWidth = e.detail.newWidth - 2 + "px";
     that.container.dom.style.setProperty("--overallHeight", newHeight);
     that.container.dom.style.setProperty("--overallWidth", newWidth);
+
+    //因为that.rightScrollContent的宽度会由鼠标滚动或底部横向滚动条的缩放而改变，所以要在面板为有动画剪辑时，特殊处理。
+    let oldRightScrollContainerWidth;
+    if (that.selfObjectState === AnimationEditObjectState.NORMAL) {
+      oldRightScrollContainerWidth = that.rightScrollContainer.dom.offsetWidth;
+    }
+
     let newRightAreaWidth =
       e.detail.newWidth - that.leftBigArea.dom.offsetWidth - 4 + "px";
     that.container.dom.style.setProperty("--rightAreaWidth", newRightAreaWidth);
+
+    //因为that.rightScrollContent的宽度会由鼠标滚动或底部横向滚动条的缩放而改变，所以要在面板为有动画剪辑时，特殊处理。
+    if (that.selfObjectState === AnimationEditObjectState.NORMAL) {
+      let scaleParam =
+        that.rightScrollContainer.dom.offsetWidth /
+        oldRightScrollContainerWidth;
+      let newRightScrollContent =
+        that.rightScrollContent.dom.offsetWidth * scaleParam;
+
+      that.rightScrollContent.setWidth(newRightScrollContent + "px");
+      that.rightAreaHorizontalScrollBar.refresh();
+    }
 
     that.whileObjAreaScrollHeightChangedAdjustObjColumnCellsTop();
     that.objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth();
@@ -1468,9 +1476,6 @@ class P_AnimationSystem_GUI_TimeLine {
     if (that.object) {
       if (that.object.animations.length) {
         that.changeEditObjectState(AnimationEditObjectState.NORMAL);
-        // that.updateClipSelect();
-        // that.clipSelect.setValue(0);
-        // that.updateAttributeParam(that.object, that.object.animations[0]);
       } else {
         that.changeEditObjectState(
           AnimationEditObjectState.SELECTEDOBJNOANIMATION
@@ -1486,7 +1491,9 @@ class P_AnimationSystem_GUI_TimeLine {
     let that = this;
 
     that.animationClip = animationClip;
-    that.updateAttributeParam(that.editor.selectionHelper.selectedObject[0]);
+    that.updateAttributeParam(
+      that.editor.selectionHelper.selectedObject[0].name
+    );
   };
 
   //更新动画面板的剪辑下拉选项
@@ -1549,7 +1556,7 @@ class P_AnimationSystem_GUI_TimeLine {
       case AnimationEditObjectState.NORMAL:
         that.updateClipSelect();
         that.clipSelect.setValue(0);
-        that.updateAttributeParam(that.object, that.object.animations[0]);
+        that.updateAttributeParam(that.object.name, that.object.animations[0]);
 
         that.container.removeTheLastChild();
         that.container.add(that.rightBigArea);
@@ -1643,6 +1650,7 @@ class P_AnimationSystem_GUI_TimeLine {
 
     that.objAttributeShowArea.cellsArray.length = 0;
     that.objAttributeShowArea.clear();
+    that.eventUnitRowsScrollArea.clear();
 
     for (let j = 0; j < animationClip.tracks.length; j++) {
       let attrName = animationClip.tracks[j].name.slice(1);
@@ -1658,8 +1666,10 @@ class P_AnimationSystem_GUI_TimeLine {
         isOdd,
         that
       );
+
       that.objAttributeShowArea.cellsArray.push(clip);
       that.objAttributeShowArea.add(clip);
+      that.eventUnitRowsScrollArea.add(clip.promptBar);
 
       if (clip.rollButton) {
         clip.rollButton.dom.addEventListener("rollButtonEvent", function (e) {
@@ -1691,6 +1701,8 @@ class P_AnimationSystem_GUI_TimeLine {
           }
 
           that.objAttributeShowArea.clear();
+          that.eventUnitRowsScrollArea.clear();
+
           for (
             let j = 0;
             j < that.objAttributeShowArea.cellsArray.length;
@@ -1699,6 +1711,10 @@ class P_AnimationSystem_GUI_TimeLine {
             that.objAttributeShowArea.add(
               that.objAttributeShowArea.cellsArray[j]
             );
+            that.eventUnitRowsScrollArea.add(
+              that.objAttributeShowArea.cellsArray[j].promptBar
+            );
+
             if (j != 0) {
               that.objAttributeShowArea.cellsArray[j].isOdd =
                 !that.objAttributeShowArea.cellsArray[j - 1].isOdd;
@@ -1786,12 +1802,12 @@ class P_AnimationSystem_GUI_TimeLine {
     }
 
     let frameOfRp = that.calKeyFrameOfPL_Position(
-      rp + that.rightScrollContainer.dom.scrollLeft
+      rp + that.rightScrollContent.dom.offsetLeft
     );
 
     let oldFrontLength = (frameOfRp * that.secondUnitWidth) / that.secondUnit;
     let fixedFrontLength =
-      oldFrontLength - that.rightScrollContainer.dom.scrollLeft;
+      oldFrontLength - that.rightScrollContent.dom.offsetLeft;
 
     //判断最小单位类型是“秒”还是“分”
     if (that.myUnitType == UnitType.Second) {
@@ -1857,7 +1873,7 @@ class P_AnimationSystem_GUI_TimeLine {
 
     if (newWidth > that.rightScrollContainer.dom.offsetWidth - 16) {
       that.rightScrollContent.setWidth(newWidth + "px");
-      that.rightScrollContainer.dom.scrollLeft = scrollLeft;
+      that.rightScrollContent.setLeft(scrollLeft + "px");
     }
     that.rightAreaHorizontalScrollBar.forceScaleThumb();
 
@@ -1897,7 +1913,7 @@ class P_AnimationSystem_GUI_TimeLine {
       that.rightScrollContent.dom.offsetLeft +
       relPosition +
       40 -
-      that.rightScrollContainer.dom.scrollLeft;
+      that.rightScrollContent.dom.offsetLeft;
     if (absolutePosition < that.objColumn.dom.offsetWidth + 2) {
       that.promptLine.setDisplay("none");
     } else if (that.promptLine.dom.display != "flex") {
@@ -2086,9 +2102,9 @@ class P_AnimationSystem_GUI_TimeLine {
     that.addTickMarksEventColumnCellsContentBackgroundShowArea(40, 1);
 
     let frontIgnoredMinuteNumber;
-    if (that.rightScrollContainer.dom.scrollLeft - 40 > 0) {
+    if (that.rightScrollContent.dom.offsetLeft - 40 > 0) {
       frontIgnoredMinuteNumber = Math.floor(
-        (that.rightScrollContainer.dom.scrollLeft - 40) / that.minuteUnitWidth
+        (that.rightScrollContent.dom.offsetLeft - 40) / that.minuteUnitWidth
       );
       frontIgnoredMinuteNumber *= that.minuteUnit;
     } else {
@@ -2096,28 +2112,25 @@ class P_AnimationSystem_GUI_TimeLine {
     }
 
     let areaShowNumber;
-    if (that.rightScrollContainer.dom.scrollLeft < 40) {
-      let offsetWidth = 40 - that.rightScrollContainer.dom.scrollLeft;
+    if (that.rightScrollContent.dom.offsetLeft < 40) {
+      let offsetWidth = 40 - that.rightScrollContent.dom.offsetLeft;
       areaShowNumber = Math.floor(
-        ((that.rightScrollContainer.dom.offsetWidth - 16 - offsetWidth) *
+        ((that.rightScrollContent.dom.offsetWidth - 16 - offsetWidth) *
           that.secondUnit) /
           that.secondUnitWidth
       );
     } else {
       areaShowNumber = Math.floor(
-        ((that.rightScrollContainer.dom.offsetWidth - 16) * that.secondUnit) /
+        ((that.rightScrollContent.dom.offsetWidth - 16) * that.secondUnit) /
           that.secondUnitWidth
       );
     }
 
     if (that.myUnitType == UnitType.Second) {
       let frontIgnoredSecondNumber;
-      if (
-        that.rightScrollContainer.dom.scrollLeft - 40 >
-        that.secondUnitWidth
-      ) {
+      if (that.rightScrollContent.dom.offsetLeft - 40 > that.secondUnitWidth) {
         frontIgnoredSecondNumber = Math.floor(
-          (that.rightScrollContainer.dom.scrollLeft - 40) / that.secondUnitWidth
+          (that.rightScrollContent.dom.offsetLeft - 40) / that.secondUnitWidth
         );
         frontIgnoredSecondNumber *= that.secondUnit;
       } else {
@@ -2198,16 +2211,16 @@ class P_AnimationSystem_GUI_TimeLine {
     } else {
       let minuteShowNumber;
 
-      if (that.rightScrollContainer.dom.scrollLeft < 40) {
-        let offsetWidth = 40 - that.rightScrollContainer.dom.scrollLeft;
+      if (that.rightScrollContent.dom.offsetLeft < 40) {
+        let offsetWidth = 40 - that.rightScrollContent.dom.offsetLeft;
         minuteShowNumber = Math.floor(
-          ((that.rightScrollContainer.dom.offsetWidth - 16 - offsetWidth) *
+          ((that.rightScrollContent.dom.offsetWidth - 16 - offsetWidth) *
             that.minuteUnit) /
             that.minuteUnitWidth
         );
       } else {
         minuteShowNumber = Math.floor(
-          ((that.rightScrollContainer.dom.offsetWidth - 16) * that.minuteUnit) /
+          ((that.rightScrollContent.dom.offsetWidth - 16) * that.minuteUnit) /
             that.minuteUnitWidth
         );
       }
@@ -2254,8 +2267,8 @@ class P_AnimationSystem_GUI_TimeLine {
     }
 
     let reEventColumnsWidth =
-      that.rightScrollContainer.dom.scrollLeft +
-      that.rightScrollContainer.dom.offsetWidth -
+      that.rightScrollContent.dom.offsetLeft +
+      that.rightScrollContent.dom.offsetWidth -
       15;
 
     reEventColumnsWidth = Math.floor(reEventColumnsWidth);

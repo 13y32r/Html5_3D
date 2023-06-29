@@ -239,7 +239,7 @@ input::-webkit-inner-spin-button {
   width: calc(var(--rightAreaWidth) - 13px);
   height: 100%;
   position: sticky;
-  top: 0px;
+  left: 0px;
   overflow: hidden;
 }
 
@@ -334,9 +334,8 @@ input::-webkit-inner-spin-button {
   width: 100%;
   position: sticky;
   top: 0px;
-  height: calc(var(--overAllHeight) - 36px);
+  height: calc(var(--overallHeight) - 36px);
   flex-grow: 0;
-  overflow: hidden;
 }
 
 .RightScrollContent .EventColumnCells_Content {

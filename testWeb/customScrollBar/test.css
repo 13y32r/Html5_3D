@@ -16,4 +16,12 @@
   width: 1200px;
   height: 1200px;
   background-image: linear-gradient(to right bottom, green, yellow, red);
+  position: relative;
+}
+
+.stickyContent {
+  position: sticky;
+  left: 0;
+  width: 250px;
+  height: auto;
 }

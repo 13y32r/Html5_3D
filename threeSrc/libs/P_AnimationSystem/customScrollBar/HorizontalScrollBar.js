@@ -11,7 +11,7 @@ import globalInstances from "/assist/GlobalInstances.js";
 import { UIDiv, UIElement } from "/threeSrc/libs/ui.js";
 
 class HorizontalScrollBar extends UIDiv {
-  constructor(outerAreaDom, innerAreaDom, maxFrameWidth) {
+  constructor(outerAreaDom, innerAreaDom, minThumbBodyWidth = 10) {
     super();
     let that = this;
 
@@ -19,7 +19,7 @@ class HorizontalScrollBar extends UIDiv {
 
     that.outerAreaDom = outerAreaDom;
     that.innerAreaDom = innerAreaDom;
-    that.maxFrameWidth = maxFrameWidth;
+    that.minThumbBodyWidth = minThumbBodyWidth;
 
     that.innerAreaDomChange = that.innerAreaDomChange.bind(this);
     that.innerAreaDom.addEventListener("innerChange", that.innerAreaDomChange);
@@ -247,6 +247,10 @@ class HorizontalScrollBar extends UIDiv {
       that.thumbLeftHandle.dom.offsetWidth -
       that.thumbRightHandle.dom.offsetWidth;
 
+    if (newThumbBodyWidth < that.minThumbBodyWidth) {
+      return;
+    }
+
     that.thumbBody.setWidth(newThumbBodyWidth + "px");
     that.thumb.setWidth(newThumbWidth + "px");
     that.thumb.setLeft(thumbOffsetX + "px");
@@ -329,6 +333,10 @@ class HorizontalScrollBar extends UIDiv {
       newThumbWidth -
       that.thumbLeftHandle.dom.offsetWidth -
       that.thumbRightHandle.dom.offsetWidth;
+
+    if (newThumbBodyWidth < that.minThumbBodyWidth) {
+      return;
+    }
 
     that.thumbBody.setWidth(newThumbBodyWidth + "px");
     that.thumb.setWidth(newThumbWidth + "px");
@@ -520,9 +528,16 @@ class HorizontalScrollBar extends UIDiv {
       that.thumbLeftHandle.dom.offsetWidth -
       that.thumbRightHandle.dom.offsetWidth;
 
-    that.thumbBody.setWidth(newThumbBodyWidth);
+    that.thumbBody.setWidth(newThumbBodyWidth + "px");
     that.thumb.setWidth(newThumbWidth + "px");
   }
+
+  refresh = () => {
+    let that = this;
+
+    that.changeThumbWidthToFitInnerArea();
+    that.changeThumbLeftToFitInnerArea();
+  };
 }
 
 export { HorizontalScrollBar };
