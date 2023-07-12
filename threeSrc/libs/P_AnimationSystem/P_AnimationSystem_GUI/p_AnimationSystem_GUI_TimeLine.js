@@ -1318,7 +1318,6 @@ class P_AnimationSystem_GUI_TimeLine {
     this.mainBody.setId("时间轴");
     this.dom = this.mainBody.dom;
 
-    that.resizeEventing = that.resizeEventing.bind(this);
     this.mainBody.addContent(that.container);
     this.mainBody.resizeEventing(that.resizeEventing);
     this.mainBody.setOverflow("hidden");
@@ -1417,7 +1416,7 @@ class P_AnimationSystem_GUI_TimeLine {
     that.eventColumnCells_Content.add(that.eventUnitRowsScrollArea);
     that.eventColumnCells_Container.add(that.eventColumnCells_Content);
     that.rightScrollContent.add(that.eventColumnCells_Container);
-    that.rightScrollContainer.add(that.promptLine);
+    that.rightScrollContent.add(that.promptLine);
 
     setTimeout(() => {
       that.updateAnimatedObject();
@@ -1454,6 +1453,30 @@ class P_AnimationSystem_GUI_TimeLine {
 
       that.refreshFrame();
     }, 100);
+  };
+
+  //固定总宽度去计算出单位秒的最小宽度以及单位模式“that.myUnitType”和单位的步进倍值“that.secondUnit”、“that.minuteUnit”。
+  fixedContentWidth_TocalculateMiniUnitWidthAndUnitType = () => {
+    let that = this;
+
+    let pixelTotalWidth = that.rightScrollContent.dom.offsetWidth - 75;
+    let totalWidthIncrement = pixelTotalWidth - that.markIncrement;
+
+    let timeCell = 1 / that.sampleNumber;
+    let totalSecondNumber = maxTime / timeCell;
+
+    that.secondUnitWidth = totalWidthIncrement / totalSecondNumber;
+    that.minuteUnitWidth = that.secondUnitWidth * that.sampleNumber;
+
+    while (that.secondUnitWidth <= 5) {
+      if (that.secondUnit * 2 < that.sampleNumber) {
+        that.secondUnit *= 2;
+        that.secondUnitWidth *= 2;
+      } else {
+        that.myUnitType = UnitType.Minute;
+        break;
+      }
+    }
   };
 
   //为选中物体创建新的动画剪辑
@@ -1914,6 +1937,9 @@ class P_AnimationSystem_GUI_TimeLine {
       relPosition +
       40 -
       that.rightScrollContent.dom.offsetLeft;
+
+    console.log("absolutePosition: " + absolutePosition);
+
     if (absolutePosition < that.objColumn.dom.offsetWidth + 2) {
       that.promptLine.setDisplay("none");
     } else if (that.promptLine.dom.display != "flex") {
