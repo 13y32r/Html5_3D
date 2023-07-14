@@ -1455,26 +1455,51 @@ class P_AnimationSystem_GUI_TimeLine {
     }, 100);
   };
 
-  //固定总宽度去计算出单位秒的最小宽度以及单位模式“that.myUnitType”和单位的步进倍值“that.secondUnit”、“that.minuteUnit”。
-  fixedContentWidth_TocalculateMiniUnitWidthAndUnitType = () => {
+  //当单位秒的最小宽度that.secondUnitWidth改变时，执行函数
+  onSecondUnitWidthChanged = () => {
     let that = this;
 
-    let pixelTotalWidth = that.rightScrollContent.dom.offsetWidth - 75;
-    let totalWidthIncrement = pixelTotalWidth - that.markIncrement;
+    that.recalcUnitsAndUnitType();
+    that.refreshFrame();
+  };
 
-    let timeCell = 1 / that.sampleNumber;
-    let totalSecondNumber = maxTime / timeCell;
+  //重新计算最小单位宽度that.secondUnitWidth和that.minuteUnitWidth，以及步进单位that.secondUnit和that.minuteUnit。并根据条件重设最小单位类型that.myUnitType。
+  recalcUnitsAndUnitType = () => {
+    let that = this;
 
-    that.secondUnitWidth = totalWidthIncrement / totalSecondNumber;
-    that.minuteUnitWidth = that.secondUnitWidth * that.sampleNumber;
+    if (that.secondUnitWidth <= 5) {
+      that.secondUnit *= 2;
+      that.secondUnitWidth *= 2;
+    } else if (that.secondUnit > 1) {
+      if (that.secondUnitWidth / 2 >= 10) {
+        that.secondUnit /= 2;
+        that.secondUnitWidth /= 2;
+      }
+    }
 
-    while (that.secondUnitWidth <= 5) {
-      if (that.secondUnit * 2 < that.sampleNumber) {
-        that.secondUnit *= 2;
-        that.secondUnitWidth *= 2;
-      } else {
+    //定义一个临时的分钟最小宽度
+    let tempMinuteUnitWidth =
+      (that.secondUnitWidth / that.secondUnit) *
+      that.sampleNumber *
+      that.minuteUnit;
+
+    if (tempMinuteUnitWidth <= 5) {
+      that.minuteUnit *= 2;
+      tempMinuteUnitWidth *= 2;
+    } else if (tempMinuteUnitWidth / 2 >= 10) {
+      that.minuteUnit /= 2;
+      tempMinuteUnitWidth /= 2;
+    }
+
+    that.minuteUnitWidth = tempMinuteUnitWidth;
+
+    if (that.myUnitType == UnitType.Second) {
+      if (that.secondUnit >= that.sampleNumber) {
         that.myUnitType = UnitType.Minute;
-        break;
+      }
+    } else {
+      if (that.secondUnit < that.sampleNumber) {
+        that.myUnitType = UnitType.Second;
       }
     }
   };
