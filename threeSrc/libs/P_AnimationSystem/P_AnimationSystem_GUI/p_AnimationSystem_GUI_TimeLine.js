@@ -1455,6 +1455,14 @@ class P_AnimationSystem_GUI_TimeLine {
     }, 100);
   };
 
+  //改变单位秒的最小宽度that.secondUnitWidth
+  setSecondUnitWidth = (newWidth) => {
+    let that = this;
+
+    that.secondUnitWidth = newWidth;
+    onSecondUnitWidthChanged();
+  };
+
   //当单位秒的最小宽度that.secondUnitWidth改变时，执行函数
   onSecondUnitWidthChanged = () => {
     let that = this;
