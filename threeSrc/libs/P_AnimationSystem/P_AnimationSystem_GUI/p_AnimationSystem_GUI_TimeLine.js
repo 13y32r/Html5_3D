@@ -24,84 +24,105 @@ import { HorizontalScrollBar } from "../customScrollBar/HorizontalScrollBar.js";
 import { VerticalScrollBar } from "../customScrollBar/VerticalScrollBar.js";
 import { findWhichMenuThisClassBelongsTo } from "/menuGUI/findWhichMenuThisClassBelongsTo.js";
 
-function addResizerHandle(
-  fDom,
-  dom1,
-  dom2,
-  dom3,
-  rootDom,
-  changeFN,
-  handle,
-  scope
-) {
-  let minLeftMargin = 248;
-  let maxRightMargin = 200;
+class AddResizerHandle {
+  constructor(fDom, dom1, dom2, dom3, rootDom, changeFN, handle, scope) {
+    let that = this;
 
-  let overallSize = dom1.offsetWidth + dom2.offsetWidth;
-  let tempRootWidth = rootDom.offsetWidth;
+    that.minLeftMargin = 248;
+    that.maxRightMargin = 200;
 
-  rootDom.removeEventListener("pointerup", adjustHandlePosition);
-  rootDom.addEventListener("pointerup", adjustHandlePosition);
+    that.overallSize = dom1.offsetWidth + dom2.offsetWidth;
+    that.tempRootWidth = rootDom.offsetWidth;
 
-  function adjustHandlePosition() {
-    if (tempRootWidth != rootDom.offsetWidth) {
-      handle.setLeft(dom1.offsetWidth + "px");
-      handle.setHeight(dom1.offsetHeight + "px");
-      overallSize = dom1.offsetWidth + dom2.offsetWidth;
-      tempRootWidth = rootDom.offsetWidth;
+    that.fDom = fDom;
+    that.dom1 = dom1;
+    that.dom2 = dom2;
+    that.dom3 = dom3;
+    that.rootDom = rootDom;
+    that.changeFN = changeFN;
+    that.handle = handle;
+    that.scope = scope;
+
+    that.rootDom.addEventListener("pointerup", that.adjustHandlePosition);
+    that.handle.dom.addEventListener("pointerdown", that.onPointerDown);
+  }
+
+  adjustHandlePosition = () => {
+    let that = this;
+
+    if (that.tempRootWidth != that.rootDom.offsetWidth) {
+      that.handle.setLeft(that.dom1.offsetWidth + "px");
+      that.handle.setHeight(that.dom1.offsetHeight + "px");
+      that.overallSize = that.dom1.offsetWidth + that.dom2.offsetWidth;
+      that.tempRootWidth = that.rootDom.offsetWidth;
     }
-  }
+  };
 
-  function onPointerDown(event) {
+  onPointerDown = (event) => {
     if (event.isPrimary === false) return;
+    let that = this;
 
-    fDom.addEventListener("pointermove", onPointerMove);
-    fDom.addEventListener("pointerup", onPointerUp);
-  }
+    that.fDom.addEventListener("pointermove", that.onPointerMove);
+    that.fDom.addEventListener("pointerup", that.onPointerUp);
+  };
 
-  function onPointerUp(event) {
+  onPointerUp = (event) => {
     if (event.isPrimary === false) return;
+    let that = this;
 
-    fDom.removeEventListener("pointermove", onPointerMove);
-    fDom.removeEventListener("pointerup", onPointerUp);
-  }
+    that.fDom.removeEventListener("pointermove", that.onPointerMove);
+    that.fDom.removeEventListener("pointerup", that.onPointerUp);
+  };
 
-  function onPointerMove(event) {
+  onPointerMove = (event) => {
     if (event.isPrimary === false) return;
+    let that = this;
 
     const clientX = event.clientX;
-    const offsetX = rootDom.offsetLeft;
-    const offsetWidth = rootDom.offsetWidth;
+    const offsetX = that.rootDom.offsetLeft;
+    const offsetWidth = that.rootDom.offsetWidth;
 
     const cX =
-      clientX < offsetX + minLeftMargin
-        ? offsetX + minLeftMargin
-        : clientX > offsetWidth + offsetX - maxRightMargin
-        ? offsetWidth + offsetX - maxRightMargin
+      clientX < offsetX + that.minLeftMargin
+        ? offsetX + that.minLeftMargin
+        : clientX > offsetWidth + offsetX - that.maxRightMargin
+        ? offsetWidth + offsetX - that.maxRightMargin
         : clientX;
     // const cX = clientX;
+    const x = cX - that.rootDom.offsetLeft;
 
-    const x = cX - rootDom.offsetLeft;
+    that.handle.dom.style.left = x + "px";
 
-    handle.dom.style.left = x + "px";
+    console.log(that.dom2);
+    let oldDom2Width = that.dom2.offsetWidth;
+    console.log("oldDom2Width :" + oldDom2Width);
 
-    let oldDom2Width = dom2.offsetWidth;
+    // that.dom1.style.width = x + "px";
+    // that.dom2.style.width = that.overallSize - x + "px";
+    that.fDom.style.setProperty("--leftAreaWidth", x + "px");
+    that.fDom.style.setProperty(
+      "--rightAreaWidth",
+      that.overallSize - x + "px"
+    );
+    console.log("that.dom2.offsetWidth :" + (that.overallSize - x) + "px");
 
-    // dom1.style.width = x + "px";
-    // dom2.style.width = overallSize - x + "px";
-    fDom.style.setProperty("--leftAreaWidth", x + "px");
-    fDom.style.setProperty("--rightAreaWidth", overallSize - x + "px");
-
-    if (dom3) {
-      let oldDom3Width = dom3.offsetWidth;
-      let newDom3Width = (dom3.offsetWidth * dom2.offsetWidth) / oldDom2Width;
-      // dom3.style.width = newDom3Width + "px";
-      changeFN(scope, { oldDom3Width, newDom3Width });
+    if (that.dom3) {
+      let oldDom3Width = that.dom3.offsetWidth;
+      let newDom3Width =
+        (that.dom3.offsetWidth * that.dom2.offsetWidth) / oldDom2Width;
+      // that.dom3.style.width = newDom3Width + "px";
+      that.changeFN(that.scope, { oldDom3Width, newDom3Width });
     }
-  }
+  };
 
-  handle.dom.removeEventListener("pointerdown", onPointerDown);
-  handle.dom.addEventListener("pointerdown", onPointerDown);
+  clearAllEventListeners = () => {
+    let that = this;
+
+    that.handle.dom.removeEventListener("pointerdown", that.onPointerDown);
+    that.rootDom.removeEventListener("pointerup", that.adjustHandlePosition);
+    that.fDom.removeEventListener("pointermove", that.onPointerMove);
+    that.fDom.removeEventListener("pointerup", that.onPointerUp);
+  };
 }
 
 class AnimationPannelInput extends UIElement {
@@ -904,6 +925,9 @@ class P_AnimationSystem_GUI_TimeLine {
     //时间指针的位置
     that.keyPosition = 0;
 
+    //定义一个空的竖直拖拽句柄
+    that.addResizerHandle = null;
+
     that.container = new UIDiv();
 
     that.leftBigArea = new UIDiv();
@@ -1491,6 +1515,8 @@ class P_AnimationSystem_GUI_TimeLine {
       that.sampleNumber *
       that.minuteUnit;
 
+    console.log("tempMinuteUnitWidth : " + tempMinuteUnitWidth);
+
     if (tempMinuteUnitWidth <= 5) {
       that.minuteUnit *= 2;
       tempMinuteUnitWidth *= 2;
@@ -1568,10 +1594,17 @@ class P_AnimationSystem_GUI_TimeLine {
   changeEditObjectState = (selectState) => {
     let that = this;
 
+    console.log("changeEditObjectState : " + selectState);
+
     if (that.selfControlState == AnimationEditOrPlayState.EDITING) {
       that.recordButtonUp();
     } else if (that.selfControlState == AnimationEditOrPlayState.PLAYING) {
       that.playButtonUp();
+    }
+
+    if (that.addResizerHandle) {
+      that.addResizerHandle.clearAllEventListeners();
+      that.addResizerHandle = null;
     }
 
     switch (selectState) {
@@ -1581,7 +1614,7 @@ class P_AnimationSystem_GUI_TimeLine {
         that.container.removeTheLastChild();
         that.container.add(that.noObjectTips);
 
-        addResizerHandle(
+        that.addResizerHandle = new AddResizerHandle(
           that.container.dom,
           that.leftBigArea.dom,
           that.noObjectTips.dom,
@@ -1598,7 +1631,7 @@ class P_AnimationSystem_GUI_TimeLine {
         that.container.removeTheLastChild();
         that.container.add(that.selectedObjNoAnimationsTips);
 
-        addResizerHandle(
+        that.addResizerHandle = new AddResizerHandle(
           that.container.dom,
           that.leftBigArea.dom,
           that.selectedObjNoAnimationsTips.dom,
@@ -1619,7 +1652,7 @@ class P_AnimationSystem_GUI_TimeLine {
 
         that.enableAllButtonAndInput();
 
-        addResizerHandle(
+        that.addResizerHandle = new AddResizerHandle(
           that.container.dom,
           that.leftBigArea.dom,
           that.rightBigArea.dom,
@@ -2069,62 +2102,14 @@ class P_AnimationSystem_GUI_TimeLine {
   sizeChangeReCalFrameSpace = (scale) => {
     let that = this;
 
-    //判断最小单位类型是“秒”还是“分”
-    if (that.myUnitType == UnitType.Second) {
-      that.secondUnitWidth *= scale;
+    console.log("scale: " + scale);
+    that.secondUnitWidth *= scale;
 
-      //判断缩放量是否达到临界值
-      if (that.secondUnitWidth <= 5) {
-        if (that.secondUnit * 2 < that.sampleNumber) {
-          that.secondUnit *= 2;
-          that.secondUnitWidth *= 2;
-        } else {
-          that.myUnitType = UnitType.Minute;
-        }
-      } else {
-        if (that.secondUnit > 1) {
-          if (that.secondUnitWidth / 2 >= 10) {
-            that.secondUnit /= 2;
-            that.secondUnitWidth /= 2;
-          }
-        }
-      }
-
-      that.minuteUnitWidth =
-        (that.sampleNumber * that.secondUnitWidth) / that.secondUnit;
-    } else {
-      //如果单位类型是“分”，就计算分的最小宽度
-      that.minuteUnitWidth *= scale;
-
-      //判断是缩放量是否到达临界值
-      if (that.minuteUnitWidth <= 5) {
-        that.minuteUnit *= 2;
-        that.minuteUnitWidth *= 2;
-      } else {
-        if (that.minuteUnit > 1) {
-          if (that.minuteUnitWidth / 2 >= 10) {
-            that.minuteUnit /= 2;
-            that.minuteUnitWidth /= 2;
-          }
-        } else {
-          if (that.minuteUnitWidth > that.secondUnitWidth) {
-            that.secondUnitWidth = that.minuteUnitWidth / that.sampleNumber;
-            that.secondUnit = 1;
-            that.myUnitType = UnitType.Second;
-            while (that.secondUnitWidth <= 5) {
-              if (that.secondUnit * 2 < that.sampleNumber) {
-                that.secondUnit *= 2;
-                that.secondUnitWidth *= 2;
-              } else {
-                that.myUnitType = UnitType.Minute;
-                break;
-              }
-            }
-          }
-        }
-      }
-    }
-
+    that.recalcUnitsAndUnitType();
+    console.log("that.secondUnitWidth: " + that.secondUnitWidth);
+    console.log("that.secondUnit: " + that.secondUnit);
+    console.log("that.minuteUnit: " + that.minuteUnit);
+    console.log("that.minuteUnitWidth: " + that.minuteUnitWidth);
     that.refreshFrame();
   };
 
