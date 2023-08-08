@@ -1301,6 +1301,7 @@ class P_AnimationSystem_GUI_TimeLine {
 
       that.rightScrollContent.setWidth(newRightScrollContent + "px");
       that.rightAreaHorizontalScrollBar.refresh();
+      that.setSecondUnitWidth(that.secondUnitWidth * scaleParam);
     }
 
     that.whileObjAreaScrollHeightChangedAdjustObjColumnCellsTop();
@@ -1484,7 +1485,7 @@ class P_AnimationSystem_GUI_TimeLine {
     let that = this;
 
     that.secondUnitWidth = newWidth;
-    onSecondUnitWidthChanged();
+    that.onSecondUnitWidthChanged();
   };
 
   //当单位秒的最小宽度that.secondUnitWidth改变时，执行函数
@@ -1515,14 +1516,14 @@ class P_AnimationSystem_GUI_TimeLine {
       that.sampleNumber *
       that.minuteUnit;
 
-    console.log("tempMinuteUnitWidth : " + tempMinuteUnitWidth);
-
     if (tempMinuteUnitWidth <= 5) {
       that.minuteUnit *= 2;
       tempMinuteUnitWidth *= 2;
     } else if (tempMinuteUnitWidth / 2 >= 10) {
-      that.minuteUnit /= 2;
-      tempMinuteUnitWidth /= 2;
+      if (that.minuteUnit > 1) {
+        that.minuteUnit /= 2;
+        tempMinuteUnitWidth /= 2;
+      }
     }
 
     that.minuteUnitWidth = tempMinuteUnitWidth;
@@ -2004,9 +2005,7 @@ class P_AnimationSystem_GUI_TimeLine {
       40 -
       that.rightScrollContent.dom.offsetLeft;
 
-    console.log("absolutePosition: " + absolutePosition);
-
-    if (absolutePosition < that.objColumn.dom.offsetWidth + 2) {
+    if (absolutePosition < 40) {
       that.promptLine.setDisplay("none");
     } else if (that.promptLine.dom.display != "flex") {
       that.promptLine.setDisplay("flex");
