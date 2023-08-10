@@ -504,7 +504,7 @@ class HorizontalScrollBar extends UIDiv {
 
   changeThumbLeftToFitInnerArea() {
     let that = this;
-    let scale = that.innerAreaDom.offsetLeft / that.outerAreaDom.offsetWidth;
+    let scale = -that.innerAreaDom.offsetLeft / that.outerAreaDom.offsetWidth;
     let newThumbLeft = that.thumb.dom.offsetWidth * scale;
 
     that.thumb.setLeft(newThumbLeft + "px");

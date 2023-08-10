@@ -1153,7 +1153,7 @@ class P_AnimationSystem_GUI_TimeLine {
     that.rightAreaHorizontalScrollBar.dom.addEventListener(
       "scrolling",
       function (event) {
-        console.log(event.detail);
+        console.log("rightAreaHorizontalScrollBar is scrolling");
       }
     );
     //这里监听右测横向滚动条的缩放事件
@@ -2114,14 +2114,9 @@ class P_AnimationSystem_GUI_TimeLine {
 
   //刷新时间轴上的显示帧
   refreshFrame = (rp) => {
-    let that = this;
-    let refPoint = 0;
-    if (rp) {
-      refPoint = rp;
-    }
-
     that.timeScaleBar.clear();
     that.labelFrameArray.length = 0;
+
     //这里先清空底部刻度线
     while (that.bottomTickMarkArray.length) {
       let lastId = that.bottomTickMarkArray.length - 1;
@@ -2132,192 +2127,219 @@ class P_AnimationSystem_GUI_TimeLine {
     }
 
     let showText;
-
-    showText = "0" + ":00";
-    let guiFrameLabel = new GUIFrameLabel(
-      40,
-      10,
-      showText,
-      that.eventColumnCells_Content.dom.offsetHeight
-    );
-    that.timeScaleBar.add(guiFrameLabel);
-    that.labelFrameArray.push(guiFrameLabel);
-    that.addTickMarksEventColumnCellsContentBackgroundShowArea(40, 1);
-
     let frontIgnoredMinuteNumber;
-    if (that.rightScrollContent.dom.offsetLeft - 40 > 0) {
-      frontIgnoredMinuteNumber = Math.floor(
-        (that.rightScrollContent.dom.offsetLeft - 40) / that.minuteUnitWidth
-      );
-      frontIgnoredMinuteNumber *= that.minuteUnit;
-    } else {
-      frontIgnoredMinuteNumber = 0;
-    }
-
     let areaShowNumber;
-    if (that.rightScrollContent.dom.offsetLeft < 40) {
-      let offsetWidth = 40 - that.rightScrollContent.dom.offsetLeft;
-      areaShowNumber = Math.floor(
-        ((that.rightScrollContent.dom.offsetWidth - 16 - offsetWidth) *
-          that.secondUnit) /
-          that.secondUnitWidth
-      );
-    } else {
-      areaShowNumber = Math.floor(
-        ((that.rightScrollContent.dom.offsetWidth - 16) * that.secondUnit) /
-          that.secondUnitWidth
-      );
+
+    if (that.myUnitType == UnitType.Minute) {
+    } else if (that.myUnitType == UnitType.Second) {
     }
-
-    if (that.myUnitType == UnitType.Second) {
-      let frontIgnoredSecondNumber;
-      if (that.rightScrollContent.dom.offsetLeft - 40 > that.secondUnitWidth) {
-        frontIgnoredSecondNumber = Math.floor(
-          (that.rightScrollContent.dom.offsetLeft - 40) / that.secondUnitWidth
-        );
-        frontIgnoredSecondNumber *= that.secondUnit;
-      } else {
-        frontIgnoredSecondNumber = 0;
-      }
-
-      for (
-        let i = frontIgnoredSecondNumber + that.secondUnit;
-        i < frontIgnoredSecondNumber + areaShowNumber;
-        i++
-      ) {
-        if (i % that.sampleNumber == 0) {
-          frontIgnoredMinuteNumber++;
-
-          let mTimesWidth = frontIgnoredMinuteNumber * that.minuteUnitWidth;
-          let theMinuteOffSet = 40 + Math.floor(mTimesWidth);
-          showText = frontIgnoredMinuteNumber + ":00";
-          let guiFrameLabel = new GUIFrameLabel(
-            theMinuteOffSet,
-            10,
-            showText,
-            that.eventColumnCells_Content.dom.offsetHeight
-          );
-          that.labelFrameArray.push(guiFrameLabel);
-          that.timeScaleBar.add(guiFrameLabel);
-          that.addTickMarksEventColumnCellsContentBackgroundShowArea(
-            theMinuteOffSet,
-            1
-          );
-        } else {
-          if (i % that.secondUnit == 0) {
-            let sTimesWidth = (i * that.secondUnitWidth) / that.secondUnit;
-            let showedSecondNumber =
-              i - frontIgnoredMinuteNumber * that.sampleNumber;
-
-            let theSecondOffSet = 40 + Math.floor(sTimesWidth);
-            let guiFrameLabel;
-
-            let labelOffSetLeft =
-              theSecondOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
-            let theMinuteOffSet =
-              40 +
-              Math.floor((frontIgnoredMinuteNumber + 1) * that.minuteUnitWidth);
-
-            if (
-              labelOffSetLeft > 40 &&
-              theMinuteOffSet - theSecondOffSet > 40
-            ) {
-              showText = frontIgnoredMinuteNumber + ":" + showedSecondNumber;
-              guiFrameLabel = new GUIFrameLabel(
-                theSecondOffSet,
-                labelOffSetLeft / 8,
-                showText,
-                that.eventColumnCells_Content.dom.offsetHeight
-              );
-              that.labelFrameArray.push(guiFrameLabel);
-              that.addTickMarksEventColumnCellsContentBackgroundShowArea(
-                theSecondOffSet,
-                labelOffSetLeft / 80
-              );
-            } else {
-              guiFrameLabel = new GUIFrameLabel(
-                theSecondOffSet,
-                that.secondUnitWidth / 5,
-                undefined,
-                that.eventColumnCells_Content.dom.offsetHeight
-              );
-              that.addTickMarksEventColumnCellsContentBackgroundShowArea(
-                theSecondOffSet,
-                that.secondUnitWidth / 50
-              );
-            }
-
-            that.timeScaleBar.add(guiFrameLabel);
-          }
-        }
-      }
-    } else {
-      let minuteShowNumber;
-
-      if (that.rightScrollContent.dom.offsetLeft < 40) {
-        let offsetWidth = 40 - that.rightScrollContent.dom.offsetLeft;
-        minuteShowNumber = Math.floor(
-          ((that.rightScrollContent.dom.offsetWidth - 16 - offsetWidth) *
-            that.minuteUnit) /
-            that.minuteUnitWidth
-        );
-      } else {
-        minuteShowNumber = Math.floor(
-          ((that.rightScrollContent.dom.offsetWidth - 16) * that.minuteUnit) /
-            that.minuteUnitWidth
-        );
-      }
-
-      for (
-        let i = frontIgnoredMinuteNumber + that.minuteUnit;
-        i < frontIgnoredMinuteNumber + minuteShowNumber;
-        i += that.minuteUnit
-      ) {
-        let mTimesWidth = (i * that.minuteUnitWidth) / that.minuteUnit;
-        let theMinuteOffSet = 40 + Math.floor(mTimesWidth);
-        let guiFrameLabel;
-
-        let labelOffSetLeft =
-          theMinuteOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
-
-        if (labelOffSetLeft > 40) {
-          showText = i + ":0";
-          guiFrameLabel = new GUIFrameLabel(
-            theMinuteOffSet,
-            labelOffSetLeft / 8,
-            showText,
-            that.eventColumnCells_Content.dom.offsetHeight
-          );
-          that.labelFrameArray.push(guiFrameLabel);
-          that.addTickMarksEventColumnCellsContentBackgroundShowArea(
-            theMinuteOffSet,
-            labelOffSetLeft / 80
-          );
-        } else {
-          guiFrameLabel = new GUIFrameLabel(
-            theMinuteOffSet,
-            that.minuteUnitWidth / 5,
-            undefined,
-            that.eventColumnCells_Content.dom.offsetHeight
-          );
-          that.addTickMarksEventColumnCellsContentBackgroundShowArea(
-            theMinuteOffSet,
-            that.minuteUnitWidth / 50
-          );
-        }
-        that.timeScaleBar.add(guiFrameLabel);
-      }
-    }
-
-    let reEventColumnsWidth =
-      that.rightScrollContent.dom.offsetLeft +
-      that.rightScrollContent.dom.offsetWidth -
-      15;
-
-    reEventColumnsWidth = Math.floor(reEventColumnsWidth);
-
-    that.calPromptLinePosition(that.keyPosition);
   };
+
+  // refreshFrame = (rp) => {
+  //   let that = this;
+  //   let refPoint = 0;
+  //   if (rp) {
+  //     refPoint = rp;
+  //   }
+
+  //   that.timeScaleBar.clear();
+  //   that.labelFrameArray.length = 0;
+  //   //这里先清空底部刻度线
+  //   while (that.bottomTickMarkArray.length) {
+  //     let lastId = that.bottomTickMarkArray.length - 1;
+  //     let lastElement = that.bottomTickMarkArray[lastId].dom;
+  //     lastElement.parentNode.removeChild(lastElement);
+  //     that.bottomTickMarkArray.pop();
+  //     lastElement = null;
+  //   }
+
+  //   let showText;
+
+  //   showText = "0" + ":00";
+  //   let guiFrameLabel = new GUIFrameLabel(
+  //     40,
+  //     10,
+  //     showText,
+  //     that.eventColumnCells_Content.dom.offsetHeight
+  //   );
+  //   that.timeScaleBar.add(guiFrameLabel);
+  //   that.labelFrameArray.push(guiFrameLabel);
+  //   that.addTickMarksEventColumnCellsContentBackgroundShowArea(40, 1);
+
+  //   let frontIgnoredMinuteNumber;
+  //   if (that.rightScrollContent.dom.offsetLeft - 40 > 0) {
+  //     frontIgnoredMinuteNumber = Math.floor(
+  //       (that.rightScrollContent.dom.offsetLeft - 40) / that.minuteUnitWidth
+  //     );
+  //     frontIgnoredMinuteNumber *= that.minuteUnit;
+  //   } else {
+  //     frontIgnoredMinuteNumber = 0;
+  //   }
+
+  //   let areaShowNumber;
+  //   if (that.rightScrollContent.dom.offsetLeft < 40) {
+  //     let offsetWidth = 40 - that.rightScrollContent.dom.offsetLeft;
+  //     areaShowNumber = Math.floor(
+  //       ((that.rightScrollContent.dom.offsetWidth - 16 - offsetWidth) *
+  //         that.secondUnit) /
+  //         that.secondUnitWidth
+  //     );
+  //   } else {
+  //     areaShowNumber = Math.floor(
+  //       ((that.rightScrollContent.dom.offsetWidth - 16) * that.secondUnit) /
+  //         that.secondUnitWidth
+  //     );
+  //   }
+
+  //   if (that.myUnitType == UnitType.Second) {
+  //     let frontIgnoredSecondNumber;
+  //     if (that.rightScrollContent.dom.offsetLeft - 40 > that.secondUnitWidth) {
+  //       frontIgnoredSecondNumber = Math.floor(
+  //         (that.rightScrollContent.dom.offsetLeft - 40) / that.secondUnitWidth
+  //       );
+  //       frontIgnoredSecondNumber *= that.secondUnit;
+  //     } else {
+  //       frontIgnoredSecondNumber = 0;
+  //     }
+
+  //     for (
+  //       let i = frontIgnoredSecondNumber + that.secondUnit;
+  //       i < frontIgnoredSecondNumber + areaShowNumber;
+  //       i++
+  //     ) {
+  //       if (i % that.sampleNumber == 0) {
+  //         frontIgnoredMinuteNumber++;
+
+  //         let mTimesWidth = frontIgnoredMinuteNumber * that.minuteUnitWidth;
+  //         let theMinuteOffSet = 40 + Math.floor(mTimesWidth);
+  //         showText = frontIgnoredMinuteNumber + ":00";
+  //         let guiFrameLabel = new GUIFrameLabel(
+  //           theMinuteOffSet,
+  //           10,
+  //           showText,
+  //           that.eventColumnCells_Content.dom.offsetHeight
+  //         );
+  //         that.labelFrameArray.push(guiFrameLabel);
+  //         that.timeScaleBar.add(guiFrameLabel);
+  //         that.addTickMarksEventColumnCellsContentBackgroundShowArea(
+  //           theMinuteOffSet,
+  //           1
+  //         );
+  //       } else {
+  //         if (i % that.secondUnit == 0) {
+  //           let sTimesWidth = (i * that.secondUnitWidth) / that.secondUnit;
+  //           let showedSecondNumber =
+  //             i - frontIgnoredMinuteNumber * that.sampleNumber;
+
+  //           let theSecondOffSet = 40 + Math.floor(sTimesWidth);
+  //           let guiFrameLabel;
+
+  //           let labelOffSetLeft =
+  //             theSecondOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
+  //           let theMinuteOffSet =
+  //             40 +
+  //             Math.floor((frontIgnoredMinuteNumber + 1) * that.minuteUnitWidth);
+
+  //           if (
+  //             labelOffSetLeft > 40 &&
+  //             theMinuteOffSet - theSecondOffSet > 40
+  //           ) {
+  //             showText = frontIgnoredMinuteNumber + ":" + showedSecondNumber;
+  //             guiFrameLabel = new GUIFrameLabel(
+  //               theSecondOffSet,
+  //               labelOffSetLeft / 8,
+  //               showText,
+  //               that.eventColumnCells_Content.dom.offsetHeight
+  //             );
+  //             that.labelFrameArray.push(guiFrameLabel);
+  //             that.addTickMarksEventColumnCellsContentBackgroundShowArea(
+  //               theSecondOffSet,
+  //               labelOffSetLeft / 80
+  //             );
+  //           } else {
+  //             guiFrameLabel = new GUIFrameLabel(
+  //               theSecondOffSet,
+  //               that.secondUnitWidth / 5,
+  //               undefined,
+  //               that.eventColumnCells_Content.dom.offsetHeight
+  //             );
+  //             that.addTickMarksEventColumnCellsContentBackgroundShowArea(
+  //               theSecondOffSet,
+  //               that.secondUnitWidth / 50
+  //             );
+  //           }
+
+  //           that.timeScaleBar.add(guiFrameLabel);
+  //         }
+  //       }
+  //     }
+  //   } else {
+  //     let minuteShowNumber;
+
+  //     if (that.rightScrollContent.dom.offsetLeft < 40) {
+  //       let offsetWidth = 40 - that.rightScrollContent.dom.offsetLeft;
+  //       minuteShowNumber = Math.floor(
+  //         ((that.rightScrollContent.dom.offsetWidth - 16 - offsetWidth) *
+  //           that.minuteUnit) /
+  //           that.minuteUnitWidth
+  //       );
+  //     } else {
+  //       minuteShowNumber = Math.floor(
+  //         ((that.rightScrollContent.dom.offsetWidth - 16) * that.minuteUnit) /
+  //           that.minuteUnitWidth
+  //       );
+  //     }
+
+  //     for (
+  //       let i = frontIgnoredMinuteNumber + that.minuteUnit;
+  //       i < frontIgnoredMinuteNumber + minuteShowNumber;
+  //       i += that.minuteUnit
+  //     ) {
+  //       let mTimesWidth = (i * that.minuteUnitWidth) / that.minuteUnit;
+  //       let theMinuteOffSet = 40 + Math.floor(mTimesWidth);
+  //       let guiFrameLabel;
+
+  //       let labelOffSetLeft =
+  //         theMinuteOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
+
+  //       if (labelOffSetLeft > 40) {
+  //         showText = i + ":0";
+  //         guiFrameLabel = new GUIFrameLabel(
+  //           theMinuteOffSet,
+  //           labelOffSetLeft / 8,
+  //           showText,
+  //           that.eventColumnCells_Content.dom.offsetHeight
+  //         );
+  //         that.labelFrameArray.push(guiFrameLabel);
+  //         that.addTickMarksEventColumnCellsContentBackgroundShowArea(
+  //           theMinuteOffSet,
+  //           labelOffSetLeft / 80
+  //         );
+  //       } else {
+  //         guiFrameLabel = new GUIFrameLabel(
+  //           theMinuteOffSet,
+  //           that.minuteUnitWidth / 5,
+  //           undefined,
+  //           that.eventColumnCells_Content.dom.offsetHeight
+  //         );
+  //         that.addTickMarksEventColumnCellsContentBackgroundShowArea(
+  //           theMinuteOffSet,
+  //           that.minuteUnitWidth / 50
+  //         );
+  //       }
+  //       that.timeScaleBar.add(guiFrameLabel);
+  //     }
+  //   }
+
+  //   let reEventColumnsWidth =
+  //     that.rightScrollContent.dom.offsetLeft +
+  //     that.rightScrollContent.dom.offsetWidth -
+  //     15;
+
+  //   reEventColumnsWidth = Math.floor(reEventColumnsWidth);
+
+  //   that.calPromptLinePosition(that.keyPosition);
+  // };
 
   //添加竖向的刻度线到事件竖向元素内容的背景显示区域
   addTickMarksEventColumnCellsContentBackgroundShowArea = (
