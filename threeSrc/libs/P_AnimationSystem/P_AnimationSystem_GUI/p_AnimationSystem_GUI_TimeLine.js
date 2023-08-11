@@ -2136,9 +2136,7 @@ class P_AnimationSystem_GUI_TimeLine {
       that.eventColumnCells_Content.dom.offsetHeight;
 
     if (that.myUnitType == UnitType.Minute) {
-
     } else if (that.myUnitType == UnitType.Second) {
-      
     }
   };
 
