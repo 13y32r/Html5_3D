@@ -2127,11 +2127,18 @@ class P_AnimationSystem_GUI_TimeLine {
     }
 
     let showText;
-    let frontIgnoredMinuteNumber;
+    let frontIgnoredNumber;
     let areaShowNumber;
 
+    let rightScrollContentOffsetLeft = that.rightScrollContent.dom.offsetLeft;
+    let rightScrollContentOffsetWidth = that.rightScrollContent.dom.offsetWidth;
+    let eventColumnCells_ContentOffsetHeight =
+      that.eventColumnCells_Content.dom.offsetHeight;
+
     if (that.myUnitType == UnitType.Minute) {
+
     } else if (that.myUnitType == UnitType.Second) {
+      
     }
   };
 
