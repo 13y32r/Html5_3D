@@ -17,11 +17,27 @@
 // childObject.plugsAttributes = { test: "test" };
 // console.log(childObject);
 
-function test() {
-  console.log("test");
-  function sayHello() {
-    console.log("hello");
+// function test() {
+//   console.log("test");
+//   function sayHello() {
+//     console.log("hello");
+//   }
+// }
+
+// test.sayHello();
+
+class MyClass {
+  outProperty = "outProperty";
+
+  constructor() {
+    this.myProperty = "Hello, world!";
+  }
+
+  myMethod() {
+    console.log(this.myProperty);
+    console.log(this.outProperty);
   }
 }
 
-test.sayHello();
+const myObject = new MyClass();
+myObject.myMethod(); // 输出 "Hello, world!"
