@@ -1019,11 +1019,14 @@ class P_AnimationSystem_GUI_TimeLine {
     function onSelectNewAnimationClip() {
       let animationID = that.clipSelect.getValue();
       let currentText = that.clipSelect.getCurrentText();
+
+      // 为防止在切换影片剪辑的时候误操作，先将播放状态和录制状态重置
+      that.resetPlayOrRecordState();
+
       if (currentText == "创建新动画") {
         console.log("老子要创建新动画了！闲杂人等给老子爬！~");
       } else {
-        that.disableAllButtonAndInput();
-        that.updateAnimatedObject();
+        that.updateAnimationClip(that.object.animations[animationID]);
       }
     }
 
@@ -1159,11 +1162,13 @@ class P_AnimationSystem_GUI_TimeLine {
     that.rightAreaHorizontalScrollBar.dom.addEventListener(
       "thumbScaling",
       function (event) {
-        let newScalingRatio = event.detail;
-        let newWidth =
+        const newScalingRatio = event.detail;
+        const newRightScrollContentWidth =
           that.rightScrollContainer.dom.offsetWidth * newScalingRatio;
+        const newSecondUnitWidth = that.secondUnitWidth * newScalingRatio;
 
-        that.rightScrollContent.setWidth(newWidth + "px");
+        that.setSecondUnitWidth(newSecondUnitWidth);
+        that.rightScrollContent.setWidth(newRightScrollContentWidth + "px");
         that.refreshFrame();
       }
     );
@@ -1203,11 +1208,11 @@ class P_AnimationSystem_GUI_TimeLine {
   playButtonDown = () => {
     let that = this;
 
+    console.log("播放按钮按下");
     if (that.selfControlState === AnimationEditOrPlayState.EDITING) {
       that.recordButton.upFun();
     }
 
-    console.log("播放按钮按下");
     that.changePanelControlState(AnimationEditOrPlayState.PLAYING);
   };
 
@@ -1583,9 +1588,8 @@ class P_AnimationSystem_GUI_TimeLine {
     let that = this;
 
     that.animationClip = animationClip;
-    that.updateAttributeParam(
-      that.editor.selectionHelper.selectedObject[0].name
-    );
+
+    that.updateAttributeParam(that.object.name, animationClip);
   };
 
   //更新动画面板的剪辑下拉选项
@@ -1600,17 +1604,22 @@ class P_AnimationSystem_GUI_TimeLine {
     that.clipSelect.setOptions(animationOption);
   };
 
+  //重置面板的录播状态
+  resetPlayOrRecordState = () => {
+    let that = this;
+
+    if (that.selfControlState == AnimationEditOrPlayState.EDITING) {
+      that.recordButton.upFun();
+    } else if (that.selfControlState == AnimationEditOrPlayState.PLAYING) {
+      that.playButton.upFun();
+    }
+  };
+
   //更改动画面板编辑对象的状态
   changeEditObjectState = (selectState) => {
     let that = this;
 
-    console.log("changeEditObjectState : " + selectState);
-
-    if (that.selfControlState == AnimationEditOrPlayState.EDITING) {
-      that.recordButtonUp();
-    } else if (that.selfControlState == AnimationEditOrPlayState.PLAYING) {
-      that.playButtonUp();
-    }
+    that.resetPlayOrRecordState();
 
     if (that.addResizerHandle) {
       that.addResizerHandle.clearAllEventListeners();
@@ -1697,7 +1706,6 @@ class P_AnimationSystem_GUI_TimeLine {
         detail: { state: that.selfControlState },
       })
     );
-    console.log(that.selfControlState);
   };
 
   //启用面板的所有按钮和输入框
@@ -1715,6 +1723,14 @@ class P_AnimationSystem_GUI_TimeLine {
     that.sampleInput.changeAbility(true);
     if (that.objAreaScroll.getIndexOfChild(that.objColumnCells) == -1) {
       that.objAreaScroll.add(that.objColumnCells);
+      if (
+        that.objAreaScroll.dom.children[0] == that.objAreaVerticalScrollBar.dom
+      ) {
+        that.objAreaScroll.dom.insertBefore(
+          that.objColumnCells.dom,
+          that.objAreaVerticalScrollBar.dom
+        );
+      }
     }
   };
 
@@ -1732,6 +1748,11 @@ class P_AnimationSystem_GUI_TimeLine {
     that.clipSelect.clear();
     that.clipSelect.setDisabled(true);
     that.sampleInput.changeAbility(false);
+    if (
+      that.objAreaScroll.getIndexOfChild(that.objAreaVerticalScrollBar) != -1
+    ) {
+      that.objAreaScroll.remove(that.objAreaVerticalScrollBar);
+    }
     if (that.objAreaScroll.getIndexOfChild(that.objColumnCells) != -1) {
       that.objAreaScroll.remove(that.objColumnCells);
     }
@@ -1744,8 +1765,8 @@ class P_AnimationSystem_GUI_TimeLine {
     let that = this;
 
     //这里获取动画剪辑的最大动画时间，并刷新时间轴。
-    let theFirstAnimationClipMaxTime = animationClip.duration;
-    that.initFrameBar(theFirstAnimationClipMaxTime);
+    that.animationClipMaxTime = animationClip.duration;
+    that.initFrameBar(that.animationClipMaxTime);
 
     that.objAttributeShowArea.cellsArray.length = 0;
     that.objAttributeShowArea.clear();
@@ -1897,6 +1918,8 @@ class P_AnimationSystem_GUI_TimeLine {
       that.minuteUnit *
       that.sampleNumber;
 
+    console.log("maxNumOfFrame : " + maxNumOfFrame);
+
     //这里判断，如果是在that.markIncrement为正（即最大显示帧数在不断增长的状态下），最大显示帧数是否超过阈值，如果超过了，将返回而不进行任何操作
     if (that.markIncrement > 0) {
       if (maxNumOfFrame > 45000) {
@@ -1909,7 +1932,6 @@ class P_AnimationSystem_GUI_TimeLine {
 
     //计算出鼠标滚轮所在哪一个帧
     let frameOfRp = that.calKeyFrameOfThePixel(oldFrontLength);
-    console.log("frameOfRp : " + frameOfRp);
 
     //判断最小单位类型是“秒”还是“分”
     if (that.markIncrement > 0) {
@@ -2088,20 +2110,22 @@ class P_AnimationSystem_GUI_TimeLine {
       -that.rightScrollContent.dom.offsetLeft;
     const rightScrollContainerOffsetWidth =
       that.rightScrollContainer.dom.offsetWidth;
-    const eventColumnCells_ContentOffsetHeight =
-      that.eventColumnCells_Content.dom.offsetHeight;
+
+    //这里先创建一个fragment，用来存放背景刻度线,方便后面that.eventColumnCells_Content_BackgroundShowArea统一添加，这样可以减少dom操作
+    let backgroundShowAreaFragment = document.createDocumentFragment();
+    //这里创建一个fragment，用来存放时间标签，方便后面that.timeScaleBar统一添加，这样可以减少dom操作
+    let timeScaleBarFragment = document.createDocumentFragment();
 
     //这里当0:00的位置在可视区域内时，添加0:00的刻度线
     showText = "0" + ":00";
-    let guiFrameLabel = new GUIFrameLabel(
-      40,
-      10,
-      showText,
-      eventColumnCells_ContentOffsetHeight
-    );
-    that.timeScaleBar.add(guiFrameLabel);
+    let guiFrameLabel = new GUIFrameLabel(40, 10, showText);
+    timeScaleBarFragment.appendChild(guiFrameLabel.dom);
     that.labelFrameArray.push(guiFrameLabel);
-    that.addTickMarksEventColumnCellsContentBackgroundShowArea(40, 1);
+    that.addTickMarksEventColumnCellsContentBackgroundShowArea(
+      40,
+      1,
+      backgroundShowAreaFragment
+    );
 
     let frontIgnoredMinuteNumber;
     if (rightScrollContentScrollLeft - 40 > 0) {
@@ -2148,17 +2172,13 @@ class P_AnimationSystem_GUI_TimeLine {
           let mTimesWidth = frontIgnoredMinuteNumber * that.minuteUnitWidth;
           let theMinuteOffSet = 40 + Math.floor(mTimesWidth);
           showText = frontIgnoredMinuteNumber + ":00";
-          let guiFrameLabel = new GUIFrameLabel(
-            theMinuteOffSet,
-            10,
-            showText,
-            eventColumnCells_ContentOffsetHeight
-          );
+          let guiFrameLabel = new GUIFrameLabel(theMinuteOffSet, 10, showText);
           that.labelFrameArray.push(guiFrameLabel);
-          that.timeScaleBar.add(guiFrameLabel);
+          timeScaleBarFragment.appendChild(guiFrameLabel.dom);
           that.addTickMarksEventColumnCellsContentBackgroundShowArea(
             theMinuteOffSet,
-            1
+            1,
+            backgroundShowAreaFragment
           );
         } else {
           if (i % that.secondUnit == 0) {
@@ -2170,7 +2190,7 @@ class P_AnimationSystem_GUI_TimeLine {
             let guiFrameLabel;
 
             let labelOffSetLeft =
-              theSecondOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
+              theSecondOffSet - that.labelFrameArray.at(-1).offsetLeft;
             let theMinuteOffSet =
               40 +
               Math.floor((frontIgnoredMinuteNumber + 1) * that.minuteUnitWidth);
@@ -2183,28 +2203,28 @@ class P_AnimationSystem_GUI_TimeLine {
               guiFrameLabel = new GUIFrameLabel(
                 theSecondOffSet,
                 labelOffSetLeft / 8,
-                showText,
-                eventColumnCells_ContentOffsetHeight
+                showText
               );
               that.labelFrameArray.push(guiFrameLabel);
               that.addTickMarksEventColumnCellsContentBackgroundShowArea(
                 theSecondOffSet,
-                labelOffSetLeft / 80
+                labelOffSetLeft / 80,
+                backgroundShowAreaFragment
               );
             } else {
               guiFrameLabel = new GUIFrameLabel(
                 theSecondOffSet,
                 that.secondUnitWidth / 5,
-                undefined,
-                eventColumnCells_ContentOffsetHeight
+                undefined
               );
               that.addTickMarksEventColumnCellsContentBackgroundShowArea(
                 theSecondOffSet,
-                that.secondUnitWidth / 50
+                that.secondUnitWidth / 50,
+                backgroundShowAreaFragment
               );
             }
 
-            that.timeScaleBar.add(guiFrameLabel);
+            timeScaleBarFragment.appendChild(guiFrameLabel.dom);
           }
         }
       }
@@ -2234,44 +2254,49 @@ class P_AnimationSystem_GUI_TimeLine {
         let guiFrameLabel;
 
         let labelOffSetLeft =
-          theMinuteOffSet - that.labelFrameArray.at(-1).dom.offsetLeft;
+          theMinuteOffSet - that.labelFrameArray.at(-1).offsetLeft;
 
         if (labelOffSetLeft > 40) {
           showText = i + ":0";
           guiFrameLabel = new GUIFrameLabel(
             theMinuteOffSet,
             labelOffSetLeft / 8,
-            showText,
-            eventColumnCells_ContentOffsetHeight
+            showText
           );
           that.labelFrameArray.push(guiFrameLabel);
           that.addTickMarksEventColumnCellsContentBackgroundShowArea(
             theMinuteOffSet,
-            labelOffSetLeft / 80
+            labelOffSetLeft / 80,
+            backgroundShowAreaFragment
           );
         } else {
           guiFrameLabel = new GUIFrameLabel(
             theMinuteOffSet,
             that.minuteUnitWidth / 5,
-            undefined,
-            eventColumnCells_ContentOffsetHeight
+            undefined
           );
           that.addTickMarksEventColumnCellsContentBackgroundShowArea(
             theMinuteOffSet,
-            that.minuteUnitWidth / 50
+            that.minuteUnitWidth / 50,
+            backgroundShowAreaFragment
           );
         }
-        that.timeScaleBar.add(guiFrameLabel);
+        timeScaleBarFragment.appendChild(guiFrameLabel.dom);
       }
     }
 
+    that.eventColumnCells_Content_BackgroundShowArea.dom.appendChild(
+      backgroundShowAreaFragment
+    );
+    that.timeScaleBar.dom.appendChild(timeScaleBarFragment);
     that.calPromptLinePosition(that.keyPosition);
   };
 
   //添加竖向的刻度线到事件竖向元素内容的背景显示区域
   addTickMarksEventColumnCellsContentBackgroundShowArea = (
     preDistance,
-    opacity
+    opacity,
+    fragment
   ) => {
     let that = this;
 
@@ -2282,7 +2307,8 @@ class P_AnimationSystem_GUI_TimeLine {
     tickMark.setBackgroundColor("#b4b4b4");
     tickMark.dom.style.opacity = opacity;
     tickMark.setLeft(preDistance + "px");
-    that.eventColumnCells_Content_BackgroundShowArea.add(tickMark);
+    fragment.appendChild(tickMark.dom);
+    // that.eventColumnCells_Content_BackgroundShowArea.add(tickMark);
     that.bottomTickMarkArray.push(tickMark);
   };
 

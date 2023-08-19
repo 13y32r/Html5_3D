@@ -3,14 +3,19 @@
  * @Date: 2022-12-23 10:21:34
  * @LastEditTime: 2023-04-05 21:28:00
  * @LastEditors: your name
- * @Description: 
+ * @Description:
  * @FilePath: \Html5_3D\threeSrc\libs\P_AnimationSystem\P_AnimationSystem_GUI\p_AnimationSystem_GUI_Frame.js
  * @可以输入预定的版权声明、个性签名、空行等
  */
-import { UITabbedPanel, documentBodyAdd, UIDiv, UIElement } from "../../../libs/ui.js";
+import {
+  UITabbedPanel,
+  documentBodyAdd,
+  UIDiv,
+  UIElement,
+} from "../../../libs/ui.js";
 
 class GUIFrameLabel extends UIDiv {
-  constructor(preDistance, height, showNumber, height2) {
+  constructor(preDistance, height, showNumber) {
     super("FrameAndLabel");
     let that = this;
 
@@ -19,7 +24,7 @@ class GUIFrameLabel extends UIDiv {
     } else {
       that.isLabelKey = false;
     }
-    this.createGUI(preDistance, height, showNumber, height2);
+    this.createGUI(preDistance, height, showNumber);
   }
 
   createGUI(preDistance, height, showNumber) {
@@ -44,10 +49,11 @@ class GUIFrameLabel extends UIDiv {
       let title = document.createElement("label");
       title.innerHTML = showNumber;
       this.dom.appendChild(title);
+      this.offsetLeft = preDistance;
     }
   }
 }
 
-class GUIFrameNotLabel extends UIDiv { }
+class GUIFrameNotLabel extends UIDiv {}
 
 export { GUIFrameLabel, GUIFrameNotLabel };
