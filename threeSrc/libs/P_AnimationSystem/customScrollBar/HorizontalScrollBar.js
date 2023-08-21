@@ -207,12 +207,21 @@ class HorizontalScrollBar extends UIDiv {
     let that = this;
 
     that.thumbLeftHandle.frontX = event.layerX;
+    //记录下此刻that.thumb的宽度
+    that.oldThumbBodyWidth_byLeftHandle = that.thumbBody.dom.offsetWidth;
 
     let myPosition = globalInstances.getPreloadItem("getElementPagePosition")(
       that.dom
     );
     that.pageX = myPosition.x;
     that.pageY = myPosition.y;
+
+    let thumbLeftHandleEvent = new CustomEvent("thumbLeftHandleEvent", {
+      bubbles: true,
+      cancelable: true,
+      detail: "thumbLeftHandleDown",
+    });
+    that.dom.dispatchEvent(thumbLeftHandleEvent);
 
     document.addEventListener("pointermove", that.thumbLeftHandleMoving);
     document.addEventListener("pointerup", that.thumbLeftHandleUp);
@@ -248,7 +257,7 @@ class HorizontalScrollBar extends UIDiv {
       that.thumbLeftHandle.dom.offsetWidth -
       that.thumbRightHandle.dom.offsetWidth;
 
-    if (newThumbBodyWidth < that.minThumbBodyWidth) {
+    if (newThumbBodyWidth <= that.minThumbBodyWidth) {
       return;
     }
 
@@ -256,13 +265,15 @@ class HorizontalScrollBar extends UIDiv {
     that.thumb.setWidth(newThumbWidth + "px");
     that.thumb.setLeft(thumbOffsetX + "px");
 
-    let newScalingRatio = that.track.dom.offsetWidth / newThumbWidth;
-    let thumbScalingEvent = new CustomEvent("leftThumbScaling", {
+    let newScalingRatio =
+      that.oldThumbBodyWidth_byLeftHandle / newThumbBodyWidth;
+
+    let thumbLeftHandleEvent = new CustomEvent("thumbLeftHandleEvent", {
       bubbles: true,
       cancelable: true,
       detail: newScalingRatio,
     });
-    that.dom.dispatchEvent(thumbScalingEvent);
+    that.dom.dispatchEvent(thumbLeftHandleEvent);
   }
 
   thumbLeftHandleUp(event) {
@@ -270,6 +281,14 @@ class HorizontalScrollBar extends UIDiv {
     event.stopPropagation();
 
     let that = this;
+    that.oldThumbBodyWidth_byLeftHandle = undefined;
+
+    let thumbLeftHandleEvent = new CustomEvent("thumbLeftHandleEvent", {
+      bubbles: true,
+      cancelable: true,
+      detail: "thumbLeftHandleUp",
+    });
+    that.dom.dispatchEvent(thumbLeftHandleEvent);
 
     document.removeEventListener("pointermove", that.thumbLeftHandleMoving);
     document.removeEventListener("pointerup", that.thumbLeftHandleUp);
@@ -280,6 +299,8 @@ class HorizontalScrollBar extends UIDiv {
     event.stopPropagation();
 
     let that = this;
+    //记录下此刻that.thumb的宽度
+    that.oldThumbBodyWidth_byRightHandle = that.thumbBody.dom.offsetWidth;
 
     that.thumbRightHandle.frontX =
       event.layerX -
@@ -291,6 +312,13 @@ class HorizontalScrollBar extends UIDiv {
     );
     that.pageX = myPosition.x;
     that.pageY = myPosition.y;
+
+    let thumbRightHandleUpEvent = new CustomEvent("thumbRightHandleEvent", {
+      bubbles: true,
+      cancelable: true,
+      detail: "thumbRightHandleDown",
+    });
+    that.dom.dispatchEvent(thumbRightHandleUpEvent);
 
     document.addEventListener("pointermove", that.thumbRightHandleMoving);
     document.addEventListener("pointerup", that.thumbRightHandleUp);
@@ -346,13 +374,14 @@ class HorizontalScrollBar extends UIDiv {
       that.thumbLeftHandle.dom.offsetWidth +
       newThumbBodyWidth;
 
-    let newScalingRatio = that.track.dom.offsetWidth / newThumbWidth;
-    let thumbScalingEvent = new CustomEvent("rightThumbScaling", {
+    let newScalingRatio =
+      that.oldThumbBodyWidth_byRightHandle / newThumbBodyWidth;
+    let thumbRightHandleEvent = new CustomEvent("thumbRightHandleEvent", {
       bubbles: true,
       cancelable: true,
       detail: newScalingRatio,
     });
-    that.dom.dispatchEvent(thumbScalingEvent);
+    that.dom.dispatchEvent(thumbRightHandleEvent);
   }
 
   thumbRightHandleUp(event) {
@@ -360,7 +389,15 @@ class HorizontalScrollBar extends UIDiv {
     event.stopPropagation();
 
     let that = this;
+    that.oldThumbBodyWidth_byRightHandle = undefined;
     that.refresh();
+
+    let thumbRightHandleEvent = new CustomEvent("thumbRightHandleEvent", {
+      bubbles: true,
+      cancelable: true,
+      detail: "thumbRightHandleUp",
+    });
+    that.dom.dispatchEvent(thumbRightHandleEvent);
 
     document.removeEventListener("pointermove", that.thumbRightHandleMoving);
     document.removeEventListener("pointerup", that.thumbRightHandleUp);
@@ -465,6 +502,19 @@ class HorizontalScrollBar extends UIDiv {
     that.dom.dispatchEvent(scrollingEvent);
 
     that.changeInnerAreaLeftToFitThumb();
+  }
+
+  updateMinThumbBodyWidth(currentActualSecondUnitWidth) {
+    let that = this;
+
+    const currentMaxSecondUnitWidth = that.outerAreaDom.offsetWidth - 40 - 20;
+
+    const scalefactor =
+      currentActualSecondUnitWidth / currentMaxSecondUnitWidth;
+
+    that.minThumbBodyWidth = Math.round(
+      that.thumbBody.dom.offsetWidth * scalefactor
+    );
   }
 
   forceScaleThumb() {

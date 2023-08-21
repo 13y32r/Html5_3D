@@ -1159,19 +1159,115 @@ class P_AnimationSystem_GUI_TimeLine {
         that.refreshFrame();
       }
     );
+
+    let thumbRightHandleEvent = (event) => {
+      let that = this;
+
+      const receivedMessage = event.detail;
+
+      switch (receivedMessage) {
+        case "thumbRightHandleDown":
+          that.oldRightScrollContentWidth_byThumbRightHandleDown =
+            that.rightScrollContent.dom.offsetWidth;
+          that.oldSecondUnitWidth_byThumbRightHandleDown = that.secondUnitWidth;
+          break;
+        case "thumbRightHandleUp":
+          that.oldRightScrollContentWidth_byThumbRightHandleDown = undefined;
+          that.oldSecondUnitWidth_byThumbRightHandleDown = undefined;
+          break;
+        default:
+          if (!that.oldRightScrollContentWidth_byThumbRightHandleDown) {
+            console.error(
+              "oldRightScrollContentWidth_byThumbRightHandleDown is undefined"
+            );
+            return;
+          } else if (!that.oldSecondUnitWidth_byThumbRightHandleDown) {
+            console.error(
+              "oldSecondUnitWidth_byThumbRightHandleDown is undefined"
+            );
+            return;
+          } else if (isNaN(receivedMessage)) {
+            console.error("receivedMessage is NaN");
+            return;
+          }
+
+          const newScalingRatio = receivedMessage;
+
+          const newRightScrollContentWidth =
+            that.oldRightScrollContentWidth_byThumbRightHandleDown *
+            newScalingRatio;
+          const newSecondUnitWidth =
+            that.oldSecondUnitWidth_byThumbRightHandleDown * newScalingRatio;
+
+          that.setSecondUnitWidth(newSecondUnitWidth);
+          that.rightScrollContent.setWidth(newRightScrollContentWidth + "px");
+          that.rightAreaHorizontalScrollBar.changeInnerAreaLeftToFitThumb();
+          //这里updateTotalFrameShowAreaWidth函数往往和autoCutRightScrollContentTailWidth函数配套使用，视情况而定
+          that.updateTotalFrameShowAreaWidth();
+          that.autoCutRightScrollContentTailWidth();
+          that.refreshFrame();
+          break;
+      }
+    };
     //这里监听右测横向滚动条的缩放事件
     that.rightAreaHorizontalScrollBar.dom.addEventListener(
-      "thumbScaling",
-      function (event) {
-        const newScalingRatio = event.detail;
-        const newRightScrollContentWidth =
-          that.rightScrollContainer.dom.offsetWidth * newScalingRatio;
-        const newSecondUnitWidth = that.secondUnitWidth * newScalingRatio;
+      "thumbRightHandleEvent",
+      thumbRightHandleEvent
+    );
 
-        that.setSecondUnitWidth(newSecondUnitWidth);
-        that.rightScrollContent.setWidth(newRightScrollContentWidth + "px");
-        that.refreshFrame();
+    let thumbLeftHandleEvent = (event) => {
+      let that = this;
+
+      const receivedMessage = event.detail;
+
+      switch (receivedMessage) {
+        case "thumbLeftHandleDown":
+          that.oldRightScrollContentWidth_byThumbLeftHandleDown =
+            that.rightScrollContent.dom.offsetWidth;
+          that.oldSecondUnitWidth_byThumbLeftHandleDown = that.secondUnitWidth;
+          break;
+        case "thumbLeftHandleUp":
+          that.oldRightScrollContentWidth_byThumbLeftHandleDown = undefined;
+          that.oldSecondUnitWidth_byThumbLeftHandleDown = undefined;
+          break;
+        default:
+          if (!that.oldRightScrollContentWidth_byThumbLeftHandleDown) {
+            console.error(
+              "oldRightScrollContentWidth_byThumbLeftHandleDown is undefined"
+            );
+            return;
+          } else if (!that.oldSecondUnitWidth_byThumbLeftHandleDown) {
+            console.error(
+              "oldSecondUnitWidth_byThumbLeftHandleDown is undefined"
+            );
+            return;
+          } else if (isNaN(receivedMessage)) {
+            console.error("receivedMessage is NaN");
+            return;
+          }
+
+          const newScalingRatio = receivedMessage;
+
+          const newRightScrollContentWidth =
+            that.oldRightScrollContentWidth_byThumbLeftHandleDown *
+            newScalingRatio;
+          const newSecondUnitWidth =
+            that.oldSecondUnitWidth_byThumbLeftHandleDown * newScalingRatio;
+
+          that.setSecondUnitWidth(newSecondUnitWidth);
+          that.rightScrollContent.setWidth(newRightScrollContentWidth + "px");
+          that.rightAreaHorizontalScrollBar.changeInnerAreaLeftToFitThumb();
+          //这里updateTotalFrameShowAreaWidth函数往往和autoCutRightScrollContentTailWidth函数配套使用，视情况而定
+          that.updateTotalFrameShowAreaWidth();
+          that.autoCutRightScrollContentTailWidth();
+          that.refreshFrame();
+          break;
       }
+    };
+    //这里监听左测横向滚动条的缩放事件
+    that.rightAreaHorizontalScrollBar.dom.addEventListener(
+      "thumbLeftHandleEvent",
+      thumbLeftHandleEvent
     );
 
     that.rightScrollContainer.dom.addEventListener(
@@ -1315,6 +1411,9 @@ class P_AnimationSystem_GUI_TimeLine {
         oldRightScrollContainerWidth;
 
       that.scalingRightScrollContentWidthAndLeft(scaleParam);
+      that.rightAreaHorizontalScrollBar.updateMinThumbBodyWidth(
+        that.secondUnitWidth / that.secondUnit
+      );
       that.rightAreaHorizontalScrollBar.refresh();
       that.setSecondUnitWidth(that.secondUnitWidth * scaleParam);
     }
@@ -1493,6 +1592,9 @@ class P_AnimationSystem_GUI_TimeLine {
       }
 
       that.updateTotalFrameShowAreaWidth();
+      that.rightAreaHorizontalScrollBar.updateMinThumbBodyWidth(
+        that.secondUnitWidth / that.secondUnit
+      );
       that.refreshFrame();
     }, 100);
   };
@@ -1968,6 +2070,9 @@ class P_AnimationSystem_GUI_TimeLine {
     that.autoCutRightScrollContentTailWidth();
 
     that.rightAreaHorizontalScrollBar.refresh();
+    that.rightAreaHorizontalScrollBar.updateMinThumbBodyWidth(
+      that.secondUnitWidth / that.secondUnit
+    );
     that.refreshFrame(rp);
   };
 
@@ -1976,7 +2081,6 @@ class P_AnimationSystem_GUI_TimeLine {
     let that = this;
 
     const rightScrollContainerWidth = that.rightScrollContainer.dom.offsetWidth;
-    const rightScrollContentWidth = that.rightScrollContent.dom.offsetWidth;
     const rightScrollContentScrollLeft =
       -that.rightScrollContent.dom.offsetLeft;
 
@@ -2364,6 +2468,9 @@ class P_AnimationSystem_GUI_TimeLine {
     const scale = param.newDom3Width / param.oldDom3Width;
 
     that.scalingRightScrollContentWidthAndLeft(scale);
+    that.rightAreaHorizontalScrollBar.updateMinThumbBodyWidth(
+      that.secondUnitWidth / that.secondUnit
+    );
     that.rightAreaHorizontalScrollBar.refresh();
     that.setSecondUnitWidth(that.secondUnitWidth * scale);
   };
