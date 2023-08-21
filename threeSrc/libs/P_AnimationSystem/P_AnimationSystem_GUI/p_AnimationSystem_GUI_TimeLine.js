@@ -1155,6 +1155,7 @@ class P_AnimationSystem_GUI_TimeLine {
     that.rightAreaHorizontalScrollBar.dom.addEventListener(
       "scrolling",
       function (event) {
+        that.autoCutRightScrollContentTailWidth();
         that.refreshFrame();
       }
     );
@@ -1471,13 +1472,14 @@ class P_AnimationSystem_GUI_TimeLine {
     that.sampleNumber = parseInt(that.sampleNumber);
 
     setTimeout(() => {
-      let pixelTotalWidth = that.rightScrollContent.dom.offsetWidth - 75;
-      let totalWidthIncrement = pixelTotalWidth - that.markIncrement;
+      const pixelTotalWidth = that.rightScrollContent.dom.offsetWidth - 70;
+      const totalWidthIncrement = pixelTotalWidth - that.markIncrement;
 
-      let timeCell = 1 / that.sampleNumber;
-      let totalSecondNumber = maxTime / timeCell;
+      const timeCell = 1 / that.sampleNumber;
+      const totalSecondNumber = maxTime / timeCell;
+      that.totalSecondNumber = Math.round(totalSecondNumber);
 
-      that.secondUnitWidth = totalWidthIncrement / totalSecondNumber;
+      that.secondUnitWidth = totalWidthIncrement / that.totalSecondNumber;
       that.minuteUnitWidth = that.secondUnitWidth * that.sampleNumber;
 
       while (that.secondUnitWidth <= 5) {
@@ -1490,6 +1492,7 @@ class P_AnimationSystem_GUI_TimeLine {
         }
       }
 
+      that.updateTotalFrameShowAreaWidth();
       that.refreshFrame();
     }, 100);
   };
@@ -1909,53 +1912,94 @@ class P_AnimationSystem_GUI_TimeLine {
   wheelFrameSpace = (rp) => {
     let that = this;
 
+    const rightScrollContainerWidth = that.rightScrollContainer.dom.offsetWidth;
     const rightScrollContentWidth = that.rightScrollContent.dom.offsetWidth;
-    const rightScrollContentScrollLeft = that.rightScrollContent.dom.offsetLeft;
+    //这里that.rightScrollContent从初始位置滑动时与that.rightAreaHorizontalScrollBar的滑动方向相反，所以要取反
+    const rightScrollContentScrollLeft =
+      -that.rightScrollContent.dom.offsetLeft;
 
     //这里先计算能显示的最大帧数，防止溢出
     const maxNumOfFrame =
-      ((rightScrollContentWidth - 50) / that.minuteUnitWidth) *
-      that.minuteUnit *
-      that.sampleNumber;
-
-    console.log("maxNumOfFrame : " + maxNumOfFrame);
+      ((rightScrollContentWidth - 50) / that.secondUnitWidth) * that.secondUnit;
 
     //这里判断，如果是在that.markIncrement为正（即最大显示帧数在不断增长的状态下），最大显示帧数是否超过阈值，如果超过了，将返回而不进行任何操作
     if (that.markIncrement > 0) {
-      if (maxNumOfFrame > 45000) {
+      if (maxNumOfFrame > 20000) {
         return;
       }
     }
 
     const fixedFrontLength = rp;
-    const oldFrontLength = fixedFrontLength - rightScrollContentScrollLeft;
+    //这里由于第0帧的位置是在40px处，所以要减去40px
+    let oldFrontLength = fixedFrontLength + rightScrollContentScrollLeft - 40;
+    //为防止滚轮指针在第0帧之前，导致oldFrontLength为负数，所以要做判断
+    oldFrontLength = Math.max(oldFrontLength, 0);
 
     //计算出鼠标滚轮所在哪一个帧
-    let frameOfRp = that.calKeyFrameOfThePixel(oldFrontLength);
+    const frameOfRp = that.calKeyFrameOfThePixel(oldFrontLength);
 
-    //判断最小单位类型是“秒”还是“分”
+    let newWidth;
+    //判断是放大还是缩小
     if (that.markIncrement > 0) {
       that.setSecondUnitWidth(that.secondUnitWidth / 2);
+      newWidth = rightScrollContentWidth / 2;
     } else if (that.markIncrement < 0) {
-      that.setSecondUnitWidth(that.secondUnitWidth * 2);
+      const newSecondUnitWidth = that.secondUnitWidth * 2;
+      newWidth = rightScrollContentWidth * 2;
+      if (newSecondUnitWidth > rightScrollContainerWidth - 50) return;
+      that.setSecondUnitWidth(newSecondUnitWidth);
     }
 
-    const newFrontLength = frameOfRp * that.secondUnitWidth;
-    let incrementLength = newFrontLength - oldFrontLength;
-    let newWidth = rightScrollContentWidth + incrementLength;
-    let scrollLeft = newFrontLength - fixedFrontLength;
+    const newFrontLength = (frameOfRp * that.secondUnitWidth) / that.secondUnit;
+    let scrollLeft;
 
-    if (newWidth > that.rightScrollContainer.dom.offsetWidth - 16) {
+    if (fixedFrontLength <= 40 - rightScrollContentScrollLeft) {
+      scrollLeft = 0;
+    } else {
+      scrollLeft = newFrontLength + 40 - fixedFrontLength;
+    }
+
+    if (newWidth > rightScrollContainerWidth - 16) {
       that.rightScrollContent.setWidth(newWidth + "px");
       that.rightScrollContent.setLeft(-scrollLeft + "px");
     }
+
+    that.updateTotalFrameShowAreaWidth();
+    that.autoCutRightScrollContentTailWidth();
 
     that.rightAreaHorizontalScrollBar.refresh();
     that.refreshFrame(rp);
   };
 
   //计算并判断that.rightScrollContent的width在变化后，该长度是否超过该影片剪辑的最大时间长度。如果超过了，就自动裁剪that.rightScrollContent尾部多余的长度。
-  autoCutRightScrollContentTailWidth = () => {};
+  autoCutRightScrollContentTailWidth = () => {
+    let that = this;
+
+    const rightScrollContainerWidth = that.rightScrollContainer.dom.offsetWidth;
+    const rightScrollContentWidth = that.rightScrollContent.dom.offsetWidth;
+    const rightScrollContentScrollLeft =
+      -that.rightScrollContent.dom.offsetLeft;
+
+    const containerWidthAndScrollContentScrollLeft =
+      rightScrollContainerWidth + rightScrollContentScrollLeft;
+
+    if (
+      containerWidthAndScrollContentScrollLeft > that.totalFrameShowAreaWidth
+    ) {
+      that.rightScrollContent.setWidth(
+        containerWidthAndScrollContentScrollLeft + "px"
+      );
+    }
+  };
+
+  //更新最大帧数的显示宽度
+  updateTotalFrameShowAreaWidth = () => {
+    //这里加40是因为第0帧的位置是在40px处，加20是因为最后一帧如果带有标签提示，那么要留出20px的空间用来展示文字信息
+    this.totalFrameShowAreaWidth =
+      (this.totalSecondNumber * this.secondUnitWidth) / this.secondUnit +
+      40 +
+      20;
+  };
 
   //监听鼠标点放关键帧的位置
   setPLPositionByPoint = (event) => {
@@ -2013,6 +2057,7 @@ class P_AnimationSystem_GUI_TimeLine {
     }
     //由于上面的判断依据是长度超过关键帧提示线的位置，所以这里要做减“1”操作
     minuteID--;
+    minuteID = minuteID < 0 ? 0 : minuteID;
 
     //接着在判断属于哪一个“秒”
     let lotWidth = positionOfPixel - minuteID * that.minuteUnitWidth;
@@ -2163,7 +2208,7 @@ class P_AnimationSystem_GUI_TimeLine {
 
       for (
         let i = frontIgnoredSecondNumber + that.secondUnit;
-        i < frontIgnoredSecondNumber + areaShowNumber;
+        i <= frontIgnoredSecondNumber + areaShowNumber;
         i++
       ) {
         if (i % that.sampleNumber == 0) {
@@ -2336,7 +2381,7 @@ class P_AnimationSystem_GUI_TimeLine {
       2;
 
     that.markIncrement = Math.sign(event.deltaY) * 2;
-    that.wheelFrameSpace(pointer_X - 40);
+    that.wheelFrameSpace(pointer_X);
     that.markIncrement = 0;
   };
 

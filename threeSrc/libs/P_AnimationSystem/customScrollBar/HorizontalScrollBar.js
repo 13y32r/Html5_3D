@@ -194,6 +194,7 @@ class HorizontalScrollBar extends UIDiv {
     event.stopPropagation();
 
     let that = this;
+    that.refresh();
 
     document.removeEventListener("pointermove", that.thumbBodyMoving);
     document.removeEventListener("pointerup", that.thumbBodyUp);
@@ -256,7 +257,7 @@ class HorizontalScrollBar extends UIDiv {
     that.thumb.setLeft(thumbOffsetX + "px");
 
     let newScalingRatio = that.track.dom.offsetWidth / newThumbWidth;
-    let thumbScalingEvent = new CustomEvent("thumbScaling", {
+    let thumbScalingEvent = new CustomEvent("leftThumbScaling", {
       bubbles: true,
       cancelable: true,
       detail: newScalingRatio,
@@ -346,7 +347,7 @@ class HorizontalScrollBar extends UIDiv {
       newThumbBodyWidth;
 
     let newScalingRatio = that.track.dom.offsetWidth / newThumbWidth;
-    let thumbScalingEvent = new CustomEvent("thumbScaling", {
+    let thumbScalingEvent = new CustomEvent("rightThumbScaling", {
       bubbles: true,
       cancelable: true,
       detail: newScalingRatio,
@@ -359,6 +360,7 @@ class HorizontalScrollBar extends UIDiv {
     event.stopPropagation();
 
     let that = this;
+    that.refresh();
 
     document.removeEventListener("pointermove", that.thumbRightHandleMoving);
     document.removeEventListener("pointerup", that.thumbRightHandleUp);
@@ -426,6 +428,7 @@ class HorizontalScrollBar extends UIDiv {
     event.stopPropagation();
 
     let that = this;
+    that.refresh();
 
     that.leftArrow.setBackgroundImage(
       "url(" + that.folderPath + "img/leftArrow_normal.png)"
