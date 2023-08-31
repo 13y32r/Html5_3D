@@ -1177,6 +1177,14 @@ function dragElement(target, moveObj) {
   function closeDragElement(e) {
     document.body.releasePointerCapture(e.pointerId);
 
+    const moveObjName = moveObj.getAttribute("name");
+    const uiMoveEvent = new CustomEvent("uiEndMove", {
+      bubbles: true,
+      cancelable: true,
+      detail: moveObjName,
+    });
+    moveObj.dispatchEvent(uiMoveEvent);
+
     document.body.removeEventListener("pointerup", closeDragElement);
     document.body.removeEventListener("pointercancel", closeDragElement);
     document.body.removeEventListener("pointermove", elementDragProcessingFn);

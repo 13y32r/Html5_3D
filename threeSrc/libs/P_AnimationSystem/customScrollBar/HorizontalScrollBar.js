@@ -44,6 +44,11 @@ class HorizontalScrollBar extends UIDiv {
     that.track.dom.draggable = false;
 
     that.thumb = new UIDiv();
+    that.thumb.setLeft = function (value) {
+      that.scrollLeft = value;
+      UIElement.prototype.setLeft.call(that.thumb, value + "px");
+    };
+
     that.thumb.dom.draggable = false;
     that.thumbLeftHandle = new UIDiv();
     that.thumbLeftHandle.dom.draggable = false;
@@ -120,27 +125,43 @@ class HorizontalScrollBar extends UIDiv {
 
   initStyle() {
     let that = this;
+    let count = 0;
 
     // 创建 IntersectionObserver 实例
-    const observer = new IntersectionObserver((entries, observer) => {
+    that.observer = new IntersectionObserver((entries, observer) => {
       entries.forEach((entry) => {
-        // 当目标元素出现在视口中时
         if (entry.isIntersecting) {
-          // 停止监听
-          // observer.unobserve(entry.target);
-          if (entry.target == that.outerAreaDom) {
-            // 触发你想要执行的事件
-            that.scrollLeft = that.outerAreaDom.offsetWidth - 32 - 14;
-          } else if (entry.target == that.innerAreaDom) {
-            that.changeThumbWidthToFitInnerArea();
+          switch (entry.target) {
+            case that.outerAreaDom:
+              count++;
+              break;
+            case that.innerAreaDom:
+              count++;
+              break;
+            case that.thumbLeftHandle.dom:
+              that.thumbLeftHandleWidth = that.thumbLeftHandle.dom.offsetWidth;
+              break;
+            case that.thumbRightHandle.dom:
+              that.thumbRightHandleWidth =
+                that.thumbRightHandle.dom.offsetWidth;
+              break;
+            default:
+              break;
           }
         }
       });
+
+      if (count === 2) {
+        that.refresh();
+        count = 0;
+      }
     });
 
     // 开始监听目标元素
-    observer.observe(that.outerAreaDom);
-    observer.observe(that.innerAreaDom);
+    that.observer.observe(that.outerAreaDom);
+    that.observer.observe(that.innerAreaDom);
+    that.observer.observe(that.thumbLeftHandle.dom);
+    that.observer.observe(that.thumbRightHandle.dom);
   }
 
   innerAreaDomChange(event) {}
@@ -151,7 +172,17 @@ class HorizontalScrollBar extends UIDiv {
 
     let that = this;
 
-    let newScrollLeft = event.offsetX;
+    const currentThumbBodyWidth = that.thumbBody.dom.offsetWidth;
+
+    let newScrollLeft =
+      event.offsetX - that.thumbLeftHandleWidth - currentThumbBodyWidth;
+
+    if (newScrollLeft < 0) {
+      newScrollLeft = 0;
+    }
+
+    console.log("newScrollLeft", newScrollLeft);
+
     that.setScrollLeft(newScrollLeft);
   }
 
@@ -179,13 +210,12 @@ class HorizontalScrollBar extends UIDiv {
 
     let that = this;
 
-    let newScrollLeft =
-      event.pageX -
-      that.pageX -
-      16 -
-      that.thumbBody.frontX +
-      that.thumbLeftHandle.dom.offsetWidth +
-      that.thumbBody.dom.offsetWidth;
+    console.log("----------------------");
+    console.log("that.pageX", that.pageX);
+    console.log("event.pageX", event.pageX);
+    console.log("that.thumbBody.frontX", that.thumbBody.frontX);
+
+    let newScrollLeft = event.pageX - that.pageX - 16 - that.thumbBody.frontX;
     that.setScrollLeft(newScrollLeft);
   }
 
@@ -194,7 +224,7 @@ class HorizontalScrollBar extends UIDiv {
     event.stopPropagation();
 
     let that = this;
-    that.refresh();
+    // that.refresh();
 
     document.removeEventListener("pointermove", that.thumbBodyMoving);
     document.removeEventListener("pointerup", that.thumbBodyUp);
@@ -207,8 +237,10 @@ class HorizontalScrollBar extends UIDiv {
     let that = this;
 
     that.thumbLeftHandle.frontX = event.layerX;
+
     //记录下此刻that.thumb的宽度
     that.oldThumbBodyWidth_byLeftHandle = that.thumbBody.dom.offsetWidth;
+    that.oldScrollLeft_byLeftHandle = that.scrollLeft;
 
     let myPosition = globalInstances.getPreloadItem("getElementPagePosition")(
       that.dom
@@ -233,37 +265,47 @@ class HorizontalScrollBar extends UIDiv {
 
     let that = this;
 
+    //that.pageX是前面记录下的this.dom的最左边坐标，16是that.leftArrow的宽度，that.thumbLeftHandle.frontX是鼠标点击点到左句柄左边缘的距离
     let limitLeft = that.pageX + 16 + that.thumbLeftHandle.frontX;
+
     let limitRight =
       that.pageX +
       16 +
-      that.scrollLeft -
-      (that.thumbLeftHandle.dom.offsetWidth - that.thumbLeftHandle.frontX);
+      that.oldScrollLeft_byLeftHandle +
+      that.thumbLeftHandleWidth +
+      that.oldThumbBodyWidth_byLeftHandle -
+      that.thumbLeftHandle.frontX;
 
     let thumbOffsetX = 0;
+
     if (event.pageX <= limitLeft) {
       thumbOffsetX = 0;
     } else if (event.pageX >= limitRight) {
-      thumbOffsetX = that.scrollLeft - that.thumbLeftHandle.dom.offsetWidth;
+      thumbOffsetX =
+        that.oldScrollLeft_byLeftHandle + that.oldThumbBodyWidth_byLeftHandle;
     } else {
       thumbOffsetX =
         event.pageX - that.pageX - 16 - that.thumbLeftHandle.frontX;
     }
 
-    let newThumbWidth =
-      that.scrollLeft - thumbOffsetX + that.thumbRightHandle.dom.offsetWidth;
     let newThumbBodyWidth =
-      newThumbWidth -
-      that.thumbLeftHandle.dom.offsetWidth -
-      that.thumbRightHandle.dom.offsetWidth;
+      that.oldThumbBodyWidth_byLeftHandle -
+      thumbOffsetX +
+      that.oldScrollLeft_byLeftHandle;
+    let newThumbWidth =
+      newThumbBodyWidth +
+      that.thumbLeftHandleWidth +
+      that.thumbRightHandleWidth;
 
     if (newThumbBodyWidth <= that.minThumbBodyWidth) {
       return;
     }
 
+    that.scrollLeft = thumbOffsetX;
+
     that.thumbBody.setWidth(newThumbBodyWidth + "px");
     that.thumb.setWidth(newThumbWidth + "px");
-    that.thumb.setLeft(thumbOffsetX + "px");
+    that.thumb.setLeft(thumbOffsetX);
 
     let newScalingRatio =
       that.oldThumbBodyWidth_byLeftHandle / newThumbBodyWidth;
@@ -282,6 +324,7 @@ class HorizontalScrollBar extends UIDiv {
 
     let that = this;
     that.oldThumbBodyWidth_byLeftHandle = undefined;
+    that.oldScrollLeft_byLeftHandle = undefined;
 
     let thumbLeftHandleEvent = new CustomEvent("thumbLeftHandleEvent", {
       bubbles: true,
@@ -299,13 +342,12 @@ class HorizontalScrollBar extends UIDiv {
     event.stopPropagation();
 
     let that = this;
+
     //记录下此刻that.thumb的宽度
     that.oldThumbBodyWidth_byRightHandle = that.thumbBody.dom.offsetWidth;
 
     that.thumbRightHandle.frontX =
-      event.layerX -
-      that.thumbLeftHandle.dom.offsetWidth -
-      that.thumbBody.dom.offsetWidth;
+      event.layerX - that.thumbLeftHandleWidth - that.thumbBody.dom.offsetWidth;
 
     let myPosition = globalInstances.getPreloadItem("getElementPagePosition")(
       that.dom
@@ -330,38 +372,37 @@ class HorizontalScrollBar extends UIDiv {
 
     let that = this;
 
+    const thumbLeftHandleWidth = that.thumbLeftHandleWidth;
+    const thumbRightHandleWidth = that.thumbRightHandleWidth;
+
     let limitLeft =
       that.pageX +
       16 +
-      that.thumb.dom.offsetLeft +
-      that.thumbLeftHandle.dom.offsetWidth +
+      that.scrollLeft +
+      that.thumbLeftHandleWidth +
       that.thumbRightHandle.frontX;
     let limitRight =
       that.pageX +
       16 +
       that.track.dom.offsetWidth -
-      (that.thumbRightHandle.dom.offsetWidth - that.thumbRightHandle.frontX);
+      (thumbRightHandleWidth - that.thumbRightHandle.frontX);
 
     let newThumbWidth = 0;
     if (event.pageX <= limitLeft) {
-      newThumbWidth =
-        that.thumbLeftHandle.dom.offsetWidth +
-        that.thumbRightHandle.dom.offsetWidth;
+      newThumbWidth = thumbLeftHandleWidth + thumbRightHandleWidth;
     } else if (event.pageX >= limitRight) {
-      newThumbWidth = that.track.dom.offsetWidth - that.thumb.dom.offsetLeft;
+      newThumbWidth = that.track.dom.offsetWidth - that.scrollLeft;
     } else {
       newThumbWidth =
         event.pageX -
         that.pageX -
         16 -
-        that.thumb.dom.offsetLeft +
-        (that.thumbRightHandle.dom.offsetWidth - that.thumbRightHandle.frontX);
+        that.scrollLeft +
+        (thumbRightHandleWidth - that.thumbRightHandle.frontX);
     }
 
     let newThumbBodyWidth =
-      newThumbWidth -
-      that.thumbLeftHandle.dom.offsetWidth -
-      that.thumbRightHandle.dom.offsetWidth;
+      newThumbWidth - thumbLeftHandleWidth - thumbRightHandleWidth;
 
     if (newThumbBodyWidth < that.minThumbBodyWidth) {
       return;
@@ -369,10 +410,6 @@ class HorizontalScrollBar extends UIDiv {
 
     that.thumbBody.setWidth(newThumbBodyWidth + "px");
     that.thumb.setWidth(newThumbWidth + "px");
-    that.scrollLeft =
-      that.thumb.dom.offsetLeft +
-      that.thumbLeftHandle.dom.offsetWidth +
-      newThumbBodyWidth;
 
     let newScalingRatio =
       that.oldThumbBodyWidth_byRightHandle / newThumbBodyWidth;
@@ -481,27 +518,29 @@ class HorizontalScrollBar extends UIDiv {
     let that = this;
 
     let maxRight = that.track.dom.offsetWidth - that.thumb.dom.offsetWidth;
-    let newThumbLeft = that.scrollLeftToThumbLeft(value);
+    let newThumbLeft = value;
 
     if (newThumbLeft <= 0) {
-      that.scrollLeft = that.thumbLeftToScrollLeft(0);
-      that.thumb.setLeft(0 + "px");
+      that.thumb.setLeft(0);
     } else if (newThumbLeft >= maxRight) {
-      that.scrollLeft = that.thumbLeftToScrollLeft(maxRight);
-      that.thumb.setLeft(maxRight + "px");
+      console.log("newThumbLeft", newThumbLeft);
+      console.log("maxRight", maxRight);
+      console.log("----------------------------------------");
+      that.thumb.setLeft(maxRight);
     } else {
-      that.scrollLeft = value;
-      that.thumb.setLeft(newThumbLeft + "px");
+      that.thumb.setLeft(newThumbLeft);
     }
 
-    const scrollingEvent = new CustomEvent("scrolling", {
-      bubbles: true,
-      cancelable: true,
-      detail: newThumbLeft,
-    });
-    that.dom.dispatchEvent(scrollingEvent);
+    function callback() {
+      const scrollingEvent = new CustomEvent("scrolling", {
+        bubbles: true,
+        cancelable: true,
+        detail: newThumbLeft,
+      });
+      that.dom.dispatchEvent(scrollingEvent);
+    }
 
-    that.changeInnerAreaLeftToFitThumb();
+    that.changeInnerAreaLeftToFitThumb(callback);
   }
 
   updateMinThumbBodyWidth(currentActualSecondUnitWidth) {
@@ -520,34 +559,18 @@ class HorizontalScrollBar extends UIDiv {
   forceScaleThumb() {
     let that = this;
 
-    that.changeThumbLeftToFitInnerArea();
     let scalingRatio =
       that.outerAreaDom.offsetWidth / that.innerAreaDom.offsetWidth;
+
     let newThumbWidth = that.track.dom.offsetWidth * scalingRatio;
     let newThumbBodyWidth =
-      newThumbWidth -
-      that.thumbLeftHandle.dom.offsetWidth -
-      that.thumbRightHandle.dom.offsetWidth;
+      newThumbWidth - that.thumbLeftHandleWidth - that.thumbRightHandleWidth;
+
+    that.thumbBody.highPrecisionWidth = newThumbBodyWidth;
     that.thumbBody.setWidth(newThumbBodyWidth + "px");
     that.thumb.setWidth(newThumbWidth + "px");
-  }
 
-  scrollLeftToThumbLeft(scrollLeftValue) {
-    let that = this;
-    return (
-      scrollLeftValue -
-      that.thumbLeftHandle.dom.offsetWidth -
-      that.thumbBody.dom.offsetWidth
-    );
-  }
-
-  thumbLeftToScrollLeft(thumbLeftValue) {
-    let that = this;
-    return (
-      thumbLeftValue +
-      that.thumbLeftHandle.dom.offsetWidth +
-      that.thumbBody.dom.offsetWidth
-    );
+    that.changeThumbLeftToFitInnerArea();
   }
 
   getScrollLeft() {
@@ -557,29 +580,48 @@ class HorizontalScrollBar extends UIDiv {
 
   changeThumbLeftToFitInnerArea() {
     let that = this;
-    let scale = -that.innerAreaDom.offsetLeft / that.outerAreaDom.offsetWidth;
-    let newThumbLeft = that.thumb.dom.offsetWidth * scale;
 
-    that.thumb.setLeft(newThumbLeft + "px");
-    that.scrollLeft = that.thumbLeftToScrollLeft(newThumbLeft);
+    if (!that.thumbBody.highPrecisionWidth) {
+      console.error("that.thumbBody.highPrecisionWidth is undefined");
+      return;
+    }
+
+    const product =
+      that.thumbBody.highPrecisionWidth * that.innerAreaDom.offsetLeft;
+    const quotient = product / that.outerAreaDom.offsetWidth;
+    const newThumbLeft = -quotient;
+
+    that.thumb.setLeft(newThumbLeft);
+    that.thumbBody.highPrecisionWidth = undefined;
   }
 
-  changeInnerAreaLeftToFitThumb() {
+  changeInnerAreaLeftToFitThumb(callback) {
     let that = this;
     let scale = that.thumb.dom.offsetLeft / that.thumb.dom.offsetWidth;
     let newInnerAreaLeft = -that.outerAreaDom.offsetWidth * scale;
 
     that.innerAreaDom.style.left = newInnerAreaLeft + "px";
+
+    if (callback) {
+      callback();
+    }
   }
 
   changeThumbWidthToFitInnerArea() {
     let that = this;
     let scale = that.innerAreaDom.offsetWidth / that.outerAreaDom.offsetWidth;
-    let newThumbWidth = that.track.dom.offsetWidth / scale;
     let newThumbBodyWidth =
-      newThumbWidth -
-      that.thumbLeftHandle.dom.offsetWidth -
-      that.thumbRightHandle.dom.offsetWidth;
+      (that.track.dom.offsetWidth -
+        that.thumbLeftHandleWidth -
+        that.thumbRightHandleWidth) /
+      scale;
+
+    that.thumbBody.highPrecisionWidth = newThumbBodyWidth;
+
+    let newThumbWidth =
+      newThumbBodyWidth +
+      that.thumbLeftHandleWidth +
+      that.thumbRightHandleWidth;
 
     that.thumbBody.setWidth(newThumbBodyWidth + "px");
     that.thumb.setWidth(newThumbWidth + "px");
@@ -591,6 +633,12 @@ class HorizontalScrollBar extends UIDiv {
     that.changeThumbWidthToFitInnerArea();
     that.changeThumbLeftToFitInnerArea();
   };
+
+  //释放Observer监听
+  disObserver() {
+    that.observer.disconnect();
+    that.observer = null;
+  }
 }
 
 export { HorizontalScrollBar };

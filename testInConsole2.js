@@ -26,18 +26,32 @@
 
 // test.sayHello();
 
-class MyClass {
-  outProperty = "outProperty";
+// class MyClass {
+//   outProperty = "outProperty";
 
-  constructor() {
-    this.myProperty = "Hello, world!";
-  }
+//   constructor() {
+//     this.myProperty = "Hello, world!";
+//   }
 
-  myMethod() {
-    console.log(this.myProperty);
-    console.log(this.outProperty);
+//   myMethod() {
+//     console.log(this.myProperty);
+//     console.log(this.outProperty);
+//   }
+// }
+
+// const myObject = new MyClass();
+// myObject.myMethod(); // 输出 "Hello, world!"
+
+class Person {
+  sayHello() {
+    console.log("Hello, world!");
   }
 }
 
-const myObject = new MyClass();
-myObject.myMethod(); // 输出 "Hello, world!"
+Person.prototype.sayHello = function (name) {
+  this.sayHello();
+  console.log("by " + name + "!");
+};
+
+const person = new Person();
+person.sayHello("Bob");

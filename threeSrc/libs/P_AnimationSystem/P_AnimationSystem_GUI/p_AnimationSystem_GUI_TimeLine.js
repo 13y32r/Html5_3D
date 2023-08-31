@@ -1155,11 +1155,15 @@ class P_AnimationSystem_GUI_TimeLine {
     that.rightAreaHorizontalScrollBar.dom.addEventListener(
       "scrolling",
       function (event) {
+        // setTimeout(function () {
         that.autoCutRightScrollContentTailWidth();
         that.refreshFrame();
+        // that.rightAreaHorizontalScrollBar.refresh();
+        // }, 200);
       }
     );
 
+    //横向滚动条的右句柄监听函数
     let thumbRightHandleEvent = (event) => {
       let that = this;
 
@@ -1215,6 +1219,7 @@ class P_AnimationSystem_GUI_TimeLine {
       thumbRightHandleEvent
     );
 
+    //纵向滚动条的左句柄监听函数
     let thumbLeftHandleEvent = (event) => {
       let that = this;
 
@@ -1599,6 +1604,17 @@ class P_AnimationSystem_GUI_TimeLine {
     }, 100);
   };
 
+  //重置dom元素和面板参数
+  resetDomAndParam = () => {
+    let that = this;
+
+    that.keyPositionInput.setValue(0);
+    that.promptLine.setLeft("0px");
+    that.sampleInput.setValue(10);
+
+    that.rightScrollContent.dom.removeAttribute("style");
+  };
+
   //改变单位秒的最小宽度that.secondUnitWidth
   setSecondUnitWidth = (newWidth) => {
     let that = this;
@@ -1767,6 +1783,10 @@ class P_AnimationSystem_GUI_TimeLine {
         );
         break;
       case AnimationEditObjectState.NORMAL:
+        console.log("AnimationEditObjectState.NORMAL");
+        //如果之前操作过面板元素，这里会清除原有操作
+        that.resetDomAndParam();
+
         that.updateClipSelect();
         that.clipSelect.setValue(0);
         that.updateAttributeParam(that.object.name, that.object.animations[0]);
@@ -2027,7 +2047,18 @@ class P_AnimationSystem_GUI_TimeLine {
     //这里判断，如果是在that.markIncrement为正（即最大显示帧数在不断增长的状态下），最大显示帧数是否超过阈值，如果超过了，将返回而不进行任何操作
     if (that.markIncrement > 0) {
       if (maxNumOfFrame > 20000) {
-        return;
+        console.log("that.secondUnitWidth:" + that.secondUnitWidth);
+
+        if (that.maxFrameOfSecondUnitWidth) {
+          if (that.secondUnitWidth <= that.maxFrameOfSecondUnitWidth) {
+            console.log("超过最大帧数,方案1");
+            return;
+          }
+        } else {
+          that.maxFrameOfSecondUnitWidth = that.secondUnitWidth;
+          console.log("超过最大帧数，方案2");
+          return;
+        }
       }
     }
 
@@ -2040,41 +2071,50 @@ class P_AnimationSystem_GUI_TimeLine {
     //计算出鼠标滚轮所在哪一个帧
     const frameOfRp = that.calKeyFrameOfThePixel(oldFrontLength);
 
-    let newWidth;
     //判断是放大还是缩小
     if (that.markIncrement > 0) {
       that.setSecondUnitWidth(that.secondUnitWidth / 2);
-      newWidth = rightScrollContentWidth / 2;
     } else if (that.markIncrement < 0) {
       const newSecondUnitWidth = that.secondUnitWidth * 2;
-      newWidth = rightScrollContentWidth * 2;
-      if (newSecondUnitWidth > rightScrollContainerWidth - 50) return;
+      if (newSecondUnitWidth > rightScrollContainerWidth - 50) {
+        return;
+      }
       that.setSecondUnitWidth(newSecondUnitWidth);
     }
 
-    const newFrontLength = (frameOfRp * that.secondUnitWidth) / that.secondUnit;
+    let newFrontLength = (frameOfRp * that.secondUnitWidth) / that.secondUnit;
     let scrollLeft;
 
     if (fixedFrontLength <= 40 - rightScrollContentScrollLeft) {
       scrollLeft = 0;
     } else {
-      scrollLeft = newFrontLength + 40 - fixedFrontLength;
+      if (newFrontLength <= fixedFrontLength) {
+        newFrontLength = fixedFrontLength;
+        scrollLeft = 0;
+      } else {
+        scrollLeft = newFrontLength + 40 - fixedFrontLength;
+      }
     }
 
-    if (newWidth > rightScrollContainerWidth - 16) {
-      that.rightScrollContent.setWidth(newWidth + "px");
-      that.rightScrollContent.setLeft(-scrollLeft + "px");
-    }
+    console.log("scrollLeft:" + scrollLeft);
+
+    //根据前面计算出newFrontLength+第0帧的位置是在40px,在加上尾部宽度求出新的that.rightScrollContent的width
+    const tailWidth = rightScrollContainerWidth - fixedFrontLength;
+    const newRightScrollContentWidth = newFrontLength + 40 + tailWidth;
+    that.rightScrollContent.setWidth(newRightScrollContentWidth + "px");
+    that.rightScrollContent.setLeft(-scrollLeft + "px");
 
     that.updateTotalFrameShowAreaWidth();
     that.autoCutRightScrollContentTailWidth();
 
-    that.rightAreaHorizontalScrollBar.refresh();
     that.rightAreaHorizontalScrollBar.updateMinThumbBodyWidth(
       that.secondUnitWidth / that.secondUnit
     );
+    that.rightAreaHorizontalScrollBar.refresh();
     that.refreshFrame(rp);
   };
+
+  //根据最新的totalFrameShowAreaWidth
 
   //计算并判断that.rightScrollContent的width在变化后，该长度是否超过该影片剪辑的最大时间长度。如果超过了，就自动裁剪that.rightScrollContent尾部多余的长度。
   autoCutRightScrollContentTailWidth = () => {
