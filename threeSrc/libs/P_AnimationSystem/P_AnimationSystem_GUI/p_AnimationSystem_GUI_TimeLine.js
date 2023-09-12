@@ -2123,8 +2123,6 @@ class P_AnimationSystem_GUI_TimeLine {
       }
     }
 
-    console.log("scrollLeft:" + scrollLeft);
-
     //根据前面计算出newFrontLength+第0帧的位置是在40px,在加上尾部宽度求出新的that.rightScrollContent的width
     const tailWidth = rightScrollContainerWidth - fixedFrontLength;
     const newRightScrollContentWidth = newFrontLength + 40 + tailWidth;
