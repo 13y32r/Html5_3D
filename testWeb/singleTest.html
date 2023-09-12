@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    <script>
+    <!-- <script>
         const Signal = signals.Signal;
 
         this.signals = { tSignal: new Signal() };
@@ -42,6 +42,22 @@
         this.signals.tSignal.active = true;
 
         this.signals.tSignal.dispatch("I change my mind.");
+    </script> -->
+    <script>
+        const detailProxy = { message: '' };
+        const customEvent = new CustomEvent('myEvent', { detail: detailProxy });
+
+        document.addEventListener('myEvent', function (e) {
+            console.log(e.detail);
+        });
+
+        // 动态设置detail属性
+        detailProxy = 10;
+        document.dispatchEvent(customEvent);
+
+        detailProxy = 20;
+        document.dispatchEvent(customEvent);
+
     </script>
 </body>
 

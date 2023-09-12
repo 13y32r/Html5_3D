@@ -1154,12 +1154,17 @@ class P_AnimationSystem_GUI_TimeLine {
     );
     that.rightAreaHorizontalScrollBar.dom.addEventListener(
       "scrolling",
-      function (event) {
-        // setTimeout(function () {
-        that.autoCutRightScrollContentTailWidth();
+      function () {
+        that.rightAreaHorizontalScrollBar.changeInnerAreaLeftToFitThumb();
         that.refreshFrame();
-        // that.rightAreaHorizontalScrollBar.refresh();
-        // }, 200);
+      }
+    );
+    that.rightAreaHorizontalScrollBar.dom.addEventListener(
+      "stopScrolling",
+      function () {
+        // that.autoCutRightScrollContentTailWidth();
+        that.rightAreaHorizontalScrollBar.refresh();
+        that.refreshFrame();
       }
     );
 
@@ -1190,12 +1195,15 @@ class P_AnimationSystem_GUI_TimeLine {
               "oldSecondUnitWidth_byThumbRightHandleDown is undefined"
             );
             return;
-          } else if (isNaN(receivedMessage)) {
-            console.error("receivedMessage is NaN");
+          } else if (!receivedMessage.ScalingRatio) {
+            console.error("receivedMessage.ScalingRatio is undefined");
+            return;
+          } else if (isNaN(receivedMessage.ScalingRatio)) {
+            console.error("receivedMessage.ScalingRatio is NaN");
             return;
           }
 
-          const newScalingRatio = receivedMessage;
+          const newScalingRatio = receivedMessage.ScalingRatio;
 
           const newRightScrollContentWidth =
             that.oldRightScrollContentWidth_byThumbRightHandleDown *
@@ -1203,13 +1211,16 @@ class P_AnimationSystem_GUI_TimeLine {
           const newSecondUnitWidth =
             that.oldSecondUnitWidth_byThumbRightHandleDown * newScalingRatio;
 
-          that.setSecondUnitWidth(newSecondUnitWidth);
+          console.log("newSecondUnitWidth", newSecondUnitWidth);
+
           that.rightScrollContent.setWidth(newRightScrollContentWidth + "px");
           that.rightAreaHorizontalScrollBar.changeInnerAreaLeftToFitThumb();
+          that.setSecondUnitWidth(newSecondUnitWidth);
+          console.log("that.secondUnit", that.secondUnit);
           //这里updateTotalFrameShowAreaWidth函数往往和autoCutRightScrollContentTailWidth函数配套使用，视情况而定
-          that.updateTotalFrameShowAreaWidth();
-          that.autoCutRightScrollContentTailWidth();
-          that.refreshFrame();
+          // that.updateTotalFrameShowAreaWidth();
+          // that.autoCutRightScrollContentTailWidth();
+          // that.refreshFrame();
           break;
       }
     };
@@ -1222,6 +1233,8 @@ class P_AnimationSystem_GUI_TimeLine {
     //纵向滚动条的左句柄监听函数
     let thumbLeftHandleEvent = (event) => {
       let that = this;
+
+      console.log("event.detail", event.detail);
 
       const receivedMessage = event.detail;
 
@@ -1246,12 +1259,16 @@ class P_AnimationSystem_GUI_TimeLine {
               "oldSecondUnitWidth_byThumbLeftHandleDown is undefined"
             );
             return;
-          } else if (isNaN(receivedMessage)) {
-            console.error("receivedMessage is NaN");
+          } else if (!receivedMessage.ScalingRatio) {
+            console.error("receivedMessage.ScalingRatio is undefined");
+            return;
+          } else if (isNaN(receivedMessage.ScalingRatio)) {
+            console.error("receivedMessage.ScalingRatio is NaN");
             return;
           }
 
-          const newScalingRatio = receivedMessage;
+          const newScalingRatio = receivedMessage.ScalingRatio;
+          // console.log("newScalingRatio", newScalingRatio);
 
           const newRightScrollContentWidth =
             that.oldRightScrollContentWidth_byThumbLeftHandleDown *
@@ -1259,13 +1276,15 @@ class P_AnimationSystem_GUI_TimeLine {
           const newSecondUnitWidth =
             that.oldSecondUnitWidth_byThumbLeftHandleDown * newScalingRatio;
 
-          that.setSecondUnitWidth(newSecondUnitWidth);
           that.rightScrollContent.setWidth(newRightScrollContentWidth + "px");
           that.rightAreaHorizontalScrollBar.changeInnerAreaLeftToFitThumb();
+          that.setSecondUnitWidth(newSecondUnitWidth);
+          console.log("that.secondUnitWidht", that.secondUnitWidth);
+          console.log("that.secondUnit", that.secondUnit);
           //这里updateTotalFrameShowAreaWidth函数往往和autoCutRightScrollContentTailWidth函数配套使用，视情况而定
-          that.updateTotalFrameShowAreaWidth();
-          that.autoCutRightScrollContentTailWidth();
-          that.refreshFrame();
+          // that.updateTotalFrameShowAreaWidth();
+          // that.autoCutRightScrollContentTailWidth();
+          // that.refreshFrame();
           break;
       }
     };
@@ -1635,33 +1654,36 @@ class P_AnimationSystem_GUI_TimeLine {
   recalcUnitsAndUnitType = () => {
     let that = this;
 
-    if (that.secondUnitWidth <= 5) {
-      that.secondUnit *= 2;
-      that.secondUnitWidth *= 2;
-    } else if (that.secondUnit > 1) {
-      if (that.secondUnitWidth / 2 >= 10) {
-        that.secondUnit /= 2;
-        that.secondUnitWidth /= 2;
+    let tempSecondUnitWidth = that.secondUnitWidth / that.secondUnit;
+    let tempSecondUnit = 1;
+    function updateSecond() {
+      if (tempSecondUnitWidth <= 5) {
+        tempSecondUnit *= 2;
+        tempSecondUnitWidth *= 2;
+        updateSecond();
       }
     }
+    updateSecond();
+    that.secondUnit = tempSecondUnit;
+    that.secondUnitWidth = tempSecondUnitWidth;
 
     //定义一个临时的分钟最小宽度
     let tempMinuteUnitWidth =
       (that.secondUnitWidth / that.secondUnit) *
       that.sampleNumber *
       that.minuteUnit;
+    let tempMinuteUnit = 1;
 
-    if (tempMinuteUnitWidth <= 5) {
-      that.minuteUnit *= 2;
-      tempMinuteUnitWidth *= 2;
-    } else if (tempMinuteUnitWidth / 2 >= 10) {
-      if (that.minuteUnit > 1) {
-        that.minuteUnit /= 2;
-        tempMinuteUnitWidth /= 2;
+    function updateMinute() {
+      if (tempMinuteUnitWidth <= 5) {
+        tempMinuteUnit *= 2;
+        tempMinuteUnitWidth *= 2;
+        updateMinute();
       }
     }
-
+    updateMinute();
     that.minuteUnitWidth = tempMinuteUnitWidth;
+    that.minuteUnit = tempMinuteUnit;
 
     if (that.myUnitType == UnitType.Second) {
       if (that.secondUnit >= that.sampleNumber) {
@@ -1672,6 +1694,11 @@ class P_AnimationSystem_GUI_TimeLine {
         that.myUnitType = UnitType.Second;
       }
     }
+
+    console.log("that.secondUnitWidth", that.secondUnitWidth);
+    console.log("that.minuteUnitWidth", that.minuteUnitWidth);
+    console.log("that.secondUnit", that.secondUnit);
+    console.log("that.minuteUnit", that.minuteUnit);
   };
 
   //为选中物体创建新的动画剪辑

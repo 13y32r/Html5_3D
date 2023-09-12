@@ -10,6 +10,32 @@
 import globalInstances from "/assist/GlobalInstances.js";
 import { UIDiv, UIElement } from "/threeSrc/libs/ui.js";
 
+// #region [该类的各种事件题]
+const scrollingEvent = new CustomEvent("scrolling", {
+  bubbles: true,
+  cancelable: true,
+});
+
+const stopScrollingEvent = new CustomEvent("stopScrolling", {
+  bubbles: true,
+  cancelable: true,
+});
+
+let thumbRightHandleDetail = {};
+const thumbRightHandleEvent = new CustomEvent("thumbRightHandleEvent", {
+  bubbles: true,
+  cancelable: true,
+  detail: thumbRightHandleDetail,
+});
+
+let thumbLeftHandleDetail = {};
+const thumbLeftHandleEvent = new CustomEvent("thumbLeftHandleEvent", {
+  bubbles: true,
+  cancelable: true,
+  detail: thumbLeftHandleDetail,
+});
+//#endregion
+
 class HorizontalScrollBar extends UIDiv {
   constructor(outerAreaDom, innerAreaDom, minThumbBodyWidth = 10) {
     super();
@@ -192,7 +218,8 @@ class HorizontalScrollBar extends UIDiv {
 
     let that = this;
 
-    that.thumbBody.frontX = event.layerX;
+    //这里的frontX已经作了换算，加上的14就是左边thumbLeftHandle元素的宽度
+    that.thumbBody.frontX = event.offsetX + 14;
 
     let myPosition = globalInstances.getPreloadItem("getElementPagePosition")(
       that.dom
@@ -210,10 +237,10 @@ class HorizontalScrollBar extends UIDiv {
 
     let that = this;
 
-    console.log("----------------------");
-    console.log("that.pageX", that.pageX);
-    console.log("event.pageX", event.pageX);
-    console.log("that.thumbBody.frontX", that.thumbBody.frontX);
+    // console.log("----------------------");
+    // console.log("that.pageX", that.pageX);
+    // console.log("event.pageX", event.pageX);
+    // console.log("that.thumbBody.frontX", that.thumbBody.frontX);
 
     let newScrollLeft = event.pageX - that.pageX - 16 - that.thumbBody.frontX;
     that.setScrollLeft(newScrollLeft);
@@ -224,7 +251,7 @@ class HorizontalScrollBar extends UIDiv {
     event.stopPropagation();
 
     let that = this;
-    // that.refresh();
+    that.dom.dispatchEvent(stopScrollingEvent);
 
     document.removeEventListener("pointermove", that.thumbBodyMoving);
     document.removeEventListener("pointerup", that.thumbBodyUp);
@@ -307,14 +334,8 @@ class HorizontalScrollBar extends UIDiv {
     that.thumb.setWidth(newThumbWidth + "px");
     that.thumb.setLeft(thumbOffsetX);
 
-    let newScalingRatio =
+    thumbLeftHandleDetail.ScalingRatio =
       that.oldThumbBodyWidth_byLeftHandle / newThumbBodyWidth;
-
-    let thumbLeftHandleEvent = new CustomEvent("thumbLeftHandleEvent", {
-      bubbles: true,
-      cancelable: true,
-      detail: newScalingRatio,
-    });
     that.dom.dispatchEvent(thumbLeftHandleEvent);
   }
 
@@ -411,13 +432,9 @@ class HorizontalScrollBar extends UIDiv {
     that.thumbBody.setWidth(newThumbBodyWidth + "px");
     that.thumb.setWidth(newThumbWidth + "px");
 
-    let newScalingRatio =
+    //ScalingRatio事件参数
+    thumbRightHandleDetail.ScalingRatio =
       that.oldThumbBodyWidth_byRightHandle / newThumbBodyWidth;
-    let thumbRightHandleEvent = new CustomEvent("thumbRightHandleEvent", {
-      bubbles: true,
-      cancelable: true,
-      detail: newScalingRatio,
-    });
     that.dom.dispatchEvent(thumbRightHandleEvent);
   }
 
@@ -520,27 +537,24 @@ class HorizontalScrollBar extends UIDiv {
     let maxRight = that.track.dom.offsetWidth - that.thumb.dom.offsetWidth;
     let newThumbLeft = value;
 
-    if (newThumbLeft <= 0) {
-      that.thumb.setLeft(0);
-    } else if (newThumbLeft >= maxRight) {
-      console.log("newThumbLeft", newThumbLeft);
-      console.log("maxRight", maxRight);
-      console.log("----------------------------------------");
-      that.thumb.setLeft(maxRight);
-    } else {
-      that.thumb.setLeft(newThumbLeft);
+    const scrollDirection = newThumbLeft - that.thumb.dom.offsetLeft;
+    // console.log("scrollDirection", scrollDirection);
+
+    if (scrollDirection > 0) {
+      if (newThumbLeft > maxRight) {
+        that.thumb.setLeft(maxRight);
+      } else {
+        that.thumb.setLeft(newThumbLeft);
+      }
+    } else if (scrollDirection < 0) {
+      if (newThumbLeft < 0) {
+        that.thumb.setLeft(0);
+      } else {
+        that.thumb.setLeft(newThumbLeft);
+      }
     }
 
-    function callback() {
-      const scrollingEvent = new CustomEvent("scrolling", {
-        bubbles: true,
-        cancelable: true,
-        detail: newThumbLeft,
-      });
-      that.dom.dispatchEvent(scrollingEvent);
-    }
-
-    that.changeInnerAreaLeftToFitThumb(callback);
+    that.dom.dispatchEvent(scrollingEvent);
   }
 
   updateMinThumbBodyWidth(currentActualSecondUnitWidth) {
@@ -562,9 +576,15 @@ class HorizontalScrollBar extends UIDiv {
     let scalingRatio =
       that.outerAreaDom.offsetWidth / that.innerAreaDom.offsetWidth;
 
-    let newThumbWidth = that.track.dom.offsetWidth * scalingRatio;
     let newThumbBodyWidth =
-      newThumbWidth - that.thumbLeftHandleWidth - that.thumbRightHandleWidth;
+      (that.track.dom.offsetWidth -
+        that.thumbLeftHandleWidth -
+        that.thumbRightHandleWidt) *
+      scalingRatio;
+    let newThumbWidth =
+      newThumbBodyWidth +
+      that.thumbLeftHandleWidth +
+      that.thumbRightHandleWidth;
 
     that.thumbBody.highPrecisionWidth = newThumbBodyWidth;
     that.thumbBody.setWidth(newThumbBodyWidth + "px");
@@ -591,14 +611,26 @@ class HorizontalScrollBar extends UIDiv {
     const quotient = product / that.outerAreaDom.offsetWidth;
     const newThumbLeft = -quotient;
 
+    // const newThumbLeft =
+    //   -(that.innerAreaDom.offsetLeft * that.track.dom.offsetWidth) /
+    //   that.innerAreaDom.offsetWidth;
+
+    // console.log("newThumbLeft", newThumbLeft);
+    // console.log("that.thumb.dom.offsetLeft", that.thumb.dom.offsetLeft);
+
     that.thumb.setLeft(newThumbLeft);
     that.thumbBody.highPrecisionWidth = undefined;
   }
 
   changeInnerAreaLeftToFitThumb(callback) {
     let that = this;
-    let scale = that.thumb.dom.offsetLeft / that.thumb.dom.offsetWidth;
-    let newInnerAreaLeft = -that.outerAreaDom.offsetWidth * scale;
+
+    const proLength =
+      that.track.dom.offsetWidth -
+      that.thumbLeftHandleWidth -
+      that.thumbRightHandleWidth;
+    let scale = that.thumb.dom.offsetLeft / proLength;
+    let newInnerAreaLeft = -that.innerAreaDom.offsetWidth * scale;
 
     that.innerAreaDom.style.left = newInnerAreaLeft + "px";
 
