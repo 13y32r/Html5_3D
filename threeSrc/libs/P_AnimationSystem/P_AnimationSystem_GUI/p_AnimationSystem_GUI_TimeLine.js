@@ -1215,7 +1215,7 @@ class P_AnimationSystem_GUI_TimeLine {
 
           that.rightScrollContent.setWidth(newRightScrollContentWidth + "px");
           that.rightAreaHorizontalScrollBar.changeInnerAreaLeftToFitThumb();
-          that.setSecondUnitWidth(newSecondUnitWidth);
+          that.normalizeSetSecondUnitWidth(newSecondUnitWidth);
           console.log("that.secondUnit", that.secondUnit);
           //这里updateTotalFrameShowAreaWidth函数往往和autoCutRightScrollContentTailWidth函数配套使用，视情况而定
           // that.updateTotalFrameShowAreaWidth();
@@ -1268,7 +1268,7 @@ class P_AnimationSystem_GUI_TimeLine {
           }
 
           const newScalingRatio = receivedMessage.ScalingRatio;
-          // console.log("newScalingRatio", newScalingRatio);
+          console.log("newScalingRatio", newScalingRatio);
 
           const newRightScrollContentWidth =
             that.oldRightScrollContentWidth_byThumbLeftHandleDown *
@@ -1278,9 +1278,9 @@ class P_AnimationSystem_GUI_TimeLine {
 
           that.rightScrollContent.setWidth(newRightScrollContentWidth + "px");
           that.rightAreaHorizontalScrollBar.changeInnerAreaLeftToFitThumb();
-          that.setSecondUnitWidth(newSecondUnitWidth);
-          console.log("that.secondUnitWidht", that.secondUnitWidth);
-          console.log("that.secondUnit", that.secondUnit);
+          that.normalizeSetSecondUnitWidth(newSecondUnitWidth);
+          // console.log("that.secondUnitWidht", that.secondUnitWidth);
+          // console.log("that.secondUnit", that.secondUnit);
           //这里updateTotalFrameShowAreaWidth函数往往和autoCutRightScrollContentTailWidth函数配套使用，视情况而定
           // that.updateTotalFrameShowAreaWidth();
           // that.autoCutRightScrollContentTailWidth();
@@ -1634,6 +1634,21 @@ class P_AnimationSystem_GUI_TimeLine {
     that.rightScrollContent.dom.removeAttribute("style");
   };
 
+  normalizeSecondUnitWidth = () => {
+    let that = this;
+
+    that.secondUnitWidth = that.secondUnitWidth / that.secondUnit;
+    that.secondUnit = 1;
+  };
+
+  normalizeSetSecondUnitWidth = (newWidth) => {
+    let that = this;
+
+    that.secondUnitWidth = newWidth / that.secondUnit;
+    that.secondUnit = 1;
+    that.onSecondUnitWidthChanged();
+  };
+
   //改变单位秒的最小宽度that.secondUnitWidth
   setSecondUnitWidth = (newWidth) => {
     let that = this;
@@ -1669,9 +1684,7 @@ class P_AnimationSystem_GUI_TimeLine {
 
     //定义一个临时的分钟最小宽度
     let tempMinuteUnitWidth =
-      (that.secondUnitWidth / that.secondUnit) *
-      that.sampleNumber *
-      that.minuteUnit;
+      (that.secondUnitWidth / that.secondUnit) * that.sampleNumber;
     let tempMinuteUnit = 1;
 
     function updateMinute() {
@@ -1694,11 +1707,6 @@ class P_AnimationSystem_GUI_TimeLine {
         that.myUnitType = UnitType.Second;
       }
     }
-
-    console.log("that.secondUnitWidth", that.secondUnitWidth);
-    console.log("that.minuteUnitWidth", that.minuteUnitWidth);
-    console.log("that.secondUnit", that.secondUnit);
-    console.log("that.minuteUnit", that.minuteUnit);
   };
 
   //为选中物体创建新的动画剪辑
