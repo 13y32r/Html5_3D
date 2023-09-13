@@ -1216,7 +1216,6 @@ class P_AnimationSystem_GUI_TimeLine {
           that.rightScrollContent.setWidth(newRightScrollContentWidth + "px");
           that.rightAreaHorizontalScrollBar.changeInnerAreaLeftToFitThumb();
           that.normalizeSetSecondUnitWidth(newSecondUnitWidth);
-          console.log("that.secondUnit", that.secondUnit);
           //这里updateTotalFrameShowAreaWidth函数往往和autoCutRightScrollContentTailWidth函数配套使用，视情况而定
           // that.updateTotalFrameShowAreaWidth();
           // that.autoCutRightScrollContentTailWidth();
@@ -1234,14 +1233,13 @@ class P_AnimationSystem_GUI_TimeLine {
     let thumbLeftHandleEvent = (event) => {
       let that = this;
 
-      console.log("event.detail", event.detail);
-
       const receivedMessage = event.detail;
 
       switch (receivedMessage) {
         case "thumbLeftHandleDown":
           that.oldRightScrollContentWidth_byThumbLeftHandleDown =
             that.rightScrollContent.dom.offsetWidth;
+          that.normalizeSecondUnitWidth();
           that.oldSecondUnitWidth_byThumbLeftHandleDown = that.secondUnitWidth;
           break;
         case "thumbLeftHandleUp":
@@ -1268,17 +1266,23 @@ class P_AnimationSystem_GUI_TimeLine {
           }
 
           const newScalingRatio = receivedMessage.ScalingRatio;
-          console.log("newScalingRatio", newScalingRatio);
 
           const newRightScrollContentWidth =
             that.oldRightScrollContentWidth_byThumbLeftHandleDown *
             newScalingRatio;
+          console.log("that.secondUnit", that.secondUnit);
+          console.log("that.secondUnitWidht", that.secondUnitWidth);
+          console.log("1-----------------------------1");
           const newSecondUnitWidth =
             that.oldSecondUnitWidth_byThumbLeftHandleDown * newScalingRatio;
 
           that.rightScrollContent.setWidth(newRightScrollContentWidth + "px");
           that.rightAreaHorizontalScrollBar.changeInnerAreaLeftToFitThumb();
           that.normalizeSetSecondUnitWidth(newSecondUnitWidth);
+
+          console.log("that.secondUnitWidth", that.secondUnitWidth);
+          console.log("that.secondUnit", that.secondUnit);
+          console.log("2-----------------------------2");
           // console.log("that.secondUnitWidht", that.secondUnitWidth);
           // console.log("that.secondUnit", that.secondUnit);
           //这里updateTotalFrameShowAreaWidth函数往往和autoCutRightScrollContentTailWidth函数配套使用，视情况而定
