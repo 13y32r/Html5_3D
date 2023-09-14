@@ -1211,11 +1211,11 @@ class P_AnimationSystem_GUI_TimeLine {
           const newSecondUnitWidth =
             that.oldSecondUnitWidth_byThumbRightHandleDown * newScalingRatio;
 
-          console.log("newSecondUnitWidth", newSecondUnitWidth);
-
           that.rightScrollContent.setWidth(newRightScrollContentWidth + "px");
           that.rightAreaHorizontalScrollBar.changeInnerAreaLeftToFitThumb();
-          that.normalizeSetSecondUnitWidth(newSecondUnitWidth);
+          //由于oldSecondUnitWidth_byThumbRightHandleDown是之前规范化了that.secondUnitWidth，所以这里直接将that.secondUnit置为1，然后直接使用setSecondUnitWidth即可。
+          that.secondUnit = 1;
+          that.setSecondUnitWidth(newSecondUnitWidth);
           //这里updateTotalFrameShowAreaWidth函数往往和autoCutRightScrollContentTailWidth函数配套使用，视情况而定
           // that.updateTotalFrameShowAreaWidth();
           // that.autoCutRightScrollContentTailWidth();
@@ -1270,19 +1270,16 @@ class P_AnimationSystem_GUI_TimeLine {
           const newRightScrollContentWidth =
             that.oldRightScrollContentWidth_byThumbLeftHandleDown *
             newScalingRatio;
-          console.log("that.secondUnit", that.secondUnit);
-          console.log("that.secondUnitWidht", that.secondUnitWidth);
-          console.log("1-----------------------------1");
+
           const newSecondUnitWidth =
             that.oldSecondUnitWidth_byThumbLeftHandleDown * newScalingRatio;
 
           that.rightScrollContent.setWidth(newRightScrollContentWidth + "px");
           that.rightAreaHorizontalScrollBar.changeInnerAreaLeftToFitThumb();
-          that.normalizeSetSecondUnitWidth(newSecondUnitWidth);
 
-          console.log("that.secondUnitWidth", that.secondUnitWidth);
-          console.log("that.secondUnit", that.secondUnit);
-          console.log("2-----------------------------2");
+          //由于that.oldSecondUnitWidth_byThumbLeftHandleDown是之前规范化了that.secondUnitWidth，所以这里直接将that.secondUnit置为1，然后直接使用setSecondUnitWidth即可。
+          that.secondUnit = 1;
+          that.setSecondUnitWidth(newSecondUnitWidth);
           // console.log("that.secondUnitWidht", that.secondUnitWidth);
           // console.log("that.secondUnit", that.secondUnit);
           //这里updateTotalFrameShowAreaWidth函数往往和autoCutRightScrollContentTailWidth函数配套使用，视情况而定
