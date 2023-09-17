@@ -2632,6 +2632,55 @@ class P_AnimationSystem_GUI_TimeLine {
   };
 }
 
+const KeyframeType = {
+  Total: 0,
+  Attribute: 1,
+  Cell: 2,
+};
+
+const KeyFrameState = {
+  Normal: 0,
+  Selected: 1,
+};
+
+class KeyframeButton extends UIDiv {
+  constructor(type) {
+    super("KeyframeButton");
+    let that = this;
+
+    that.setClass("KeyframeButton");
+
+    that.selfType = type;
+    that.state = KeyFrameState.Normal;
+
+    if (that.selfType == KeyframeType.Total) {
+      that.normalImg = "url(/menuGUI/img/allKeyButton_Normal.png)";
+      that.selectedImg = "url(/menuGUI/img/allKeyButton_Selected.png)";
+    } else {
+      that.normalImg = "url(/menuGUI/img/cellKeyButton_Normal.png)";
+      that.selectedImg = "url(/menuGUI/img/cellKeyButton_Selected.png)";
+    }
+
+    that.setBackgroundImage(that.normalImg);
+
+    that.dom.addEventListener("pointerdown", that.selected);
+  }
+
+  selected = () => {
+    let that = this;
+
+    that.state = KeyFrameState.Selected;
+    that.setBackgroundImage(that.selectedImg);
+  };
+
+  unSelected = () => {
+    let that = this;
+
+    that.state = KeyFrameState.Normal;
+    that.setBackgroundImage(that.normalImg);
+  };
+}
+
 class AddPropertyButton extends UIElement {
   constructor(value) {
     super(document.createElement("button"));

@@ -424,3 +424,10 @@ input::-webkit-inner-spin-button {
 .AddPropertyButton_DOWN {
   background-image: linear-gradient(#4d4d4d, #5a5a5a);
 }
+
+.KeyframeButton {
+  position: relative;
+  width: 13px;
+  height: 13px;
+  background-repeat: no-repeat;
+}
