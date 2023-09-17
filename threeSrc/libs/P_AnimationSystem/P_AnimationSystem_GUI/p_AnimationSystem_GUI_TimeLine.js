@@ -1162,8 +1162,11 @@ class P_AnimationSystem_GUI_TimeLine {
     that.rightAreaHorizontalScrollBar.dom.addEventListener(
       "stopScrolling",
       function () {
-        // that.autoCutRightScrollContentTailWidth();
+        that.autoCutRightScrollContentTailWidth();
         that.rightAreaHorizontalScrollBar.refresh();
+        that.rightAreaHorizontalScrollBar.updateMinThumbBodyWidth(
+          that.secondUnitWidth / that.secondUnit
+        );
         that.refreshFrame();
       }
     );
@@ -1178,9 +1181,16 @@ class P_AnimationSystem_GUI_TimeLine {
         case "thumbRightHandleDown":
           that.oldRightScrollContentWidth_byThumbRightHandleDown =
             that.rightScrollContent.dom.offsetWidth;
+          that.normalizeSecondUnitWidth();
           that.oldSecondUnitWidth_byThumbRightHandleDown = that.secondUnitWidth;
           break;
         case "thumbRightHandleUp":
+          that.autoCutRightScrollContentTailWidth();
+          that.rightAreaHorizontalScrollBar.refresh();
+          that.rightAreaHorizontalScrollBar.updateMinThumbBodyWidth(
+            that.secondUnitWidth / that.secondUnit
+          );
+          that.refreshFrame();
           that.oldRightScrollContentWidth_byThumbRightHandleDown = undefined;
           that.oldSecondUnitWidth_byThumbRightHandleDown = undefined;
           break;
@@ -1217,9 +1227,7 @@ class P_AnimationSystem_GUI_TimeLine {
           that.secondUnit = 1;
           that.setSecondUnitWidth(newSecondUnitWidth);
           //这里updateTotalFrameShowAreaWidth函数往往和autoCutRightScrollContentTailWidth函数配套使用，视情况而定
-          // that.updateTotalFrameShowAreaWidth();
-          // that.autoCutRightScrollContentTailWidth();
-          // that.refreshFrame();
+          that.updateTotalFrameShowAreaWidth();
           break;
       }
     };
@@ -1243,6 +1251,9 @@ class P_AnimationSystem_GUI_TimeLine {
           that.oldSecondUnitWidth_byThumbLeftHandleDown = that.secondUnitWidth;
           break;
         case "thumbLeftHandleUp":
+          that.rightAreaHorizontalScrollBar.updateMinThumbBodyWidth(
+            that.secondUnitWidth / that.secondUnit
+          );
           that.oldRightScrollContentWidth_byThumbLeftHandleDown = undefined;
           that.oldSecondUnitWidth_byThumbLeftHandleDown = undefined;
           break;
@@ -1280,12 +1291,8 @@ class P_AnimationSystem_GUI_TimeLine {
           //由于that.oldSecondUnitWidth_byThumbLeftHandleDown是之前规范化了that.secondUnitWidth，所以这里直接将that.secondUnit置为1，然后直接使用setSecondUnitWidth即可。
           that.secondUnit = 1;
           that.setSecondUnitWidth(newSecondUnitWidth);
-          // console.log("that.secondUnitWidht", that.secondUnitWidth);
-          // console.log("that.secondUnit", that.secondUnit);
           //这里updateTotalFrameShowAreaWidth函数往往和autoCutRightScrollContentTailWidth函数配套使用，视情况而定
-          // that.updateTotalFrameShowAreaWidth();
-          // that.autoCutRightScrollContentTailWidth();
-          // that.refreshFrame();
+          that.updateTotalFrameShowAreaWidth();
           break;
       }
     };
@@ -1442,6 +1449,9 @@ class P_AnimationSystem_GUI_TimeLine {
       that.rightAreaHorizontalScrollBar.refresh();
       that.setSecondUnitWidth(that.secondUnitWidth * scaleParam);
     }
+    that.rightAreaHorizontalScrollBar.updateMinThumbBodyWidth(
+      that.secondUnitWidth / that.secondUnit
+    );
 
     that.whileObjAreaScrollHeightChangedAdjustObjColumnCellsTop();
     that.objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth();
@@ -1592,47 +1602,96 @@ class P_AnimationSystem_GUI_TimeLine {
   initFrameBar = (maxTime) => {
     let that = this;
 
-    that.sampleNumber = that.sampleInput.getValue();
-    that.sampleNumber = parseInt(that.sampleNumber);
-
-    setTimeout(() => {
-      const pixelTotalWidth = that.rightScrollContent.dom.offsetWidth - 70;
-      const totalWidthIncrement = pixelTotalWidth - that.markIncrement;
-
-      const timeCell = 1 / that.sampleNumber;
-      const totalSecondNumber = maxTime / timeCell;
-      that.totalSecondNumber = Math.round(totalSecondNumber);
-
-      that.secondUnitWidth = totalWidthIncrement / that.totalSecondNumber;
-      that.minuteUnitWidth = that.secondUnitWidth * that.sampleNumber;
-
-      while (that.secondUnitWidth <= 5) {
-        if (that.secondUnit * 2 < that.sampleNumber) {
-          that.secondUnit *= 2;
-          that.secondUnitWidth *= 2;
-        } else {
-          that.myUnitType = UnitType.Minute;
-          break;
-        }
-      }
-
-      that.updateTotalFrameShowAreaWidth();
-      that.rightAreaHorizontalScrollBar.updateMinThumbBodyWidth(
-        that.secondUnitWidth / that.secondUnit
-      );
-      that.refreshFrame();
-    }, 100);
+    that.resetDomAndParam(maxTime);
   };
 
   //重置dom元素和面板参数
-  resetDomAndParam = () => {
+  resetDomAndParam = (maxTime) => {
     let that = this;
 
-    that.keyPositionInput.setValue(0);
-    that.promptLine.setLeft("0px");
-    that.sampleInput.setValue(10);
+    let timeBarCount = 0;
+    let totalCount = 0;
 
-    that.rightScrollContent.dom.removeAttribute("style");
+    that.secondUnit = 1;
+    that.minuteUnit = 1;
+    that.sampleNumber = 10;
+
+    const rightScrollContentDom = that.rightScrollContent.dom;
+    rightScrollContentDom.removeAttribute("style");
+
+    const rightAreaHorizontalScrollBarDom =
+      that.rightAreaHorizontalScrollBar.dom;
+    const keyPositionInputDom = that.keyPositionInput.dom;
+    const promptLineDom = that.promptLine.dom;
+    const sampleInputDom = that.sampleInput.dom;
+
+    let observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          switch (entry.target) {
+            case rightScrollContentDom:
+              timeBarCount++;
+              totalCount++;
+              break;
+            case rightAreaHorizontalScrollBarDom:
+              timeBarCount++;
+              totalCount++;
+              break;
+            case keyPositionInputDom:
+              that.keyPositionInput.setValue(0);
+              totalCount++;
+              observer.unobserve(keyPositionInputDom);
+              break;
+            case promptLineDom:
+              that.promptLine.setLeft("40px");
+              totalCount++;
+              observer.unobserve(promptLineDom);
+              break;
+            case sampleInputDom:
+              that.sampleInput.setValue(that.sampleNumber);
+              observer.unobserve(sampleInputDom);
+              totalCount++;
+              break;
+            default:
+              break;
+          }
+
+          if (timeBarCount === 2) {
+            const pixelTotalWidth = rightScrollContentDom.offsetWidth - 70;
+            const totalWidthIncrement = pixelTotalWidth - that.markIncrement;
+
+            const timeCell = 1 / that.sampleNumber;
+            const totalSecondNumber = maxTime / timeCell;
+            that.totalSecondNumber = Math.round(totalSecondNumber);
+
+            const tempSecondUnitWidth =
+              totalWidthIncrement / that.totalSecondNumber;
+
+            that.setSecondUnitWidth(tempSecondUnitWidth);
+            that.updateTotalFrameShowAreaWidth();
+            that.rightAreaHorizontalScrollBar.updateMinThumbBodyWidth(
+              that.secondUnitWidth / that.secondUnit
+            );
+
+            observer.unobserve(rightScrollContentDom);
+            observer.unobserve(rightAreaHorizontalScrollBarDom);
+            timeBarCount = 0;
+          }
+
+          if (totalCount === 5) {
+            observer.disconnect();
+            observer = null;
+          }
+        }
+      });
+    });
+
+    // 开始监听目标元素
+    observer.observe(rightScrollContentDom);
+    observer.observe(rightAreaHorizontalScrollBarDom);
+    observer.observe(keyPositionInputDom);
+    observer.observe(promptLineDom);
+    observer.observe(sampleInputDom);
   };
 
   normalizeSecondUnitWidth = () => {
@@ -1819,10 +1878,6 @@ class P_AnimationSystem_GUI_TimeLine {
         );
         break;
       case AnimationEditObjectState.NORMAL:
-        console.log("AnimationEditObjectState.NORMAL");
-        //如果之前操作过面板元素，这里会清除原有操作
-        that.resetDomAndParam();
-
         that.updateClipSelect();
         that.clipSelect.setValue(0);
         that.updateAttributeParam(that.object.name, that.object.animations[0]);
@@ -2076,27 +2131,11 @@ class P_AnimationSystem_GUI_TimeLine {
     const rightScrollContentScrollLeft =
       -that.rightScrollContent.dom.offsetLeft;
 
-    //这里先计算能显示的最大帧数，防止溢出
-    const maxNumOfFrame =
-      ((rightScrollContentWidth - 50) / that.secondUnitWidth) * that.secondUnit;
-
-    //这里判断，如果是在that.markIncrement为正（即最大显示帧数在不断增长的状态下），最大显示帧数是否超过阈值，如果超过了，将返回而不进行任何操作
-    if (that.markIncrement > 0) {
-      if (maxNumOfFrame > 20000) {
-        console.log("that.secondUnitWidth:" + that.secondUnitWidth);
-
-        if (that.maxFrameOfSecondUnitWidth) {
-          if (that.secondUnitWidth <= that.maxFrameOfSecondUnitWidth) {
-            console.log("超过最大帧数,方案1");
-            return;
-          }
-        } else {
-          that.maxFrameOfSecondUnitWidth = that.secondUnitWidth;
-          console.log("超过最大帧数，方案2");
-          return;
-        }
-      }
-    }
+    //设定能显示的最大帧数，防止溢出
+    const maxNumOfFrame = 20000;
+    //由设定的能显示的最大帧数，计算出最小的单位秒的宽度
+    const minSecondUnitWidth = (rightScrollContainerWidth - 60) / maxNumOfFrame;
+    console.log(minSecondUnitWidth);
 
     const fixedFrontLength = rp;
     //这里由于第0帧的位置是在40px处，所以要减去40px
@@ -2109,10 +2148,20 @@ class P_AnimationSystem_GUI_TimeLine {
 
     //判断是放大还是缩小
     if (that.markIncrement > 0) {
-      that.setSecondUnitWidth(that.secondUnitWidth / 2);
+      that.normalizeSecondUnitWidth();
+      const newSecondUnitWidth = that.secondUnitWidth / 2;
+      if (newSecondUnitWidth < minSecondUnitWidth) {
+        console.log("-超过最小单位秒的宽度-");
+        console.log("newSecondUnitWidth: " + newSecondUnitWidth);
+        console.log("minSecondUnitWidth: " + minSecondUnitWidth);
+        return;
+      }
+      that.setSecondUnitWidth(newSecondUnitWidth);
     } else if (that.markIncrement < 0) {
+      that.normalizeSecondUnitWidth();
       const newSecondUnitWidth = that.secondUnitWidth * 2;
-      if (newSecondUnitWidth > rightScrollContainerWidth - 50) {
+      if (newSecondUnitWidth * 2 > rightScrollContainerWidth - 60) {
+        console.log("+超过最大单位秒的宽度+");
         return;
       }
       that.setSecondUnitWidth(newSecondUnitWidth);
@@ -2167,6 +2216,12 @@ class P_AnimationSystem_GUI_TimeLine {
       that.rightScrollContent.setWidth(
         containerWidthAndScrollContentScrollLeft + "px"
       );
+    } else {
+      if (
+        that.rightScrollContent.dom.offsetWidth < that.totalFrameShowAreaWidth
+      ) {
+        that.rightScrollContent.setWidth(that.totalFrameShowAreaWidth + "px");
+      }
     }
   };
 
@@ -2542,11 +2597,11 @@ class P_AnimationSystem_GUI_TimeLine {
     const scale = param.newDom3Width / param.oldDom3Width;
 
     that.scalingRightScrollContentWidthAndLeft(scale);
+    that.rightAreaHorizontalScrollBar.refresh();
+    that.setSecondUnitWidth(that.secondUnitWidth * scale);
     that.rightAreaHorizontalScrollBar.updateMinThumbBodyWidth(
       that.secondUnitWidth / that.secondUnit
     );
-    that.rightAreaHorizontalScrollBar.refresh();
-    that.setSecondUnitWidth(that.secondUnitWidth * scale);
   };
 
   //当鼠标滚轮在动画面板的事件区域内滚动时，触发该函数，以缩放动画面板的时间轴刻度。

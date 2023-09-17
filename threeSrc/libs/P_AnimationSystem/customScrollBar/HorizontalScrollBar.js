@@ -237,11 +237,6 @@ class HorizontalScrollBar extends UIDiv {
 
     let that = this;
 
-    // console.log("----------------------");
-    // console.log("that.pageX", that.pageX);
-    // console.log("event.pageX", event.pageX);
-    // console.log("that.thumbBody.frontX", that.thumbBody.frontX);
-
     let newScrollLeft = event.pageX - that.pageX - 16 - that.thumbBody.frontX;
     that.setScrollLeft(newScrollLeft);
   }
@@ -266,7 +261,8 @@ class HorizontalScrollBar extends UIDiv {
     that.thumbLeftHandle.frontX = event.layerX;
 
     //记录下此刻that.thumb的宽度
-    that.oldThumbBodyWidth_byLeftHandle = that.thumbBody.dom.offsetWidth;
+    that.oldThumbBodyWidth_byLeftHandle =
+      that.thumbBody.dom.getBoundingClientRect().width;
     that.oldScrollLeft_byLeftHandle = that.scrollLeft;
 
     let myPosition = globalInstances.getPreloadItem("getElementPagePosition")(
@@ -328,8 +324,6 @@ class HorizontalScrollBar extends UIDiv {
       return;
     }
 
-    that.scrollLeft = thumbOffsetX;
-
     that.thumbBody.setWidth(newThumbBodyWidth + "px");
     that.thumb.setWidth(newThumbWidth + "px");
     that.thumb.setLeft(thumbOffsetX);
@@ -365,7 +359,8 @@ class HorizontalScrollBar extends UIDiv {
     let that = this;
 
     //记录下此刻that.thumb的宽度
-    that.oldThumbBodyWidth_byRightHandle = that.thumbBody.dom.offsetWidth;
+    that.oldThumbBodyWidth_byRightHandle =
+      that.thumbBody.dom.getBoundingClientRect().width;
 
     that.thumbRightHandle.frontX =
       event.layerX - that.thumbLeftHandleWidth - that.thumbBody.dom.offsetWidth;
@@ -425,7 +420,7 @@ class HorizontalScrollBar extends UIDiv {
     let newThumbBodyWidth =
       newThumbWidth - thumbLeftHandleWidth - thumbRightHandleWidth;
 
-    if (newThumbBodyWidth < that.minThumbBodyWidth) {
+    if (newThumbBodyWidth <= that.minThumbBodyWidth) {
       return;
     }
 
@@ -565,9 +560,7 @@ class HorizontalScrollBar extends UIDiv {
     const scalefactor =
       currentActualSecondUnitWidth / currentMaxSecondUnitWidth;
 
-    that.minThumbBodyWidth = Math.round(
-      that.thumbBody.dom.offsetWidth * scalefactor
-    );
+    that.minThumbBodyWidth = that.thumbBody.dom.offsetWidth * scalefactor * 2;
   }
 
   forceScaleThumb() {
