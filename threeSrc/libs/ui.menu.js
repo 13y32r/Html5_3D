@@ -1210,15 +1210,12 @@ class PopupMenuOption extends UIDiv {
 
     that.setInnerHTML(that.value);
 
-    that.pointerHover = that.pointerHover.bind(this);
-    that.pointerOut = that.pointerOut.bind(this);
-    that.pointerDown = that.pointerDown.bind(this);
     that.dom.onpointerover = that.pointerHover;
     that.dom.onpointerout = that.pointerOut;
     that.dom.onpointerdown = that.pointerDown;
   }
 
-  dispose() {
+  dispose = () => {
     let that = this;
 
     that.id = null;
@@ -1226,27 +1223,27 @@ class PopupMenuOption extends UIDiv {
     that.dom.onpointerover = null;
     that.dom.onpointerout = null;
     that.dom.onpointerdown = null;
-  }
+  };
 
   setValue(value) {
     this.value = value;
   }
 
-  getValue() {
+  getValue = () => {
     return this.value;
-  }
+  };
 
-  pointerHover() {
+  pointerHover = () => {
     let that = this;
     that.setBackgroundColor("#91c9f7");
-  }
+  };
 
-  pointerOut() {
+  pointerOut = () => {
     let that = this;
     that.setBackgroundColor("transparent");
-  }
+  };
 
-  pointerDown() {
+  pointerDown = () => {
     let that = this;
 
     that.dom.dispatchEvent(
@@ -1256,25 +1253,25 @@ class PopupMenuOption extends UIDiv {
         detail: { id: that.id, value: that.value },
       })
     );
-  }
+  };
 
-  setEnable() {
+  setEnable = () => {
     let that = this;
 
     that.setColor("#000000");
     that.dom.onpointerover = that.pointerHover;
     that.dom.onpointerout = that.pointerOut;
     that.dom.onpointerdown = that.pointerDown;
-  }
+  };
 
-  setDisable() {
+  setDisable = () => {
     let that = this;
 
     that.setColor("#6d6d6d");
     that.dom.onpointerover = null;
     that.dom.onpointerout = null;
     that.dom.onpointerdown = null;
-  }
+  };
 }
 
 class PopupMenuSplitLine extends UIDiv {
@@ -1301,12 +1298,22 @@ class PopupMenu extends UIDiv {
     that.noSelected = that.noSelected.bind(this);
 
     that.updateOptions(that.options);
-    setTimeout(() => {
-      document.addEventListener("click", that.noSelected);
-    }, 500);
+
+    this.observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          if (entry.target === that.dom) {
+            globalInstances.addDomOutsiderEvent(that.dom, that.noSelected);
+            that.observer.disconnect();
+            that.observer = null;
+          }
+        }
+      });
+    });
+    that.observer.observe(that.dom);
   }
 
-  dispose() {
+  dispose = () => {
     let that = this;
 
     if (that.options) {
@@ -1320,11 +1327,13 @@ class PopupMenu extends UIDiv {
       }
     }
 
+    globalInstances.deleteDomOutsiderEvent(that.dom);
+    document.body.removeChild(that.dom);
+
     that.selectedID = null;
     that.options.length = 0;
     that.options = null;
-    document.removeEventListener("click", that.noSelected);
-  }
+  };
 
   setOptions(options) {
     let that = this;
@@ -1350,7 +1359,7 @@ class PopupMenu extends UIDiv {
     return value;
   }
 
-  selected(event) {
+  selected = (event) => {
     let that = this;
 
     let option = event.detail;
@@ -1363,21 +1372,23 @@ class PopupMenu extends UIDiv {
         detail: { id: option.id, value: option.value },
       })
     );
-  }
 
-  noSelected(event) {
+    that.dispose();
+  };
+
+  noSelected = () => {
     let that = this;
 
-    if (!that.dom.contains(event.target)) {
-      that.dom.dispatchEvent(
-        new CustomEvent("popupMenuOptionDown", {
-          bubbles: false,
-          cancelable: true,
-          detail: null,
-        })
-      );
-    }
-  }
+    that.dom.dispatchEvent(
+      new CustomEvent("popupMenuOptionDown", {
+        bubbles: false,
+        cancelable: true,
+        detail: null,
+      })
+    );
+
+    that.dispose();
+  };
 
   clear() {
     let that = this;

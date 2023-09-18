@@ -407,6 +407,10 @@ class AttributeCellLastButton extends UIDiv {
       "animationPanelControlStateChanged",
       that.updateAnimationPanelState
     );
+
+    that.dom.addEventListener("contextmenu", function (e) {
+      e.preventDefault();
+    });
   }
 
   addPopupMenu = () => {
@@ -467,8 +471,6 @@ class AttributeCellLastButton extends UIDiv {
       "popupMenuOptionDown",
       that.resPopupMenu
     );
-    documentBodyRemove(that.popupMenu);
-    that.popupMenu.dispose();
     that.popupMenu = null;
   };
 
@@ -2663,8 +2665,17 @@ class KeyframeButton extends UIDiv {
 
     that.setBackgroundImage(that.normalImg);
 
-    that.dom.addEventListener("pointerdown", that.selected);
+    that.dom.addEventListener("pointerdown", that.pointerDown);
+    globalInstances.addDomOutsiderEvent(that.dom, that.unSelected);
   }
+
+  pointerDown = (event) => {
+    let that = this;
+
+    if (event.button == 0) {
+      that.selected();
+    }
+  };
 
   selected = () => {
     let that = this;

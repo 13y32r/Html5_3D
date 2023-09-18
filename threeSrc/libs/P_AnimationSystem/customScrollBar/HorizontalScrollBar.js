@@ -660,10 +660,12 @@ class HorizontalScrollBar extends UIDiv {
   };
 
   //释放Observer监听
-  disObserver() {
+  disObserver = () => {
+    let that = this;
+
     that.observer.disconnect();
     that.observer = null;
-  }
+  };
 }
 
 export { HorizontalScrollBar };

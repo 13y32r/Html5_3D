@@ -10,6 +10,8 @@
 
 class GlobalInstances {
   constructor() {
+    let that = this;
+
     this.editorOperate = null;
     //这里将项目的编辑器部分根据editoroperate实例化的时间点来分为三部分：
     //第一部分是预加载项目‘preloadItems’，这些对象是在editoroperate实例化之前就一定要在浏览器后台加载的，加载完毕之后，所有的项目会用于editoroperate的装配，或是被editoroperate的“零件”所引用。
@@ -18,12 +20,27 @@ class GlobalInstances {
     this.initItems = {};
     //第三个部分，是动态加载部分‘dynamicLoadItems’，这部分的组件会根据客户的需求，从服务器动态的拉取现有的组件。
     this.dynamicLoadItems = {};
+
+    //对dom元素进行外部监听事件的对象和执行函数对字典
+    this.outsiderEventDomsAndFunctions = new Map();
+
+    window.addEventListener(
+      "pointerdown",
+      (event) => {
+        that.outsiderEventDomsAndFunctions.forEach((value, key) => {
+          if (!key.contains(event.target)) {
+            value(event);
+          }
+        });
+      },
+      true
+    );
   }
 
   //为全局单例对象设置唯一的editoroperate对象
-  setEditorOperate(editorOperate) {
+  setEditorOperate = (editorOperate) => {
     this.editorOperate = editorOperate;
-  }
+  };
 
   //获取全局单例对象所引用的唯一editoroperate对象
   getEditorOperate() {
@@ -71,6 +88,14 @@ class GlobalInstances {
       );
     }
   }
+
+  addDomOutsiderEvent = (dom, fun) => {
+    this.outsiderEventDomsAndFunctions.set(dom, fun);
+  };
+
+  deleteDomOutsiderEvent = (dom) => {
+    this.outsiderEventDomsAndFunctions.delete(dom);
+  };
 }
 
 const globalInstances = new GlobalInstances();
