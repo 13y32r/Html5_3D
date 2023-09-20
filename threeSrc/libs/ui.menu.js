@@ -1293,9 +1293,6 @@ class PopupMenu extends UIDiv {
 
     that.selectedID = null;
     that.options = options;
-    that.updateOptions = that.updateOptions.bind(this);
-    that.selected = that.selected.bind(this);
-    that.noSelected = that.noSelected.bind(this);
 
     that.updateOptions(that.options);
 

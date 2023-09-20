@@ -73,11 +73,13 @@
         const posXKeyFramTrack_2 = new THREE.KeyframeTrack('.position', times, valuesX_2);
         const posXKeyFramTrack_3 = new THREE.KeyframeTrack('.position', times, valuesX_3);
 
+        const visibleKeyFramTrack = new THREE.BooleanKeyframeTrack('.visible', [0, 0.5, 1, 1.5, 2], [true, false, true, false, true]);
+
         const posYKeyFramTrack = new THREE.QuaternionKeyframeTrack('.quaternion', [0, 1.2], valuesY);
 
         // 通过THREE.AnimationClip对象对动画进行剪辑
         // name, 持续时间, KeyframeTrack<>
-        const trackArr = [posXKeyFramTrack, posXKeyFramTrack_1, posXKeyFramTrack_2, posXKeyFramTrack_3, posYKeyFramTrack];
+        const trackArr = [posXKeyFramTrack, posXKeyFramTrack_1, posXKeyFramTrack_2, posXKeyFramTrack_3, posYKeyFramTrack, visibleKeyFramTrack];
         const clip = new THREE.AnimationClip('CUBE-ANUMATION', -1, trackArr);
         // console.log(clip.duration);
 

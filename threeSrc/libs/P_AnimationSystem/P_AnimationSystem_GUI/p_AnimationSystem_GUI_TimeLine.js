@@ -660,7 +660,7 @@ class AttributeCell extends UIDiv {
       switch (attType) {
         case "color":
           that.symbolLogo.setBackgroundImage(
-            "url('../../../../../menuGUI/img/symbol/color.png')"
+            "url('../../../../../menuGUI/img/Symbol/color.png')"
           );
       }
 
@@ -668,7 +668,7 @@ class AttributeCell extends UIDiv {
     }
 
     that.symbolLogo.setBackgroundImage(
-      "url('../../../../../menuGUI/img/symbol/transform.png')"
+      "url('../../../../../menuGUI/img/Symbol/transform.png')"
     );
     that.add(that.symbolLogo);
 
@@ -848,6 +848,20 @@ const AnimationEditOrPlayState = {
   EDITING: 1,
   PLAYING: 2,
 };
+
+//可被动画面板识别的物体属性，该属性可根据后期需要扩充
+const AvailableAniProps = [
+  "castShadow",
+  "receiveShadow",
+  "visible",
+  "position",
+  "rotation",
+  "scale",
+  "quaternion",
+  "material.color",
+  "material.opacity",
+  "material.transparent",
+];
 
 class P_AnimationSystem_GUI_TimeLine {
   constructor() {
@@ -1058,6 +1072,10 @@ class P_AnimationSystem_GUI_TimeLine {
     that.objAttributeShowArea = new UIDiv();
     that.objAttributeShowArea.cellsArray = [];
     that.addPropertyButton = new AddPropertyButton("增加属性");
+    that.addPropertyButton.dom.addEventListener(
+      "click",
+      that.addPropertyButtonClick
+    );
     that.objAreaVerticalScrollBar = new VerticalScrollBar(
       that.objAreaScroll.dom,
       that.objColumnCells.dom
@@ -1383,6 +1401,11 @@ class P_AnimationSystem_GUI_TimeLine {
     that.recordButton.downFun();
   };
 
+  addPropertyButtonClick = () => {
+    let that = this;
+
+    let popupMenu = new PopupMenu();
+  };
   // #endregion
 
   //这里当左边的对象列高度发生变化时，右边的事件列的高度要和左边的对象列的高度保持一致
@@ -1986,12 +2009,16 @@ class P_AnimationSystem_GUI_TimeLine {
     that.animationClipMaxTime = animationClip.duration;
     that.initFrameBar(that.animationClipMaxTime);
 
+    //创建当前剪辑已有的动画属性
+    that.currentClipProps = [];
+
     that.objAttributeShowArea.cellsArray.length = 0;
     that.objAttributeShowArea.clear();
     that.eventUnitRowsScrollArea.clear();
 
     for (let j = 0; j < animationClip.tracks.length; j++) {
       let attrName = animationClip.tracks[j].name.slice(1);
+      that.currentClipProps.push(attrName);
       let valueType = animationClip.tracks[j].ValueTypeName;
 
       let isOdd = !(j % 2);
@@ -2714,6 +2741,241 @@ class AddPropertyButton extends UIElement {
       if (!that.dom.classList.contains("AddPropertyButton_UP"))
         that.dom.classList.add("AddPropertyButton_UP");
     };
+  }
+}
+
+//这个函数会根据传入的属性类型，返回与之对应logo图片的url
+function getAttributeLogoUrl(type) {
+  let url;
+  switch (type) {
+    case "position":
+      url = "url(/menuGUI/img/Symbol/transform.png)";
+      break;
+    case "rotation":
+      url = "url(/menuGUI/img/Symbol/transform.png)";
+      break;
+    case "scale":
+      url = "url(/menuGUI/img/Symbol/transform.png)";
+      break;
+    case "quaternion":
+      url = "url(/menuGUI/img/Symbol/transform.png)";
+      break;
+    case "castShadow":
+      url = "url(/menuGUI/img/Symbol/facade.png)";
+      break;
+    case "receiveShadow":
+      url = "url(/menuGUI/img/Symbol/facade.png)";
+      break;
+    case "visible":
+      url = "url(/menuGUI/img/Symbol/facade.png)";
+      break;
+    case "material.color":
+      url = "url(/menuGUI/img/Symbol/facade.png)";
+      break;
+    case "material.opacity":
+      url = "url(/menuGUI/img/Symbol/facade.png)";
+      break;
+    case "material.transparent":
+      url = "url(/menuGUI/img/Symbol/facade.png)";
+      break;
+    default:
+      url = "url(/menuGUI/img/Symbol/unknow.png)";
+      break;
+  }
+  return url;
+}
+
+class AddAttributePopupMenuOption extends UIDiv {
+  constructor(id, value) {
+    super();
+    let that = this;
+    that.setClass("AddAttributePopupMenuOption");
+
+    that.id = id;
+    that.value = value;
+
+    const symbolLogo_url = getAttributeLogoUrl(that.value);
+    that.symbolLogo = new UIDiv();
+    that.symbolLogo.setClass("AddAttributePopupMenuOption_SymbolLogo");
+    that.symbolLogo.setBackgroundImage(symbolLogo_url);
+
+    that.label = new UIElement(document.createElement("label"));
+    that.label.setInnerHTML(that.value);
+
+    that.dom.onpointerover = that.pointerHover;
+    that.dom.onpointerout = that.pointerOut;
+    that.dom.onpointerdown = that.pointerDown;
+  }
+
+  dispose = () => {
+    let that = this;
+
+    that.id = null;
+    that.value = null;
+    that.dom.onpointerover = null;
+    that.dom.onpointerout = null;
+    that.dom.onpointerdown = null;
+  };
+
+  setValue(value) {
+    this.value = value;
+  }
+
+  getValue = () => {
+    return this.value;
+  };
+
+  pointerHover = () => {
+    let that = this;
+    that.setBackgroundColor("#91c9f7");
+  };
+
+  pointerOut = () => {
+    let that = this;
+    that.setBackgroundColor("transparent");
+  };
+
+  pointerDown = () => {
+    let that = this;
+
+    that.dom.dispatchEvent(
+      new CustomEvent("popupMenuOptionDown", {
+        bubbles: false,
+        cancelable: true,
+        detail: { id: that.id, value: that.value },
+      })
+    );
+  };
+
+  setEnable = () => {
+    let that = this;
+
+    that.setColor("#000000");
+    that.dom.onpointerover = that.pointerHover;
+    that.dom.onpointerout = that.pointerOut;
+    that.dom.onpointerdown = that.pointerDown;
+  };
+
+  setDisable = () => {
+    let that = this;
+
+    that.setColor("#6d6d6d");
+    that.dom.onpointerover = null;
+    that.dom.onpointerout = null;
+    that.dom.onpointerdown = null;
+  };
+}
+
+class AddAttributePopupMenu extends UIDiv {
+  constructor(options) {
+    super();
+    let that = this;
+    that.setClass("AddAttributePopupMenu");
+
+    that.selectedID = null;
+    that.options = options;
+
+    that.updateOptions(that.options);
+
+    this.observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          if (entry.target === that.dom) {
+            globalInstances.addDomOutsiderEvent(that.dom, that.noSelected);
+            that.observer.disconnect();
+            that.observer = null;
+          }
+        }
+      });
+    });
+    that.observer.observe(that.dom);
+  }
+
+  dispose = () => {
+    let that = this;
+
+    if (that.options) {
+      for (let i = 0; i < that.options.length; i++) {
+        that.remove(that.options[i]);
+        that.options[i].dom.removeEventListener(
+          "popupMenuOptionDown",
+          that.selected
+        );
+        that.options[i].dispose();
+      }
+    }
+
+    globalInstances.deleteDomOutsiderEvent(that.dom);
+    document.body.removeChild(that.dom);
+
+    that.selectedID = null;
+    that.options.length = 0;
+    that.options = null;
+  };
+
+  setOptions(options) {
+    let that = this;
+    that.clear();
+    that.options = options;
+    that.updateOptions(that.options);
+  }
+
+  updateOptions(options) {
+    let that = this;
+
+    if (options) {
+      for (let i = 0; i < options.length; i++) {
+        that.add(options[i]);
+        options[i].dom.addEventListener("popupMenuOptionDown", that.selected);
+      }
+    }
+  }
+
+  getValue() {
+    let that = this;
+    let value = this.options[that.selectedID].value;
+    return value;
+  }
+
+  selected = (event) => {
+    let that = this;
+
+    let option = event.detail;
+    that.selectedID = option.id;
+
+    that.dom.dispatchEvent(
+      new CustomEvent("popupMenuOptionDown", {
+        bubbles: false,
+        cancelable: true,
+        detail: { id: option.id, value: option.value },
+      })
+    );
+
+    that.dispose();
+  };
+
+  noSelected = () => {
+    let that = this;
+
+    that.dom.dispatchEvent(
+      new CustomEvent("popupMenuOptionDown", {
+        bubbles: false,
+        cancelable: true,
+        detail: null,
+      })
+    );
+
+    that.dispose();
+  };
+
+  clear() {
+    let that = this;
+    if (!that.options) return;
+
+    for (let i = 0; i < that.options.length; i++) {
+      that.remove(that.options[i]);
+    }
+    that.options.length = 0;
   }
 }
 

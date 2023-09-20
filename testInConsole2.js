@@ -42,16 +42,21 @@
 // const myObject = new MyClass();
 // myObject.myMethod(); // 输出 "Hello, world!"
 
-class Person {
-  sayHello() {
-    console.log("Hello, world!");
-  }
-}
+// class Person {
+//   sayHello() {
+//     console.log("Hello, world!");
+//   }
+// }
 
-Person.prototype.sayHello = function (name) {
-  this.sayHello();
-  console.log("by " + name + "!");
-};
+// Person.prototype.sayHello = function (name) {
+//   this.sayHello();
+//   console.log("by " + name + "!");
+// };
 
-const person = new Person();
-person.sayHello("Bob");
+// const person = new Person();
+// person.sayHello("Bob");
+
+const filterArrray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter((item) => {
+  return ![1, 3, 5, 7, 9].includes(item);
+});
+console.log(filterArrray);
