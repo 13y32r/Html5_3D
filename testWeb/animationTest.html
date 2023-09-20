@@ -22,9 +22,15 @@
 </head>
 
 <body>
-    <input id="test" type="range" />
+    <button onclick="stop()">停止</button>
 
     <script>
+        let kaiguan = true;
+
+        function stop() {
+            kaiguan = false;
+        }
+
         document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
 
         const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -33,9 +39,20 @@
         scene.add(cube);
         render();
 
-        const times = [0, 1, 1.5654987654352189657987654] // 时间序列
+        console.log(cube);
+
+        const times = [0, 1, 2] // 时间序列
         const valuesX = [
             0, 0, 0, 10, 0, 0, 10, 10, 0
+        ] // 过渡的值
+        const valuesX_1 = [
+            10, 0, 0, 0, 0, 0, 0, 0, 0
+        ] // 过渡的值
+        const valuesX_2 = [
+            0, 0, 0, 10, 0, 0, 0, 0, 0
+        ] // 过渡的值
+        const valuesX_3 = [
+            0, 0, 0, 0, 0, 0, 10, 0, 0
         ] // 过渡的值
 
         const quaternion1 = new THREE.Quaternion();
@@ -52,13 +69,17 @@
 
         // 0 - 10 秒内的位置变化
         const posXKeyFramTrack = new THREE.KeyframeTrack('.position', times, valuesX);
+        const posXKeyFramTrack_1 = new THREE.KeyframeTrack('.position', times, valuesX_1);
+        const posXKeyFramTrack_2 = new THREE.KeyframeTrack('.position', times, valuesX_2);
+        const posXKeyFramTrack_3 = new THREE.KeyframeTrack('.position', times, valuesX_3);
+
         const posYKeyFramTrack = new THREE.QuaternionKeyframeTrack('.quaternion', [0, 1.2], valuesY);
 
         // 通过THREE.AnimationClip对象对动画进行剪辑
         // name, 持续时间, KeyframeTrack<>
-        const trackArr = [posXKeyFramTrack, posYKeyFramTrack];
+        const trackArr = [posXKeyFramTrack, posXKeyFramTrack_1, posXKeyFramTrack_2, posXKeyFramTrack_3, posYKeyFramTrack];
         const clip = new THREE.AnimationClip('CUBE-ANUMATION', -1, trackArr);
-        console.log(clip.duration);
+        // console.log(clip.duration);
 
         const mixer = new THREE.AnimationMixer(cube)
         const action = mixer.clipAction(clip);
@@ -89,7 +110,9 @@
             //     console.log("Time's up.");
             //     return;
             // }
+            // console.log(cube.position);
             render();
+            if (!kaiguan) return;
             requestAnimationFrame(animate);
         }
         animate();
