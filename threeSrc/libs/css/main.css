@@ -514,6 +514,8 @@ select:hover {
 
 .Panel {
   color: #f5f5f5;
+  margin-left: 12px;
+  margin-bottom: 12px;
 }
 
 .HorizontalSplitLine {

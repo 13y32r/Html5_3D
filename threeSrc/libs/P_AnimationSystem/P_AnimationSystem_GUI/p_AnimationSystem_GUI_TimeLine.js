@@ -5,6 +5,8 @@ import {
   UIElement,
   UISpan,
   UIDiv,
+  UINumber,
+  UICheckbox,
   UIVerticalPromptLine,
   UIVerticalSplitLine,
   UIHorizontalSplitLine,
@@ -572,13 +574,19 @@ class AttributeCell extends UIDiv {
     that.setKeyFrameValueArea.setClass("SetKeyFrameValueArea");
 
     that.placeholderBeforeTheLastButton = new UIDiv();
+    that.placeholderBeforeTheLastButton.setClass(
+      "PlaceholderBeforeTheLastButton"
+    );
     that.lastButton = new AttributeCellLastButton(animationPanel);
+    that.setKeyFrameValueArea.add(that.placeholderBeforeTheLastButton);
     that.setKeyFrameValueArea.add(that.lastButton);
 
     let showName;
     that.promptBar = new AttributeCellPromptBar(that);
 
-    if (attType == "vector" || attType == "quaternion") {
+    that.setValueObj = null;
+
+    if (attType == "vector" || attType == "quaternion" || attType == "color") {
       that.isRoll = true;
 
       if (objectName) {
@@ -644,11 +652,39 @@ class AttributeCell extends UIDiv {
             isOdd,
             animationPanel
           );
+        } else if (attType == "color") {
+          that.paramArray[0] = new AttributeCell(
+            null,
+            attName,
+            attType,
+            "r",
+            !isOdd,
+            animationPanel
+          );
+          that.paramArray[1] = new AttributeCell(
+            null,
+            attName,
+            attType,
+            "g",
+            isOdd,
+            animationPanel
+          );
+          that.paramArray[2] = new AttributeCell(
+            null,
+            attName,
+            attType,
+            "b",
+            !isOdd,
+            animationPanel
+          );
         }
+
+        that.setValueObj = that.placeholderBeforeTheLastButton;
       } else {
         showName = attName + "." + paramName;
         that.label.setColor("#808080");
         that.promptBar.setOpacity("5%");
+        that.setValueObj = new UINumber().setPrecision(3).setWidth("50px");
       }
     } else {
       that.isRoll = false;
@@ -658,21 +694,22 @@ class AttributeCell extends UIDiv {
       that.add(that.rollButton_PlaceHolder);
 
       switch (attType) {
-        case "color":
-          that.symbolLogo.setBackgroundImage(
-            "url('../../../../../menuGUI/img/Symbol/color.png')"
-          );
+        case "number":
+          that.setValueObj = new UINumber().setPrecision(3).setWidth("50px");
+          break;
+        case "bool":
+          that.setValueObj = new UICheckbox();
+          break;
       }
 
-      showName = objectName + ":" + attName + "." + paramName;
+      showName = objectName + ":" + attName;
     }
 
-    that.symbolLogo.setBackgroundImage(
-      "url('../../../../../menuGUI/img/Symbol/transform.png')"
-    );
+    const symbolLogoUrl = getAttributeLogoUrl(attName);
+    that.symbolLogo.setBackgroundImage(symbolLogoUrl);
     that.add(that.symbolLogo);
 
-    let widthOffset = 62 + that.myInnerOffsetLeft;
+    let widthOffset = 116 + that.myInnerOffsetLeft;
     that.label.setWidth("calc(100% - " + widthOffset + "px)");
     that.label.setInnerHTML(showName);
     that.add(that.label);
@@ -693,18 +730,13 @@ class AttributeCell extends UIDiv {
     let that = this;
     let state = event.detail.state;
 
-    if (state == AnimationEditObjectState.EDITING) {
-      let widthOffset = 107 + that.myInnerOffsetLeft;
-      that.label.setWidth("calc(100% - " + widthOffset + "px)");
-      that.setKeyFrameValueArea.setWidth("75px");
+    if (state == AnimationEditOrPlayState.EDITING) {
       that.setKeyFrameValueArea.clear();
-      that.setKeyFrameValueArea.add(that.placeholderBeforeTheLastButton);
+      that.setKeyFrameValueArea.add(that.setValueObj);
       that.setKeyFrameValueArea.add(that.lastButton);
     } else {
-      let widthOffset = 62 + that.myInnerOffsetLeft;
-      that.label.setWidth("calc(100% - " + widthOffset + "px)");
-      that.setKeyFrameValueArea.setWidth("30px");
       that.setKeyFrameValueArea.clear();
+      that.setKeyFrameValueArea.add(that.placeholderBeforeTheLastButton);
       that.setKeyFrameValueArea.add(that.lastButton);
     }
   };
@@ -862,6 +894,54 @@ const AvailableAniProps = [
   "material.opacity",
   "material.transparent",
 ];
+
+const THREE = globalInstances.getPreloadItem("THREE");
+
+//根据传入的属性名创建一个新的动画剪辑的关键帧轨道
+function createNewKeyframeTrackByAttributeName(attributeName) {
+  let track;
+
+  let newTrackName;
+  if (!attributeName.startsWith(".")) {
+    newTrackName = "." + attributeName;
+  } else {
+    newTrackName = attributeName;
+  }
+
+  switch (attributeName) {
+    case "position":
+      track = new THREE.VectorKeyframeTrack(newTrackName, [0], [0, 0, 0]);
+      break;
+    case "scale":
+    case "rotation": // Assuming rotation uses Vector3 type (Euler angles)
+      track = new THREE.VectorKeyframeTrack(newTrackName, [0], [0, 0, 0]);
+      break;
+    case "quaternion":
+      track = new THREE.QuaternionKeyframeTrack(
+        newTrackName,
+        [0],
+        [0, 0, 0, 1]
+      );
+      break;
+    case "material.color":
+      track = new THREE.ColorKeyframeTrack(newTrackName, [0], [1, 1, 1]);
+      break;
+    case "material.opacity":
+      track = new THREE.NumberKeyframeTrack(newTrackName, [0], [0]);
+      break;
+    case "material.transparent":
+    case "castShadow":
+    case "receiveShadow":
+    case "visible":
+      track = new THREE.BooleanKeyframeTrack(newTrackName, [0], [true]);
+      break;
+    default:
+      console.warn("Unknown attribute:", attributeName);
+      break;
+  }
+
+  return track;
+}
 
 class P_AnimationSystem_GUI_TimeLine {
   constructor() {
@@ -1404,9 +1484,69 @@ class P_AnimationSystem_GUI_TimeLine {
   addPropertyButtonClick = () => {
     let that = this;
 
-    let popupMenu = new PopupMenu();
+    const addPropertyButtonDom = that.addPropertyButton.dom;
+
+    that.addAttributePopupMenu = new AddAttributePopupMenu();
+    let addAttributeList = AvailableAniProps.filter(
+      (item) => !that.currentClipProps.includes(item)
+    );
+
+    let options = [];
+    for (let i = 0; i < addAttributeList.length; i++) {
+      let addAttributePopupMenu_Option = new AddAttributePopupMenu_Option(
+        i,
+        addAttributeList[i]
+      );
+      options.push(addAttributePopupMenu_Option);
+    }
+    that.addAttributePopupMenu.setOptions(options);
+    documentBodyAdd(that.addAttributePopupMenu);
+
+    let absolutePosition = globalInstances.getPreloadItem(
+      "getElementPagePosition"
+    )(addPropertyButtonDom);
+
+    const offset_X = addPropertyButtonDom.offsetWidth;
+    const offset_Y = addPropertyButtonDom.offsetHeight;
+
+    let position_x = absolutePosition.x + offset_X + "px";
+    let position_y = absolutePosition.y + offset_Y + "px";
+
+    that.addAttributePopupMenu.setLeft(position_x);
+    that.addAttributePopupMenu.setTop(position_y);
+
+    that.addAttributePopupMenu.dom.addEventListener(
+      "popupMenuOptionDown",
+      that.resAddAttributePopupMenu
+    );
   };
   // #endregion
+
+  //接收添加属性的弹出菜单的事件消息
+  resAddAttributePopupMenu = (event) => {
+    let that = this;
+
+    const newTrackName = event.detail.value;
+
+    const newTrack = createNewKeyframeTrackByAttributeName(newTrackName);
+    console.log("newTrack", newTrack);
+    that.animationClip.tracks.push(newTrack);
+
+    that.updateAnimationClip(that.animationClip);
+
+    that.removeAddAttributePopupMenu();
+  };
+
+  //移除添加属性的弹出菜单
+  removeAddAttributePopupMenu = () => {
+    let that = this;
+
+    that.addAttributePopupMenu.dom.removeEventListener(
+      "popupMenuOptionDown",
+      that.resPopupMenu
+    );
+    that.addAttributePopupMenu = null;
+  };
 
   //这里当左边的对象列高度发生变化时，右边的事件列的高度要和左边的对象列的高度保持一致
   theEventColumnsHeightToConsistentWithTheObjColumnHeight = () => {
@@ -1829,7 +1969,6 @@ class P_AnimationSystem_GUI_TimeLine {
     let that = this;
 
     that.animationClip = animationClip;
-
     that.updateAttributeParam(that.object.name, animationClip);
   };
 
@@ -1905,7 +2044,7 @@ class P_AnimationSystem_GUI_TimeLine {
       case AnimationEditObjectState.NORMAL:
         that.updateClipSelect();
         that.clipSelect.setValue(0);
-        that.updateAttributeParam(that.object.name, that.object.animations[0]);
+        that.updateAnimationClip(that.object.animations[0]);
 
         that.container.removeTheLastChild();
         that.container.add(that.rightBigArea);
@@ -2749,32 +2888,16 @@ function getAttributeLogoUrl(type) {
   let url;
   switch (type) {
     case "position":
-      url = "url(/menuGUI/img/Symbol/transform.png)";
-      break;
     case "rotation":
-      url = "url(/menuGUI/img/Symbol/transform.png)";
-      break;
     case "scale":
-      url = "url(/menuGUI/img/Symbol/transform.png)";
-      break;
     case "quaternion":
       url = "url(/menuGUI/img/Symbol/transform.png)";
       break;
     case "castShadow":
-      url = "url(/menuGUI/img/Symbol/facade.png)";
-      break;
     case "receiveShadow":
-      url = "url(/menuGUI/img/Symbol/facade.png)";
-      break;
     case "visible":
-      url = "url(/menuGUI/img/Symbol/facade.png)";
-      break;
     case "material.color":
-      url = "url(/menuGUI/img/Symbol/facade.png)";
-      break;
     case "material.opacity":
-      url = "url(/menuGUI/img/Symbol/facade.png)";
-      break;
     case "material.transparent":
       url = "url(/menuGUI/img/Symbol/facade.png)";
       break;
@@ -2785,22 +2908,25 @@ function getAttributeLogoUrl(type) {
   return url;
 }
 
-class AddAttributePopupMenuOption extends UIDiv {
+class AddAttributePopupMenu_Option extends UIDiv {
   constructor(id, value) {
     super();
     let that = this;
-    that.setClass("AddAttributePopupMenuOption");
+    that.setClass("AddAttributePopupMenu_Option");
 
     that.id = id;
     that.value = value;
 
     const symbolLogo_url = getAttributeLogoUrl(that.value);
     that.symbolLogo = new UIDiv();
-    that.symbolLogo.setClass("AddAttributePopupMenuOption_SymbolLogo");
+    that.symbolLogo.setClass("AddAttributePopupMenu_Option_SymbolLogo");
     that.symbolLogo.setBackgroundImage(symbolLogo_url);
 
     that.label = new UIElement(document.createElement("label"));
     that.label.setInnerHTML(that.value);
+
+    that.add(that.symbolLogo);
+    that.add(that.label);
 
     that.dom.onpointerover = that.pointerHover;
     that.dom.onpointerout = that.pointerOut;
@@ -2845,24 +2971,6 @@ class AddAttributePopupMenuOption extends UIDiv {
         detail: { id: that.id, value: that.value },
       })
     );
-  };
-
-  setEnable = () => {
-    let that = this;
-
-    that.setColor("#000000");
-    that.dom.onpointerover = that.pointerHover;
-    that.dom.onpointerout = that.pointerOut;
-    that.dom.onpointerdown = that.pointerDown;
-  };
-
-  setDisable = () => {
-    let that = this;
-
-    that.setColor("#6d6d6d");
-    that.dom.onpointerover = null;
-    that.dom.onpointerout = null;
-    that.dom.onpointerdown = null;
   };
 }
 

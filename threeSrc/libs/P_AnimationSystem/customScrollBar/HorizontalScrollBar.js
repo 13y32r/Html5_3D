@@ -207,8 +207,6 @@ class HorizontalScrollBar extends UIDiv {
       newScrollLeft = 0;
     }
 
-    console.log("newScrollLeft", newScrollLeft);
-
     that.setScrollLeft(newScrollLeft);
   }
 
@@ -533,7 +531,6 @@ class HorizontalScrollBar extends UIDiv {
     let newThumbLeft = value;
 
     const scrollDirection = newThumbLeft - that.thumb.dom.offsetLeft;
-    // console.log("scrollDirection", scrollDirection);
 
     if (scrollDirection > 0) {
       if (newThumbLeft > maxRight) {

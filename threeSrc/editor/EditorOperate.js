@@ -656,7 +656,7 @@ class EditorOperate extends EventDispatcher {
     delta.multiplyScalar(distance * 4);
 
     object.position.copy(center).add(delta);
-    window["orbitControls"].target.copy(target.position);
+    globalInstances.getInitItem("orbitControls").target.copy(target.position);
 
     that.render();
   }

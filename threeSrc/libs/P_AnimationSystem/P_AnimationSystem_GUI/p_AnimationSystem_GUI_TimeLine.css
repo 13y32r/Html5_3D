@@ -157,6 +157,11 @@ input::-webkit-inner-spin-button {
   justify-content: space-between;
 }
 
+.AttributeCell .SetKeyFrameValueArea .PlaceholderBeforeTheLastButton {
+  width: 54px;
+  height: 100%;
+}
+
 .AttributeCell .RollButton_PlaceHolder {
   width: 12px;
   height: 12px;
@@ -204,24 +209,28 @@ input::-webkit-inner-spin-button {
   background-color: #383838;
   border: 1px solid #636363;
   z-index: 2;
-  overflow: scroll;
+  overflow: auto;
 }
 
-.AddAttributePopupMenu .AddAttributePopupMenuOption {
-  width: 100%;
+.AddAttributePopupMenu .AddAttributePopupMenu_Option {
+  width: auto;
   height: 14px;
   margin-top: 2px;
   margin-bottom: 2px;
-  padding-left: 4px;
+  margin-left: 8px;
+  display: flex;
+  flex-direction: row;
+  color: #a7a7a7;
 }
 
 .AddAttributePopupMenu
-  .AddAttributePopupMenuOption
-  .AddAttributePopupMenuOption_SymbolLogo {
+  .AddAttributePopupMenu_Option
+  .AddAttributePopupMenu_Option_SymbolLogo {
   height: 100%;
   width: 14px;
   background-position: center;
   background-repeat: no-repeat;
+  margin-right: 4px;
 }
 
 .LeftBigArea .LeftBottomArea {
