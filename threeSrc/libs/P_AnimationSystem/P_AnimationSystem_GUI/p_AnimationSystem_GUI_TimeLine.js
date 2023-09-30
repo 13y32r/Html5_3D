@@ -350,26 +350,26 @@ class AnimationButton extends UIElement {
 }
 
 class RollButton extends UIElement {
-  constructor() {
+  constructor(cell) {
     super(document.createElement("button"));
     let that = this;
 
     that.setClass("RollButton");
     that.addClass("RollButton_Close");
     that.isExpand = false;
+    that.cell = cell;
 
-    that.triggerFun = that.triggerFun.bind(this);
     that.dom.addEventListener("pointerup", that.triggerFun);
   }
 
-  triggerFun() {
+  triggerFun = () => {
     let that = this;
     that.isExpand = !that.isExpand;
     that.dom.dispatchEvent(
       new CustomEvent("rollButtonEvent", {
         bubbles: false,
         cancelable: true,
-        detail: { state: that.isExpand },
+        detail: { ownCell: that.cell },
       })
     );
 
@@ -384,7 +384,7 @@ class RollButton extends UIElement {
       if (!that.dom.classList.contains("RollButton_Open"))
         that.dom.classList.add("RollButton_Open");
     }
-  }
+  };
 }
 
 class AttributeCellLastButton extends UIDiv {
@@ -590,7 +590,7 @@ class AttributeCell extends UIDiv {
       that.isRoll = true;
 
       if (objectName) {
-        that.rollButton = new RollButton();
+        that.rollButton = new RollButton(that);
         that.add(that.rollButton);
 
         showName = objectName + ":" + attName;
@@ -685,6 +685,7 @@ class AttributeCell extends UIDiv {
         that.label.setColor("#808080");
         that.promptBar.setOpacity("5%");
         that.setValueObj = new UINumber().setPrecision(3).setWidth("50px");
+        that.setValueObj.dom.style.setProperty("color", "#a9a9a9", "important");
       }
     } else {
       that.isRoll = false;
@@ -696,9 +697,14 @@ class AttributeCell extends UIDiv {
       switch (attType) {
         case "number":
           that.setValueObj = new UINumber().setPrecision(3).setWidth("50px");
+          that.setValueObj.dom.style.setProperty(
+            "color",
+            "#a9a9a9",
+            "important"
+          );
           break;
         case "bool":
-          that.setValueObj = new UICheckbox();
+          that.setValueObj = new UICheckbox().setMarginRight("37px");
           break;
       }
 
@@ -797,6 +803,23 @@ class AttributeCell extends UIDiv {
       that.promptBar.attributeCellObj = null;
       that.promptBar.elementNoActive();
       that.promptBar.attributeCellObj = that;
+    }
+  };
+
+  changeOdd = (isOdd) => {
+    let that = this;
+
+    that.isOdd = isOdd;
+    if (!that.isOdd) {
+      that.setBackgroundColor("#3f3f3f");
+    } else {
+      that.setBackgroundColor("transparent");
+    }
+
+    if (that.isRoll) {
+      for (let i = 0; i < that.paramArray.length; i++) {
+        that.paramArray[i].changeOdd(!that.paramArray[i].isOdd);
+      }
     }
   };
 }
@@ -1526,13 +1549,20 @@ class P_AnimationSystem_GUI_TimeLine {
   resAddAttributePopupMenu = (event) => {
     let that = this;
 
+    if (!event.detail) {
+      return;
+    }
     const newTrackName = event.detail.value;
 
     const newTrack = createNewKeyframeTrackByAttributeName(newTrackName);
-    console.log("newTrack", newTrack);
     that.animationClip.tracks.push(newTrack);
 
-    that.updateAnimationClip(that.animationClip);
+    that.insertAttributeCell(newTrack);
+
+    //由于添加了新的属性，导致了objectColumnCells的高度发生了变化，所以这里刷新一下相关参数
+    that.whileObjAreaScrollHeightChangedAdjustObjColumnCellsTop();
+    that.objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth();
+    that.theEventColumnsHeightToConsistentWithTheObjColumnHeight();
 
     that.removeAddAttributePopupMenu();
   };
@@ -1808,7 +1838,8 @@ class P_AnimationSystem_GUI_TimeLine {
               observer.unobserve(keyPositionInputDom);
               break;
             case promptLineDom:
-              that.promptLine.setLeft("40px");
+              that.keyPosition = 0;
+              that.calPromptLinePosition(that.keyPosition);
               totalCount++;
               observer.unobserve(promptLineDom);
               break;
@@ -1969,7 +2000,7 @@ class P_AnimationSystem_GUI_TimeLine {
     let that = this;
 
     that.animationClip = animationClip;
-    that.updateAttributeParam(that.object.name, animationClip);
+    that.updateAttributeParam();
   };
 
   //更新动画面板的剪辑下拉选项
@@ -2044,12 +2075,12 @@ class P_AnimationSystem_GUI_TimeLine {
       case AnimationEditObjectState.NORMAL:
         that.updateClipSelect();
         that.clipSelect.setValue(0);
-        that.updateAnimationClip(that.object.animations[0]);
 
         that.container.removeTheLastChild();
         that.container.add(that.rightBigArea);
 
         that.enableAllButtonAndInput();
+        that.updateAnimationClip(that.object.animations[0]);
 
         that.addResizerHandle = new AddResizerHandle(
           that.container.dom,
@@ -2138,11 +2169,152 @@ class P_AnimationSystem_GUI_TimeLine {
     }
   };
 
-  //更新影片剪辑的属性参数
-  updateAttributeParam = (objName, animationClip) => {
-    if (!animationClip) return;
-
+  //插入AttributeCell元素
+  insertAttributeCell = (track, locationIndex) => {
     let that = this;
+
+    let cellID;
+    if (locationIndex) {
+      cellID = locationIndex;
+    } else {
+      cellID = that.objAttributeShowArea.cellsArray.length;
+    }
+
+    let objName = that.object.name;
+    let attrName = track.name.slice(1);
+    that.currentClipProps.push(attrName);
+    let valueType = track.ValueTypeName;
+
+    let isOdd = !(cellID % 2);
+
+    let cell = new AttributeCell(
+      objName,
+      attrName,
+      valueType,
+      null,
+      isOdd,
+      that
+    );
+
+    if (locationIndex) {
+      that.objAttributeShowArea.cellsArray.splice(cellID, 0, cell);
+      that.objAttributeShowArea.insertBefore(
+        cell,
+        that.objAttributeShowArea.dom.children[cellID]
+      );
+      that.eventUnitRowsScrollArea.insertBefore(
+        cell.promptBar,
+        that.eventUnitRowsScrollArea.dom.children[cellID]
+      );
+    } else {
+      that.objAttributeShowArea.cellsArray.push(cell);
+      that.objAttributeShowArea.add(cell);
+      that.eventUnitRowsScrollArea.add(cell.promptBar);
+    }
+
+    //如果创建的新的AttributeCell元素具有下拉卷展按钮，则监听其事件
+    if (cell.rollButton) {
+      cell.rollButton.dom.addEventListener(
+        "rollButtonEvent",
+        that.attributeCellRollButtonEvent
+      );
+    }
+
+    cell.dom.addEventListener(
+      "attrCellPointerDown",
+      that.allAttributeCellNoActive
+    );
+  };
+
+  attributeCellRollButtonEvent = (event) => {
+    let that = this;
+
+    const cell = event.detail.ownCell;
+    const cellID = that.objAttributeShowArea.cellsArray.indexOf(cell);
+    const paramsLength = cell.paramArray.length;
+
+    let offsetNumber = 0;
+
+    if (cell.rollButton.isExpand) {
+      offsetNumber = paramsLength;
+
+      for (let i = 0; i < paramsLength; i++) {
+        let followingDom;
+        if (that.objAttributeShowArea.cellsArray[cellID + 1 + i]) {
+          followingDom =
+            that.objAttributeShowArea.cellsArray[cellID + 1 + i].dom;
+        } else {
+          followingDom = null;
+        }
+
+        that.objAttributeShowArea.dom.insertBefore(
+          cell.paramArray[i].dom,
+          followingDom
+        );
+        that.objAttributeShowArea.cellsArray.splice(
+          cellID + 1 + i,
+          0,
+          cell.paramArray[i]
+        );
+        cell.paramArray[i].dom.addEventListener(
+          "attrCellPointerDown",
+          that.allAttributeCellNoActive
+        );
+      }
+    } else {
+      offsetNumber = 0;
+
+      for (let i = 0; i < paramsLength; i++) {
+        that.objAttributeShowArea.remove(cell.paramArray[i]);
+        cell.paramArray[i].dom.removeEventListener(
+          "attrCellPointerDown",
+          that.allAttributeCellNoActive
+        );
+      }
+      that.objAttributeShowArea.cellsArray.splice(cellID + 1, paramsLength);
+    }
+
+    if (paramsLength % 2) {
+      changBehindCellOdd();
+    }
+
+    function changBehindCellOdd() {
+      for (
+        let i = cellID + offsetNumber + 1;
+        i < that.objAttributeShowArea.cellsArray.length;
+        i++
+      ) {
+        const tempCell = that.objAttributeShowArea.cellsArray[i];
+        if (tempCell.paramArray.length) {
+          const selfOdd = tempCell.isOdd;
+          tempCell.changeOdd(!selfOdd);
+        }
+      }
+    }
+
+    that.whileObjAreaScrollHeightChangedAdjustObjColumnCellsTop();
+    that.objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth();
+    //这里由于左边的属性列展开后高度发生变化，所以右边的事件列的高度也要随之改变。
+    that.theEventColumnsHeightToConsistentWithTheObjColumnHeight();
+  };
+
+  //将所有的AttributeCell元素的显示状态设为不激活状态
+  allAttributeCellNoActive = (event) => {
+    let that = this;
+    let obj = event.detail.sourceObj;
+
+    for (let i = 0; i < that.objAttributeShowArea.cellsArray.length; i++) {
+      if (that.objAttributeShowArea.cellsArray[i] != obj) {
+        that.objAttributeShowArea.cellsArray[i].elementNoActive();
+      }
+    }
+  };
+
+  //更新影片剪辑的属性参数
+  updateAttributeParam = () => {
+    let that = this;
+
+    const animationClip = that.animationClip;
 
     //这里获取动画剪辑的最大动画时间，并刷新时间轴。
     that.animationClipMaxTime = animationClip.duration;
@@ -2156,109 +2328,15 @@ class P_AnimationSystem_GUI_TimeLine {
     that.eventUnitRowsScrollArea.clear();
 
     for (let j = 0; j < animationClip.tracks.length; j++) {
-      let attrName = animationClip.tracks[j].name.slice(1);
-      that.currentClipProps.push(attrName);
-      let valueType = animationClip.tracks[j].ValueTypeName;
-
-      let isOdd = !(j % 2);
-
-      let clip = new AttributeCell(
-        objName,
-        attrName,
-        valueType,
-        null,
-        isOdd,
-        that
-      );
-
-      that.objAttributeShowArea.cellsArray.push(clip);
-      that.objAttributeShowArea.add(clip);
-      that.eventUnitRowsScrollArea.add(clip.promptBar);
-
-      if (clip.rollButton) {
-        clip.rollButton.dom.addEventListener("rollButtonEvent", function (e) {
-          let clipID = that.objAttributeShowArea.cellsArray.indexOf(clip);
-
-          if (clip.rollButton.isExpand) {
-            for (let i = 0; i < clip.paramArray.length; i++) {
-              that.objAttributeShowArea.cellsArray.splice(
-                clipID + 1 + i,
-                0,
-                clip.paramArray[i]
-              );
-              clip.paramArray[i].dom.addEventListener(
-                "attrCellPointerDown",
-                allCellsNoActive
-              );
-            }
-          } else {
-            for (let i = 0; i < clip.paramArray.length; i++) {
-              clip.paramArray[i].dom.removeEventListener(
-                "attrCellPointerDown",
-                allCellsNoActive
-              );
-            }
-            that.objAttributeShowArea.cellsArray.splice(
-              clipID + 1,
-              clip.paramArray.length
-            );
-          }
-
-          that.objAttributeShowArea.clear();
-          that.eventUnitRowsScrollArea.clear();
-
-          for (
-            let j = 0;
-            j < that.objAttributeShowArea.cellsArray.length;
-            j++
-          ) {
-            that.objAttributeShowArea.add(
-              that.objAttributeShowArea.cellsArray[j]
-            );
-            that.eventUnitRowsScrollArea.add(
-              that.objAttributeShowArea.cellsArray[j].promptBar
-            );
-
-            if (j != 0) {
-              that.objAttributeShowArea.cellsArray[j].isOdd =
-                !that.objAttributeShowArea.cellsArray[j - 1].isOdd;
-              that.objAttributeShowArea.cellsArray[j].elementNoActive();
-            }
-          }
-
-          that.whileObjAreaScrollHeightChangedAdjustObjColumnCellsTop();
-          that.objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth();
-          //这里由于左边的属性列展开后高度发生变化，所以右边的事件列的高度也要随之改变。
-          that.theEventColumnsHeightToConsistentWithTheObjColumnHeight();
-        });
-      }
-
-      function allCellsNoActive(event) {
-        let obj = event.detail.sourceObj;
-
-        for (let i = 0; i < that.objAttributeShowArea.cellsArray.length; i++) {
-          if (that.objAttributeShowArea.cellsArray[i] != obj) {
-            that.objAttributeShowArea.cellsArray[i].elementNoActive();
-          }
-        }
-      }
-
-      clip.dom.addEventListener("attrCellPointerDown", allCellsNoActive);
+      that.insertAttributeCell(animationClip.tracks[j]);
     }
 
-    //这里等待所有that.objColumnCells所有的子元素加载完毕之后更新obj属性栏滚动条的高度
-    const detectWhetherComplete = new Promise((resolve) => {
-      setInterval(() => {
-        if (that.objColumnCells.dom.offsetHeight) {
-          resolve("complete");
-        }
-      }, 50);
-    });
-    detectWhetherComplete.then((result) => {
-      that.objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth();
-      //这里由于左边的属性列全部加载完后高度发生变化，所以右边的事件列的高度也要随之改变。
-      that.theEventColumnsHeightToConsistentWithTheObjColumnHeight();
-    });
+    that.objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth();
+    //这里由于左边的属性列全部加载完后高度发生变化，所以右边的事件列的高度也要随之改变。
+    that.theEventColumnsHeightToConsistentWithTheObjColumnHeight();
+    //滚动条复位
+    that.objAreaVerticalScrollBar.topToZero();
+    that.rightAreaVerticalScrollBar.topToZero();
   };
 
   //判断对象属性栏区域是否要添加或则删除VerticalScrollBar，并对that.objColumnCells的dom元素的宽做出调整
@@ -2364,8 +2442,6 @@ class P_AnimationSystem_GUI_TimeLine {
     that.rightAreaHorizontalScrollBar.refresh();
     that.refreshFrame(rp);
   };
-
-  //根据最新的totalFrameShowAreaWidth
 
   //计算并判断that.rightScrollContent的width在变化后，该长度是否超过该影片剪辑的最大时间长度。如果超过了，就自动裁剪that.rightScrollContent尾部多余的长度。
   autoCutRightScrollContentTailWidth = () => {

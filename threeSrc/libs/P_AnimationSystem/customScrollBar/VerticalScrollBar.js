@@ -301,6 +301,12 @@ class VerticalScrollBar extends UIDiv {
     that.thumb.setHeight(newThumbHeight + "px");
   }
 
+  topToZero = () => {
+    let that = this;
+    that.innerAreaDom.style.top = 0 + "px";
+    that.thumb.setTop(0 + "px");
+  };
+
   refresh() {
     let that = this;
     that.changeThumbHeightToFitInnerArea();
