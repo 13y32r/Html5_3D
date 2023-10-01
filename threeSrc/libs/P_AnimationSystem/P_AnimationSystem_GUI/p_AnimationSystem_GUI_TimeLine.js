@@ -387,14 +387,13 @@ class AttributeCellLastButton extends UIDiv {
     super();
     let that = this;
 
-    that.normalImg = "url(/menuGUI/img/attributeCellLastButton_Normal.png)";
-    that.hoverImg = "url(/menuGUI/img/attributeCellLastButton_Hover.png)";
+    that.animationPanel = animationPanel;
+    that.setImgByAnimationPanelControlState();
 
     that.options = new Array();
 
     that.setClass("AttributeCellLastButton");
     that.setBackgroundImage(that.normalImg);
-    that.animationPanel = animationPanel;
 
     that.dom.onpointerover = that.pointerHover;
     that.dom.onpointerout = that.pointerOut;
@@ -484,6 +483,13 @@ class AttributeCellLastButton extends UIDiv {
   updateAnimationPanelState = () => {
     let that = this;
 
+    that.setImgByAnimationPanelControlState();
+    that.pointerOut();
+  };
+
+  setImgByAnimationPanelControlState = () => {
+    let that = this;
+
     if (
       that.animationPanel.selfControlState == AnimationEditOrPlayState.EDITING
     ) {
@@ -495,8 +501,6 @@ class AttributeCellLastButton extends UIDiv {
       that.normalImg = "url(/menuGUI/img/attributeCellLastButton_Normal.png)";
       that.hoverImg = "url(/menuGUI/img/attributeCellLastButton_Hover.png)";
     }
-
-    that.pointerOut();
   };
 
   pointerDown = () => {
@@ -703,6 +707,10 @@ class AttributeCell extends UIDiv {
     that.dom.onpointerout = that.pointerOut;
     that.dom.onpointerdown = that.elementActive;
 
+    that.showSetValueByAnimationPanelControlState(
+      animationPanel.selfControlState
+    );
+
     animationPanel.dom.addEventListener(
       "animationPanelControlStateChanged",
       that.animationPanelControlStateChanged
@@ -712,6 +720,12 @@ class AttributeCell extends UIDiv {
   animationPanelControlStateChanged = (event) => {
     let that = this;
     let state = event.detail.state;
+
+    that.showSetValueByAnimationPanelControlState(state);
+  };
+
+  showSetValueByAnimationPanelControlState = (state) => {
+    let that = this;
 
     if (state == AnimationEditOrPlayState.EDITING) {
       that.setKeyFrameValueArea.clear();
