@@ -208,7 +208,7 @@ input::-webkit-inner-spin-button {
   height: 247px;
   background-color: #383838;
   border: 1px solid #636363;
-  z-index: 2;
+  z-index: 99;
   overflow: auto;
 }
 

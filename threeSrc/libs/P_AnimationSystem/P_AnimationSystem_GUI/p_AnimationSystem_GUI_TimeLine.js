@@ -90,17 +90,13 @@ class AddResizerHandle {
         : clientX > offsetWidth + offsetX - that.maxRightMargin
         ? offsetWidth + offsetX - that.maxRightMargin
         : clientX;
-    // const cX = clientX;
+
     const x = cX - that.rootDom.offsetLeft;
 
     that.handle.dom.style.left = x + "px";
 
-    console.log(that.dom2);
     let oldDom2Width = that.dom2.offsetWidth;
-    console.log("oldDom2Width :" + oldDom2Width);
 
-    // that.dom1.style.width = x + "px";
-    // that.dom2.style.width = that.overallSize - x + "px";
     that.fDom.style.setProperty("--leftAreaWidth", x + "px");
     that.fDom.style.setProperty(
       "--rightAreaWidth",
@@ -111,7 +107,6 @@ class AddResizerHandle {
       let oldDom3Width = that.dom3.offsetWidth;
       let newDom3Width =
         (that.dom3.offsetWidth * that.dom2.offsetWidth) / oldDom2Width;
-      // that.dom3.style.width = newDom3Width + "px";
       that.changeFN(that.scope, { oldDom3Width, newDom3Width });
     }
   };
@@ -431,29 +426,11 @@ class AttributeCellLastButton extends UIDiv {
     that.popupMenu.setOptions(that.options);
     documentBodyAdd(that.popupMenu);
 
-    // 获取元素的绝对位置坐标（像对于页面左上角）
-    function getElementPagePosition(element) {
-      //计算x坐标
-      var actualLeft = element.offsetLeft;
-      var current = element.offsetParent;
-      while (current !== null) {
-        actualLeft += current.offsetLeft;
-        current = current.offsetParent;
-      }
-      //计算y坐标
-      var actualTop = element.offsetTop;
-      var current = element.offsetParent;
-      while (current !== null) {
-        actualTop += current.offsetTop + current.clientTop;
-        current = current.offsetParent;
-      }
-      //返回结果
-      return { x: actualLeft, y: actualTop };
-    }
-
     let offsetScrollTop = that.animationPanel.objColumnCells.dom.scrollTop;
 
-    let absolutePosition = getElementPagePosition(that.dom);
+    let absolutePosition = globalInstances.getPreloadItem(
+      "getElementPagePosition"
+    )(that.dom);
     let position_x = absolutePosition.x + 26 + "px";
     let position_y = absolutePosition.y - offsetScrollTop + "px";
 
@@ -2198,12 +2175,12 @@ class P_AnimationSystem_GUI_TimeLine {
 
     if (locationIndex) {
       that.objAttributeShowArea.cellsArray.splice(cellID, 0, cell);
-      that.objAttributeShowArea.insertBefore(
-        cell,
+      that.objAttributeShowArea.dom.insertBefore(
+        cell.dom,
         that.objAttributeShowArea.dom.children[cellID]
       );
-      that.eventUnitRowsScrollArea.insertBefore(
-        cell.promptBar,
+      that.eventUnitRowsScrollArea.dom.insertBefore(
+        cell.promptBar.dom,
         that.eventUnitRowsScrollArea.dom.children[cellID]
       );
     } else {
@@ -2239,17 +2216,25 @@ class P_AnimationSystem_GUI_TimeLine {
       offsetNumber = paramsLength;
 
       for (let i = 0; i < paramsLength; i++) {
-        let followingDom;
+        let followingDomLeft;
+        let followingDomRight;
         if (that.objAttributeShowArea.cellsArray[cellID + 1 + i]) {
-          followingDom =
+          followingDomLeft =
             that.objAttributeShowArea.cellsArray[cellID + 1 + i].dom;
+          followingDomRight =
+            that.eventUnitRowsScrollArea.dom.children[cellID + 1 + i];
         } else {
-          followingDom = null;
+          followingDomLeft = null;
+          followingDomRight = null;
         }
 
         that.objAttributeShowArea.dom.insertBefore(
           cell.paramArray[i].dom,
-          followingDom
+          followingDomLeft
+        );
+        that.eventUnitRowsScrollArea.dom.insertBefore(
+          cell.paramArray[i].promptBar.dom,
+          followingDomRight
         );
         that.objAttributeShowArea.cellsArray.splice(
           cellID + 1 + i,
@@ -2266,6 +2251,7 @@ class P_AnimationSystem_GUI_TimeLine {
 
       for (let i = 0; i < paramsLength; i++) {
         that.objAttributeShowArea.remove(cell.paramArray[i]);
+        that.eventUnitRowsScrollArea.remove(cell.paramArray[i].promptBar);
         cell.paramArray[i].dom.removeEventListener(
           "attrCellPointerDown",
           that.allAttributeCellNoActive
@@ -2381,7 +2367,6 @@ class P_AnimationSystem_GUI_TimeLine {
     const maxNumOfFrame = 20000;
     //由设定的能显示的最大帧数，计算出最小的单位秒的宽度
     const minSecondUnitWidth = (rightScrollContainerWidth - 60) / maxNumOfFrame;
-    console.log(minSecondUnitWidth);
 
     const fixedFrontLength = rp;
     //这里由于第0帧的位置是在40px处，所以要减去40px
@@ -2398,8 +2383,6 @@ class P_AnimationSystem_GUI_TimeLine {
       const newSecondUnitWidth = that.secondUnitWidth / 2;
       if (newSecondUnitWidth < minSecondUnitWidth) {
         console.log("-超过最小单位秒的宽度-");
-        console.log("newSecondUnitWidth: " + newSecondUnitWidth);
-        console.log("minSecondUnitWidth: " + minSecondUnitWidth);
         return;
       }
       that.setSecondUnitWidth(newSecondUnitWidth);
@@ -2481,9 +2464,6 @@ class P_AnimationSystem_GUI_TimeLine {
   //监听鼠标点放关键帧的位置
   setPLPositionByPoint = (event) => {
     let that = this;
-
-    // let plPosition = (event.offsetX + that.rightScrollContent.dom.offsetLeft) + "px";
-    // that.promptLine.setLeft(plPosition);
 
     let relPosition;
     if (event.offsetX <= 40) {

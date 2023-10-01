@@ -349,4 +349,5 @@
   padding: 2px;
   height: auto;
   background-color: #f2f2f2;
+  z-index: 99;
 }
