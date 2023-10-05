@@ -32,13 +32,28 @@
         来点我试试看呀！
     </button> -->
 
-    <div style="width: 100%;position:relative;height: 500px;background-color:aqua;">
-        <div style="width: 100%;position:sticky;height: 100px;background-color:crimson;top: 0px;"></div>
-        <div style="width: 100%;position:sticky;height: 200px;background-color:chocolate;top: 100px;"></div>
+    <div class="Outside" style="width: 100%;position:relative;height: 500px;background-color:aqua;" tabindex="0">
+        <div class="Inside" style="width: 100%;position:sticky;height: 100px;background-color:crimson;top: 0px;"></div>
+        <div class="Inside" style="width: 100%;position:sticky;height: 200px;background-color:chocolate;top: 100px;">
+        </div>
     </div>
 
+    <script>
+        let insideDoms = document.getElementsByClassName("Inside");
+        for (let i = 0; i < insideDoms.length; i++) {
+            insideDoms[i].type = "Inside";
+            console.log(insideDoms[i]);
+            console.log(insideDoms[i].type);
+        }
+
+        let outsideDoms = document.getElementsByClassName("Outside");
+        outsideDoms[0].addEventListener("keydown", function (event) {
+            console.log(event);
+        });
+    </script>
+
     <!-- <script> -->
-    let testArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    <!-- let testArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
     console.log(" testArray at last is:" + testArray.at(-1)); let div1 = document.createElement("div"); let
     div2 = document.createElement("div"); div1.style.position = "absolute"; div1.style.top = "0px";
     div1.style.left = "0px"; div1.style.width = "10px"; div1.style.height = "10px";
@@ -50,10 +65,11 @@
     showText = parseInt(showText, 16); // showText=strToHexCharCode(showText); console.log(showText); function
     strToHexCharCode(str) {
     if (str === "") return ""; var hexCharCode = []; hexCharCode.push("#"); // for (var
-    i = 0; i < str.length; i++) { // console.log(str[i]); // hexCharCode.push((str.charCodeAt(i)).toString(16)); <!-- //
+    i = 0; i < str.length; i++) { // console.log(str[i]); // hexCharCode.push((str.charCodeAt(i)).toString(16));
+         //
         } hexCharCode.push(str.toString(16)); return hexCharCode.join(""); }</script> -->
 
-        <script type="importmap">
+    <!-- <script type="importmap">
         {
             "imports": {
                 "three": "../threeSrc/three.module.js"
@@ -114,7 +130,7 @@
             }, 100);
 
             console.log("Everything is over!");
-        </script>
+        </script> -->
 </body>
 
 </html>

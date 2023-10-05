@@ -8,10 +8,7 @@
  * @可以输入预定的版权声明、个性签名、空行等
  */
 
-console.log("高兴不起来");
-
 function removejscssfile(filename, filetype) {
-	console.log("妈妈爱大明。");
 	var targetelement = (filetype == "js") ? "script" : (filetype == "css") ? "link" : "none";
 	var targetattr = (filetype == "js") ? "src" : (filetype == "css") ? "href" : "none";
 	var allsuspects = document.getElementsByTagName(targetelement);
