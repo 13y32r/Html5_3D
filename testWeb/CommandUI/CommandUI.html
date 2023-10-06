@@ -12,9 +12,15 @@
 <body>
     <div id="GaoDaShang"
         style="position:absolute;top:100px;left: 400px;background-color: brown;width: 500px;height: 500px;"></div>
+    <my-Tag style="width: 200px;height: 200px;background-color: steelblue;display: flex;"></my-Tag>
 </body>
 
 <script>
+    let customTagDom = document.querySelectorAll("my-Tag");
+    for (let i = 0; i < customTagDom.length; i++) {
+        console.log(customTagDom[i]);
+    }
+
     let element = document.getElementById("GaoDaShang");
     element.addEventListener("click", function () {
         gsap.globalTimeline.pause();
