@@ -20,7 +20,7 @@
 </head>
 
 <body>
-    <div id="selectBox" class="select-box"></div>
+    <!-- <div id="selectBox" class="select-box"></div> -->
     <div id="box1"
         style="width: 100px; height: 100px; position: absolute; top: 50px; left: 50px; background-color: red;"></div>
     <div id="box2"
@@ -33,52 +33,62 @@
 
         const testDom = document.querySelector('#test');
         const h1Title = testDom.getElementsByClassName('bingo')[0];
-        console.log('h1Title is:', h1Title);
         // document.addEventListener('scroll', event => {
         //     const h1TitleRect = h1Title.getBoundingClientRect();
         //     console.log('h1TitleRect is:', h1TitleRect);
         // });
 
-        const selectBox = document.getElementById('selectBox');
-        let startX, startY;
+        // const selectBox = document.getElementById('selectBox');
 
-        document.addEventListener('mousedown', (e) => {
-            startX = e.clientX;
-            startY = e.clientY;
-            selectBox.style.left = startX + 'px';
-            selectBox.style.top = startY + 'px';
-            selectBox.style.width = '0px';
-            selectBox.style.height = '0px';
-            selectBox.style.display = 'block';
+        import { ReturnBoxSelectedDom } from './returnBoxSelectedDom.js';
+        const returnBoxSelectedDom = new ReturnBoxSelectedDom(["#box1", "#box2"]);
+        document.addEventListener("SelectedDoms", event => {
+            const selectedDoms = event.detail;
+            console.log('selectedDoms is:', selectedDoms);
+            // selectedDoms.forEach(dom => {
+            //     dom.classList.add('selected');
+            // });
         });
 
-        document.addEventListener('mousemove', (e) => {
-            const width = e.clientX - startX;
-            const height = e.clientY - startY;
-            selectBox.style.width = Math.abs(width) + 'px';
-            selectBox.style.height = Math.abs(height) + 'px';
-            selectBox.style.left = (width > 0 ? startX : e.clientX) + 'px';
-            selectBox.style.top = (height > 0 ? startY : e.clientY) + 'px';
-        });
+        // let startX, startY;
 
-        document.addEventListener('mouseup', () => {
-            const boxes = document.querySelectorAll('#box1, #box2');
-            boxes.forEach(box => {
-                const boxRect = box.getBoundingClientRect();
-                const selectRect = selectBox.getBoundingClientRect();
-                if (
-                    boxRect.left > selectRect.left &&
-                    boxRect.right < selectRect.right &&
-                    boxRect.bottom < selectRect.bottom &&
-                    boxRect.top > selectRect.top
-                ) {
-                    box.style.backgroundColor = 'yellow';
-                } else {
-                    box.style.backgroundColor = box.id === 'box1' ? 'red' : 'blue';
-                }
-            });
-            selectBox.style.display = 'none';
-        });
+        // document.addEventListener('mousedown', (e) => {
+        //     startX = e.clientX;
+        //     startY = e.clientY;
+        //     selectBox.style.left = startX + 'px';
+        //     selectBox.style.top = startY + 'px';
+        //     selectBox.style.width = '0px';
+        //     selectBox.style.height = '0px';
+        //     selectBox.style.display = 'block';
+        // });
+
+        // document.addEventListener('mousemove', (e) => {
+        //     const width = e.clientX - startX;
+        //     const height = e.clientY - startY;
+        //     selectBox.style.width = Math.abs(width) + 'px';
+        //     selectBox.style.height = Math.abs(height) + 'px';
+        //     selectBox.style.left = (width > 0 ? startX : e.clientX) + 'px';
+        //     selectBox.style.top = (height > 0 ? startY : e.clientY) + 'px';
+        // });
+
+        // document.addEventListener('mouseup', () => {
+        //     const boxes = document.querySelectorAll('#box1, #box2');
+        //     boxes.forEach(box => {
+        //         const boxRect = box.getBoundingClientRect();
+        //         const selectRect = selectBox.getBoundingClientRect();
+        //         if (
+        //             boxRect.left > selectRect.left &&
+        //             boxRect.right < selectRect.right &&
+        //             boxRect.bottom < selectRect.bottom &&
+        //             boxRect.top > selectRect.top
+        //         ) {
+        //             box.style.backgroundColor = 'yellow';
+        //         } else {
+        //             box.style.backgroundColor = box.id === 'box1' ? 'red' : 'blue';
+        //         }
+        //     });
+        //     selectBox.style.display = 'none';
+        // });
     </script>
 </body>
 

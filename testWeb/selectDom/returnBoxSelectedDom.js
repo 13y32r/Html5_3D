@@ -1,54 +1,121 @@
-let startX, startY;
-let selectBox;
-let selectTypeString;
+class ReturnBoxSelectedDom {
+  constructor(selectTypeArray, receptionDom) {
+    let that = this;
 
-function returnBoxSelectedDom(selectTypeArray, receptionDom) {
-  selectTypeString = selectTypeArray.join(",");
+    const outlineColor = "blue";
+    const fillColor = "blue";
 
-  const certainReceptionDom = receptionDom || document;
-}
+    this.startX, this.startY;
+    this.selectBox;
+    this.selectTypeString;
+    this.certainReceptionDom;
 
-function selectAreaMouseDown(e) {
-  startX = e.clientX;
-  startY = e.clientY;
-  selectBox.style.left = startX + "px";
-  selectBox.style.top = startY + "px";
-  selectBox.style.width = "0px";
-  selectBox.style.height = "0px";
-  selectBox.style.display = "block";
-}
+    this.selectedDomEvent;
+    this.selectedDoms = [];
 
-function selectAreaMouseMove(e) {
-  const width = e.clientX - startX;
-  const height = e.clientY - startY;
-  selectBox.style.width = Math.abs(width) + "px";
-  selectBox.style.height = Math.abs(height) + "px";
-  selectBox.style.left = (width > 0 ? startX : e.clientX) + "px";
-  selectBox.style.top = (height > 0 ? startY : e.clientY) + "px";
-}
+    this.selectTypeString = selectTypeArray.join(",");
 
-function selectAreaMouseUp(e) {
-  const boxes = document.querySelectorAll("#box1, #box2");
-  boxes.forEach((box) => {
-    const boxRect = box.getBoundingClientRect();
-    const selectRect = selectBox.getBoundingClientRect();
-    if (
-      boxRect.left > selectRect.left &&
-      boxRect.right < selectRect.right &&
-      boxRect.bottom < selectRect.bottom &&
-      boxRect.top > selectRect.top
-    ) {
-      box.style.backgroundColor = "yellow";
-    } else {
-      box.style.backgroundColor = box.id === "box1" ? "red" : "blue";
-    }
-  });
-}
+    this.selectBox = document.createElement("div");
+    this.selectBox.id = "selectBox";
+    this.selectBox.style.position = "absolute";
+    this.selectBox.style.border = "1px solid " + outlineColor;
+    this.selectBox.style.backgroundColor = fillColor;
+    this.selectBox.style.opacity = "0.2";
+    this.selectBox.style.pointerEvents = "none";
 
-function cancelBoxSelectedDom(dom) {
-  for (var i = 0; i < dom.length; i++) {
-    dom[i].checked = false;
+    this.certainReceptionDom = receptionDom || document.body;
+    this.certainReceptionDom.appendChild(that.selectBox);
+    this.certainReceptionDom.addEventListener(
+      "pointerdown",
+      that.selectAreaMouseDown
+    );
+
+    this.selectedDomEvent = new CustomEvent("SelectedDoms", {
+      bubbles: true,
+      cancelable: true,
+      detail: that.selectedDoms,
+    });
   }
+
+  selectAreaMouseDown = (e) => {
+    let that = this;
+
+    this.startX = e.clientX;
+    this.startY = e.clientY;
+    this.selectBox.style.left = this.startX + "px";
+    this.selectBox.style.top = this.startY + "px";
+    this.selectBox.style.width = "0px";
+    this.selectBox.style.height = "0px";
+    this.selectBox.style.display = "block";
+
+    this.certainReceptionDom.addEventListener(
+      "pointermove",
+      that.selectAreaMouseMove
+    );
+    document.addEventListener("pointerup", that.selectAreaMouseUp);
+  };
+
+  selectAreaMouseMove = (e) => {
+    let that = this;
+
+    const width = e.clientX - this.startX;
+    const height = e.clientY - this.startY;
+    this.selectBox.style.width = Math.abs(width) + "px";
+    this.selectBox.style.height = Math.abs(height) + "px";
+    this.selectBox.style.left = (width > 0 ? that.startX : e.clientX) + "px";
+    this.selectBox.style.top = (height > 0 ? that.startY : e.clientY) + "px";
+  };
+
+  selectAreaMouseUp = (e) => {
+    let that = this;
+
+    const targetDoms = this.certainReceptionDom.querySelectorAll(
+      that.selectTypeString
+    );
+    this.selectedDoms.length = 0;
+    targetDoms.forEach((targetDom) => {
+      const boxRect = targetDom.getBoundingClientRect();
+      const selectRect = this.selectBox.getBoundingClientRect();
+      if (
+        boxRect.left > selectRect.left &&
+        boxRect.right < selectRect.right &&
+        boxRect.bottom < selectRect.bottom &&
+        boxRect.top > selectRect.top
+      ) {
+        that.selectedDoms.push(targetDom);
+      } else {
+        //这里预留了对未选中的dom的处理
+      }
+    });
+
+    this.selectBox.style.display = "none";
+    this.certainReceptionDom.dispatchEvent(that.selectedDomEvent);
+
+    this.certainReceptionDom.removeEventListener(
+      "pointermove",
+      that.selectAreaMouseMove
+    );
+    document.removeEventListener("pointerup", that.selectAreaMouseUp);
+  };
+
+  cancelBoxSelectedDom = () => {
+    let that = this;
+
+    this.certainReceptionDom.removeEventListener(
+      "pointerdown",
+      that.selectAreaMouseDown
+    );
+    this.certainReceptionDom.removeChild(that.selectBox);
+    this.certainReceptionDom = null;
+    this.selectBox = null;
+    this.selectedDoms.length = 0;
+    this.selectedDomEvent = null;
+  };
+
+  dispose = () => {
+    this.selectedDoms = null;
+    this.cancelBoxSelectedDom();
+  };
 }
 
-export { returnBoxSelectedDom, cancelBoxSelectedDom };
+export { ReturnBoxSelectedDom };
