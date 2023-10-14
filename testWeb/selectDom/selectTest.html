@@ -40,15 +40,21 @@
 
         // const selectBox = document.getElementById('selectBox');
 
+        function getSelectedDoms() {
+            const scope = this;
+            console.log("Look the following message:");
+            console.log(scope.selectedDoms);
+        }
+
         import { ReturnBoxSelectedDom } from './returnBoxSelectedDom.js';
-        const returnBoxSelectedDom = new ReturnBoxSelectedDom(["#box1", "#box2"]);
-        document.addEventListener("SelectedDoms", event => {
-            const selectedDoms = event.detail;
-            console.log('selectedDoms is:', selectedDoms);
-            // selectedDoms.forEach(dom => {
-            //     dom.classList.add('selected');
-            // });
-        });
+        const returnBoxSelectedDom = new ReturnBoxSelectedDom(["#box1", "#box2"], null, getSelectedDoms);
+        // document.addEventListener("SelectedDoms", event => {
+        //     const selectedDoms = event.detail;
+        //     console.log('selectedDoms is:', selectedDoms);
+        //     // selectedDoms.forEach(dom => {
+        //     //     dom.classList.add('selected');
+        //     // });
+        // });
 
         // let startX, startY;
 

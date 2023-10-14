@@ -1,6 +1,11 @@
 class ReturnBoxSelectedDom {
-  constructor(selectTypeArray, receptionDom) {
+  constructor(selectTypeArray, receptionDom, callFn) {
     let that = this;
+
+    if (callFn) {
+      callFn.bind(that);
+      this.callFn = callFn;
+    }
 
     const outlineColor = "blue";
     const fillColor = "blue";
@@ -90,6 +95,9 @@ class ReturnBoxSelectedDom {
 
     this.selectBox.style.display = "none";
     this.certainReceptionDom.dispatchEvent(that.selectedDomEvent);
+    if (this.callFn) {
+      this.callFn();
+    }
 
     this.certainReceptionDom.removeEventListener(
       "pointermove",
@@ -114,6 +122,9 @@ class ReturnBoxSelectedDom {
 
   dispose = () => {
     this.selectedDoms = null;
+    if (this.callFn) {
+      this.callFn = null;
+    }
     this.cancelBoxSelectedDom();
   };
 }

@@ -61,11 +61,10 @@
 // });
 // console.log(filterArrray);
 
-let intArray = new Int32Array(1);
+function test() {
+  if (this.scope) {
+    console.log(test.scope);
+  }
+}
 
-// 设置一个超出 32 位整数范围的值
-intArray[0] = 2147483647; // 等于 2^31
-// intArray[0]++;
-
-// intArray[0] 将会是 -2147483648
-console.log(intArray[0]); // 输出: -2147483648
+test.scope = "scope";
