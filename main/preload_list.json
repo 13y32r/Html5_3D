@@ -11,6 +11,10 @@
         "url": "../assist/DynamicCssFile.js",
         "inModule": true
     },
+    "ReturnBoxSelectedDom": {
+        "url": "../assist/ReturnBoxSelectedDom.js",
+        "inModule": true
+    },
     "OrbitControls": {
         "url": "../threeSrc/libs/OrbitControls_Editor.js",
         "inModule": true

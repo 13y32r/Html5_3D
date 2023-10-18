@@ -2882,11 +2882,16 @@ const KeyFrameState = {
 };
 
 class KeyframeButton extends UIDiv {
-  constructor(type) {
+  constructor(type, selfNumber, delCallFn) {
     super("KeyframeButton");
     let that = this;
 
+    that.delCallFn = delCallFn.bind(that);
+
     that.setClass("KeyframeButton");
+    if (selfNumber) {
+      that.setSelfNumber(selfNumber);
+    }
 
     that.selfType = type;
     that.state = KeyFrameState.Normal;
@@ -2904,6 +2909,31 @@ class KeyframeButton extends UIDiv {
     that.dom.addEventListener("pointerdown", that.pointerDown);
     globalInstances.addDomOutsiderEvent(that.dom, that.unSelected);
   }
+
+  setSelfNumber = (number) => {
+    let that = this;
+
+    that.selfNumber = number;
+  };
+
+  delSelf = () => {
+    let that = this;
+
+    that.delCallFn();
+    that.dispose();
+  };
+
+  dispose = () => {
+    let that = this;
+
+    that.delCallFn = null;
+    that.selfType = null;
+    that.state = null;
+    that.normalImg = null;
+    that.selectedImg = null;
+    that.dom.removeEventListener("pointerdown", that.pointerDown);
+    globalInstances.deleteDomOutsiderEvent(that.dom);
+  };
 
   pointerDown = (event) => {
     let that = this;
