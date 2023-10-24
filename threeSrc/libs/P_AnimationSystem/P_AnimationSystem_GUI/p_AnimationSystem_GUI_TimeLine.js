@@ -2489,8 +2489,8 @@ class P_AnimationSystem_GUI_TimeLine {
     that.calKeyFrameOfPromptLine(relPosition);
   };
 
-  //计算关键帧轴线应属于哪一个位置，并重置PromptLine的位置
-  calPromptLinePosition = (keyFrameValue) => {
+  //通过帧的值来计算该帧所在的像素位置
+  calPositionOfTheFrame = (keyFrameValue) => {
     let that = this;
 
     let suWidth;
@@ -2506,6 +2506,15 @@ class P_AnimationSystem_GUI_TimeLine {
       relPosition +
       40 -
       that.rightScrollContent.dom.offsetLeft;
+
+    return absolutePosition;
+  };
+
+  //计算关键帧轴线应属于哪一个位置，并重置PromptLine的位置
+  calPromptLinePosition = (keyFrameValue) => {
+    let that = this;
+
+    const absolutePosition = that.calPositionOfTheFrame(keyFrameValue);
 
     if (absolutePosition < 40) {
       that.promptLine.setDisplay("none");
