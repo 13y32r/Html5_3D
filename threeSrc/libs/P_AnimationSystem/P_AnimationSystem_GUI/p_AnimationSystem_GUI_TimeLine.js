@@ -911,10 +911,13 @@ const AvailableAniProps = [
 
 const THREE = globalInstances.getPreloadItem("THREE");
 
-//根据传入的属性名创建一个新的动画剪辑的关键帧轨道
-function createNewKeyframeTrackByAttributeName(attributeName) {
-  let track;
-
+//根据属性名为面板的当前剪辑属性对象“currentClipProps”添加一个新的属性
+function createNewKeyframeTrackByAttributeName(
+  attributeName,
+  currentObject,
+  lastKeyFrame,
+  currentClipProps
+) {
   let newTrackName;
   if (!attributeName.startsWith(".")) {
     newTrackName = "." + attributeName;
@@ -922,39 +925,80 @@ function createNewKeyframeTrackByAttributeName(attributeName) {
     newTrackName = attributeName;
   }
 
+  currentClipProps[attributeName].valueType = attributeName;
+  currentClipProps[attributeName].Keyframes = [0, lastKeyFrame];
+  let paramArray;
+
   switch (attributeName) {
     case "position":
-      track = new THREE.VectorKeyframeTrack(newTrackName, [0], [0, 0, 0]);
-      break;
     case "scale":
-    case "rotation": // Assuming rotation uses Vector3 type (Euler angles)
-      track = new THREE.VectorKeyframeTrack(newTrackName, [0], [0, 0, 0]);
+    case "rotation":
+      paramArray = [
+        [
+          currentObject[attributeName].x,
+          currentObject[attributeName].y,
+          currentObject[attributeName].z,
+        ],
+        [
+          currentObject[attributeName].x,
+          currentObject[attributeName].y,
+          currentObject[attributeName].z,
+        ],
+      ];
       break;
     case "quaternion":
-      track = new THREE.QuaternionKeyframeTrack(
-        newTrackName,
-        [0],
-        [0, 0, 0, 1]
-      );
+      paramArray = [
+        [
+          currentObject[attributeName].x,
+          currentObject[attributeName].y,
+          currentObject[attributeName].z,
+          currentObject[attributeName].w,
+        ],
+        [
+          currentObject[attributeName].x,
+          currentObject[attributeName].y,
+          currentObject[attributeName].z,
+          currentObject[attributeName].w,
+        ],
+      ];
       break;
     case "material.color":
-      track = new THREE.ColorKeyframeTrack(newTrackName, [0], [1, 1, 1]);
+      paramArray = [
+        [
+          currentObject.material.color.r,
+          currentObject.material.color.g,
+          currentObject.material.color.b,
+        ],
+        [
+          currentObject.material.color.r,
+          currentObject.material.color.g,
+          currentObject.material.color.b,
+        ],
+      ];
       break;
     case "material.opacity":
-      track = new THREE.NumberKeyframeTrack(newTrackName, [0], [0]);
+      paramArray = [
+        currentObject.material.opacity,
+        currentObject.material.opacity,
+      ];
       break;
     case "material.transparent":
+      paramArray = [
+        currentObject.material.transparent,
+        currentObject.material.transparent,
+      ];
+      break;
     case "castShadow":
     case "receiveShadow":
     case "visible":
-      track = new THREE.BooleanKeyframeTrack(newTrackName, [0], [true]);
+      paramArray = [currentObject[attributeName], currentObject[attributeName]];
       break;
     default:
       console.warn("Unknown attribute:", attributeName);
       break;
   }
 
-  return track;
+  currentClipProps[attributeName].values = paramArray;
 }
 
 class P_AnimationSystem_GUI_TimeLine {
@@ -1001,9 +1045,6 @@ class P_AnimationSystem_GUI_TimeLine {
     }
     //接收来自编辑器的信号
     that.signals = that.editor.signals;
-
-    //动画面板所编辑的动画对象
-    that.animatedObject = null;
 
     //展示的属性
     that.displayedProperties = [];
@@ -1502,7 +1543,7 @@ class P_AnimationSystem_GUI_TimeLine {
 
     that.addAttributePopupMenu = new AddAttributePopupMenu();
     let addAttributeList = AvailableAniProps.filter(
-      (item) => !that.currentClipProps.includes(item)
+      (item) => that.currentClipProps[item] === undefined
     );
 
     let options = [];
@@ -1544,8 +1585,14 @@ class P_AnimationSystem_GUI_TimeLine {
       return;
     }
     const newTrackName = event.detail.value;
+    const lastKeyFrame = that.animationClipMaxTime * that.sampleNumber;
 
-    const newTrack = createNewKeyframeTrackByAttributeName(newTrackName);
+    const newTrack = createNewKeyframeTrackByAttributeName(
+      newTrackName,
+      that.object,
+      lastKeyFrame,
+      that.currentClipProps
+    );
     that.animationClip.tracks.push(newTrack);
 
     that.insertAttributeCell(newTrack);
@@ -2160,6 +2207,51 @@ class P_AnimationSystem_GUI_TimeLine {
     }
   };
 
+  //将关键帧轨道转化并添加为面板的当前剪辑的动画属性对象“currentClipProps”
+  trackToCurrentClipProps = (track) => {
+    let that = this;
+
+    const attrName = track.name.slice(1);
+
+    that.currentClipProps[attrName] = {};
+    const valueType = track.ValueTypeName;
+    that.currentClipProps[attrName].valueType = valueType;
+    that.currentClipProps[attrName].Keyframes = track.times.map(
+      (item) => item * that.sampleNumber
+    );
+
+    //这里根据valueType的不同，来设置不同来设置currentClipProps属性对象的values数组的维度
+    let dimParam;
+    that.currentClipProps[attrName].values = [];
+
+    switch (valueType) {
+      case "vector":
+      case "color":
+        dimParam = 3;
+        break;
+      case "quaternion":
+        dimParam = 4;
+        break;
+      default:
+        dimParam = 1;
+        break;
+    }
+    if (dimParam != 1) {
+      for (let i = 0; i < track.values.length; i += dimParam) {
+        that.currentClipProps[attrName].values.push(
+          track.values.slice(i, i + dimParam)
+        );
+      }
+    } else {
+      that.currentClipProps[attrName].values = [...track.values];
+    }
+  };
+
+  //将面板的当前剪辑的动画属性对象“currentClipProps”里的所有属性转化为关键帧轨道并添加到当前动画剪辑里
+  currentClipPropsToAnimationClip = () => {
+    let that = this;
+  };
+
   //插入AttributeCell元素
   insertAttributeCell = (track, locationIndex) => {
     let that = this;
@@ -2171,10 +2263,11 @@ class P_AnimationSystem_GUI_TimeLine {
       cellID = that.objAttributeShowArea.cellsArray.length;
     }
 
-    let objName = that.object.name;
-    let attrName = track.name.slice(1);
-    that.currentClipProps.push(attrName);
-    let valueType = track.ValueTypeName;
+    const objName = that.object.name;
+    const attrName = track.name.slice(1);
+    const valueType = track.ValueTypeName;
+
+    that.trackToCurrentClipProps(track);
 
     let isOdd = !(cellID % 2);
 
@@ -2321,7 +2414,7 @@ class P_AnimationSystem_GUI_TimeLine {
     that.initFrameBar(that.animationClipMaxTime);
 
     //创建当前剪辑已有的动画属性
-    that.currentClipProps = [];
+    that.currentClipProps = {};
 
     that.objAttributeShowArea.cellsArray.length = 0;
     that.objAttributeShowArea.clear();

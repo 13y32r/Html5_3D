@@ -68,3 +68,7 @@ function test() {
 }
 
 test.scope = "scope";
+
+let test2 = {};
+test2["hello"].type = "type";
+console.log(test2);
