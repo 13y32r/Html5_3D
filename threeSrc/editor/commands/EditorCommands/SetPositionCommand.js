@@ -16,7 +16,7 @@ class SetPositionCommand extends Command {
     this.name = "Set Position";
     this.updatable = true;
 
-    this.objects = objects;
+    this.objects = [...objects];
 
     this.oldPositions = new Array();
     this.newPositions = new Array();

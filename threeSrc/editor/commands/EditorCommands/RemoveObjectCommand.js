@@ -16,10 +16,8 @@ class RemoveObjectCommand extends Command {
     this.type = "RemoveObjectCommand";
     this.name = "Remove Object";
 
-    this.objects = new Array();
-    for (let i = 0; i < objects.length; i++) {
-      this.objects[i] = objects[i];
-    }
+    this.objects = [...objects];
+
     this.indexs = new Array();
     this.parents = new Array();
 

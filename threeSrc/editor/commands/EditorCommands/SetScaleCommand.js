@@ -16,7 +16,7 @@ class SetScaleCommand extends Command {
     this.name = "Set Scale";
     this.updatable = true;
 
-    this.objects = objects;
+    this.objects = [...objects];
 
     this.oldScales = new Array();
     this.newScales = new Array();

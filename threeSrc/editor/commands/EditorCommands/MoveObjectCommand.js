@@ -17,12 +17,12 @@ class MoveObjectCommand extends Command {
     this.type = "MoveObjectCommand";
     this.name = "Move Object";
 
-    this.objects = objects;
+    this.objects = [...objects];
 
     this.oldParents = new Array();
-    for (let i = 0; i < objects.length; i++) {
+    for (let i = 0; i < that.objects.length; i++) {
       that.oldParents[i] =
-        objects[i] !== undefined ? objects[i].parent : undefined;
+        that.objects[i] !== undefined ? that.objects[i].parent : undefined;
     }
 
     this.oldIndexs = new Array();
@@ -58,7 +58,7 @@ class MoveObjectCommand extends Command {
     this.newBefore = newBefore;
   }
 
-  execute() {
+  execute = () => {
     let that = this;
 
     for (let i = 0; i < that.oldParents.length; i++) {
@@ -89,63 +89,68 @@ class MoveObjectCommand extends Command {
     }
 
     this.editor.signals.sceneGraphChanged.dispatch();
-  }
+  };
 
-  undo() {
-    this.newParent.remove(this.objects);
-    if (this.newParent.type != "Scene") {
-      let outMatrix = new Matrix4();
-      outMatrix.copy(this.newParent.matrixWorld);
-      this.objects.matrix.premultiply(outMatrix);
+  undo = () => {
+    let that = this;
+
+    for (let i = 0; i < that.objects.length; i++) {
+      that.newParent.remove(that.objects[i]);
+      if (that.newParent.type != "Scene") {
+        let outMatrix = new Matrix4();
+        outMatrix.copy(that.newParent.matrixWorld);
+        that.objects[i].matrix.premultiply(outMatrix);
+      }
+
+      const children = that.oldParents[i].children;
+      children.splice(that.oldIndexs[i], 0, that.objects[i]);
+      that.objects[i].parent = that.oldParents[i];
+      let inMatrix = new Matrix4();
+      inMatrix.copy(that.oldParents[i].matrixWorld);
+      inMatrix.invert();
+      that.objects[i].matrix.premultiply(inMatrix);
+      that.objects[i].matrix.decompose(
+        that.objects[i].position,
+        that.objects[i].quaternion,
+        that.objects[i].scale
+      );
+
+      that.objects[i].dispatchEvent({ type: "added" });
     }
 
-    const children = this.oldParent.children;
-    children.splice(this.oldIndex, 0, this.objects);
-    this.objects.parent = this.oldParent;
-    let inMatrix = new Matrix4();
-    inMatrix.copy(this.oldParent.matrixWorld);
-    inMatrix.invert();
-    this.objects.matrix.premultiply(inMatrix);
-    this.objects.matrix.decompose(
-      this.objects.position,
-      this.objects.quaternion,
-      this.objects.scale
-    );
+    that.editor.signals.sceneGraphChanged.dispatch();
+  };
 
-    this.objects.dispatchEvent({ type: "added" });
-    this.editor.signals.sceneGraphChanged.dispatch();
-  }
+  // toJSON = () => {
+  //   const output = super.toJSON(this);
 
-  toJSON() {
-    const output = super.toJSON(this);
+  //   output.objectUuid = this.objects.uuid;
+  //   output.newParentUuid = this.newParent.uuid;
+  //   output.oldParentUuid = this.oldParents.uuid;
+  //   output.newIndex = this.newIndex;
+  //   output.oldIndex = this.oldIndex;
 
-    output.objectUuid = this.objects.uuid;
-    output.newParentUuid = this.newParent.uuid;
-    output.oldParentUuid = this.oldParent.uuid;
-    output.newIndex = this.newIndex;
-    output.oldIndex = this.oldIndex;
+  //   return output;
+  // };
 
-    return output;
-  }
+  // fromJSON = (json) => {
+  //   super.fromJSON(json);
 
-  fromJSON(json) {
-    super.fromJSON(json);
+  //   this.objects = this.editor.objectByUuid(json.objectUuid);
+  //   this.oldParents = this.editor.objectByUuid(json.oldParentUuid);
+  //   if (this.oldParents === undefined) {
+  //     this.oldParents = this.editor.scene;
+  //   }
 
-    this.objects = this.editor.objectByUuid(json.objectUuid);
-    this.oldParent = this.editor.objectByUuid(json.oldParentUuid);
-    if (this.oldParent === undefined) {
-      this.oldParent = this.editor.scene;
-    }
+  //   this.newParent = this.editor.objectByUuid(json.newParentUuid);
 
-    this.newParent = this.editor.objectByUuid(json.newParentUuid);
+  //   if (this.newParent === undefined) {
+  //     this.newParent = this.editor.scene;
+  //   }
 
-    if (this.newParent === undefined) {
-      this.newParent = this.editor.scene;
-    }
-
-    this.newIndex = json.newIndex;
-    this.oldIndex = json.oldIndex;
-  }
+  //   this.newIndex = json.newIndex;
+  //   this.oldIndex = json.oldIndex;
+  // };
 }
 
 export { MoveObjectCommand };

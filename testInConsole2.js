@@ -61,14 +61,26 @@
 // });
 // console.log(filterArrray);
 
-function test() {
-  if (this.scope) {
-    console.log(test.scope);
-  }
-}
+// function test() {
+//   if (this.scope) {
+//     console.log(test.scope);
+//   }
+// }
 
-test.scope = "scope";
+// test.scope = "scope";
 
-let test2 = {};
-test2["hello"].type = "type";
-console.log(test2);
+// let test2 = {};
+// test2["hello"].type = "type";
+// console.log(test2);
+
+let obj1 = { name: "obj1" };
+let obj2 = { name: "obj2" };
+let obj3 = { name: "obj3" };
+let obj4 = { name: "obj4" };
+let obj5 = { name: "obj5" };
+
+let objArray = [obj1, obj2];
+let objBox = [...objArray];
+objArray = [obj3, obj4];
+console.log(objBox);
+console.log(objArray);

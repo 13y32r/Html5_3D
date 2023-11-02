@@ -18,7 +18,7 @@ class SetRotationCommand extends Command {
     this.name = "Set Rotation";
     this.updatable = true;
 
-    this.objects = objects;
+    this.objects = [...objects];
 
     this.oldRotations = new Array();
     this.newRotations = new Array();
