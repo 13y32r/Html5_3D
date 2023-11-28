@@ -956,9 +956,6 @@ class P_AnimationSystem_GUI_TimeLine {
     //接收来自编辑器的信号
     that.signals = that.editor.signals;
 
-    //展示的属性
-    that.displayedProperties = [];
-
     //时间轴的最小单位，默认是“秒”
     that.myUnitType = UnitType.Second;
 
@@ -2026,6 +2023,9 @@ class P_AnimationSystem_GUI_TimeLine {
   updateAnimationClip = (animationClip) => {
     let that = this;
 
+    //显示的所有关键帧按钮对象的集合
+    that.totalKeyframeBtns = {};
+
     that.animationClip = animationClip;
     that.updateAttributeParam();
   };
@@ -2299,6 +2299,7 @@ class P_AnimationSystem_GUI_TimeLine {
     );
   };
 
+  //属性栏前面那个卷展按钮的触发事件
   attributeCellRollButtonEvent = (event) => {
     let that = this;
 
@@ -2908,6 +2909,9 @@ class P_AnimationSystem_GUI_TimeLine {
     that.calPromptLinePosition(that.keyPosition);
   };
 
+  //在时间条上添加关键帧按钮对象
+  addKeyframeBtnToTheTimeBar = (keyframeBtn) => {};
+
   //添加竖向的刻度线到事件竖向元素内容的背景显示区域
   addTickMarksEventColumnCellsContentBackgroundShowArea = (
     preDistance,
@@ -2982,8 +2986,11 @@ const KeyFrameState = {
 };
 
 class KeyframeButton extends UIDiv {
-  constructor(type, selfNumber, delCallFn) {
+  constructor(selfNumber, normalImg, selectedImg, delCallFn) {
     super("KeyframeButton");
+    if (new.target === KeyframeButton) {
+      throw new Error("Cannot instantiate KeyframeButton");
+    }
     let that = this;
 
     that.delCallFn = delCallFn.bind(that);
@@ -2993,20 +3000,15 @@ class KeyframeButton extends UIDiv {
       that.setSelfNumber(selfNumber);
     }
 
-    that.selfType = type;
     that.state = KeyFrameState.Normal;
 
-    if (that.selfType == KeyframeType.Total) {
-      that.normalImg = "url(/menuGUI/img/allKeyButton_Normal.png)";
-      that.selectedImg = "url(/menuGUI/img/allKeyButton_Selected.png)";
-    } else {
-      that.normalImg = "url(/menuGUI/img/cellKeyButton_Normal.png)";
-      that.selectedImg = "url(/menuGUI/img/cellKeyButton_Selected.png)";
-    }
+    that.normalImg = normalImg;
+    that.selectedImg = selectedImg;
 
     that.setBackgroundImage(that.normalImg);
 
     that.dom.addEventListener("pointerdown", that.pointerDown);
+    that.dom.addEventListener("pointerup", that.pointerUp);
     globalInstances.addDomOutsiderEvent(that.dom, that.unSelected);
   }
 
@@ -3027,7 +3029,6 @@ class KeyframeButton extends UIDiv {
     let that = this;
 
     that.delCallFn = null;
-    that.selfType = null;
     that.state = null;
     that.normalImg = null;
     that.selectedImg = null;
@@ -3040,8 +3041,19 @@ class KeyframeButton extends UIDiv {
 
     if (event.button == 0) {
       that.selected();
+      that.dom.addEventListener("pointermove", that.move);
     }
   };
+
+  pointerUp = (event) => {
+    let that = this;
+
+    if (event.button == 0) {
+      that.dom.removeEventListener("pointermove", that.move);
+    }
+  };
+
+  move = (event) => {};
 
   selected = () => {
     let that = this;
@@ -3056,6 +3068,49 @@ class KeyframeButton extends UIDiv {
     that.state = KeyFrameState.Normal;
     that.setBackgroundImage(that.normalImg);
   };
+}
+
+class TotalKeyframeBtn extends KeyframeButton {
+  constructor(selfNumber, delCallFn) {
+    super(
+      selfNumber,
+      "url(/menuGUI/img/allKeyButton_Normal.png)",
+      "url(/menuGUI/img/allKeyButton_Selected.png)",
+      delCallFn
+    );
+    let that = this;
+
+    that.subButtons = [];
+  }
+}
+
+class AttrRollKeyframeBtn extends KeyframeButton {
+  constructor(selfNumber, delCallFn) {
+    super(
+      selfNumber,
+      "url(/menuGUI/img/cellKeyButton_Normal.png)",
+      "url(/menuGUI/img/cellKeyButton_Selected.png)",
+      delCallFn
+    );
+    let that = this;
+
+    that.totalButton = null;
+    that.subButtons = [];
+  }
+}
+
+class AttrCellKeyframeBtn extends KeyframeButton {
+  constructor(selfNumber, delCallFn) {
+    super(
+      selfNumber,
+      "url(/menuGUI/img/cellKeyButton_Normal.png)",
+      "url(/menuGUI/img/cellKeyButton_Selected.png)",
+      delCallFn
+    );
+    let that = this;
+
+    that.parentButton = null;
+  }
 }
 
 class AddPropertyButton extends UIElement {

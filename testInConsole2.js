@@ -73,14 +73,33 @@
 // test2["hello"].type = "type";
 // console.log(test2);
 
-let obj1 = { name: "obj1" };
-let obj2 = { name: "obj2" };
-let obj3 = { name: "obj3" };
-let obj4 = { name: "obj4" };
-let obj5 = { name: "obj5" };
+// let object = { myMap: new Map() };
 
-let objArray = [obj1, obj2];
-let objBox = [...objArray];
-objArray = [obj3, obj4];
-console.log(objBox);
-console.log(objArray);
+// let mapKeyObject = { key: "key" };
+// object.myMap.set(mapKeyObject, "world");
+// console.log(object.myMap.get(mapKeyObject));
+
+class FatherClass {
+  constructor(backImage) {
+    this.backImage = backImage;
+  }
+
+  showMyBackImage = () => {
+    console.log(this.backImage);
+  };
+}
+
+class ChildClass extends FatherClass {
+  constructor() {
+    super("backImage from child");
+  }
+}
+
+let initFatherClass = new FatherClass("backImage from father");
+
+let initChildClass = new ChildClass();
+initChildClass.showMyBackImage();
+
+console.log(initFatherClass instanceof FatherClass);
+console.log(initFatherClass instanceof ChildClass);
+console.log(initChildClass instanceof FatherClass);

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Move test</title>
+</head>
+
+<body>
+    <moveParent
+        style="width: 800px;height: 600px;background-color: chocolate;display: flex;position: absolute;left: 200px;top: 100px;">
+        <moveChild style="width: 100px;height: 100px;background-color: aqua;display: flex; position: relative;">
+        </moveChild>
+    </moveParent>
+</body>
+<script>
+    let moveNode = document.querySelector('moveChild');
+    moveNode.addEventListener("pointermove", function (e) {
+        const parentRect = this.parentNode.getBoundingClientRect();
+
+        // 计算相对于元素上一级节点的坐标
+        const x = event.clientX - parentRect.left;
+        const y = event.clientY - parentRect.top;
+
+        console.log('x:', x, 'y:', y);
+        moveNode.style.left = x + 'px';
+        moveNode.style.top = y + 'px';
+    })
+</script>
+
+</html>
