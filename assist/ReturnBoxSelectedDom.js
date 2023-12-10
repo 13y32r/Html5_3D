@@ -7,8 +7,8 @@ class ReturnBoxSelectedDom {
       this.callFn = callFn;
     }
 
-    const outlineColor = "blue";
-    const fillColor = "blue";
+    const outlineColor = "rgba(80,130,185,0.8)";
+    const fillColor = "rgba(80,130,185,0.2)";
 
     this.startX, this.startY;
     this.selectBox;
@@ -25,8 +25,8 @@ class ReturnBoxSelectedDom {
     this.selectBox.style.position = "absolute";
     this.selectBox.style.border = "1px solid " + outlineColor;
     this.selectBox.style.backgroundColor = fillColor;
-    this.selectBox.style.opacity = "0.2";
     this.selectBox.style.pointerEvents = "none";
+    this.selectBox.style.zIndex = "999";
 
     this.certainReceptionDom = receptionDom || document.body;
     this.certainReceptionDom.appendChild(that.selectBox);
@@ -42,11 +42,21 @@ class ReturnBoxSelectedDom {
     });
   }
 
+  getRelativeMousePosition = (event) => {
+    var rect = this.certainReceptionDom.getBoundingClientRect();
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+  };
+
   selectAreaMouseDown = (e) => {
     let that = this;
 
-    this.startX = e.clientX;
-    this.startY = e.clientY;
+    const relativeMousePosition = that.getRelativeMousePosition(e);
+
+    this.startX = relativeMousePosition.x;
+    this.startY = relativeMousePosition.y;
     this.selectBox.style.left = this.startX + "px";
     this.selectBox.style.top = this.startY + "px";
     this.selectBox.style.width = "0px";
@@ -63,12 +73,17 @@ class ReturnBoxSelectedDom {
   selectAreaMouseMove = (e) => {
     let that = this;
 
-    const width = e.clientX - this.startX;
-    const height = e.clientY - this.startY;
+    const relativeMousePosition = that.getRelativeMousePosition(e);
+
+    const width = relativeMousePosition.x - this.startX;
+    const height = relativeMousePosition.y - this.startY;
+
     this.selectBox.style.width = Math.abs(width) + "px";
     this.selectBox.style.height = Math.abs(height) + "px";
-    this.selectBox.style.left = (width > 0 ? that.startX : e.clientX) + "px";
-    this.selectBox.style.top = (height > 0 ? that.startY : e.clientY) + "px";
+    this.selectBox.style.left =
+      (width > 0 ? that.startX : relativeMousePosition.x) + "px";
+    this.selectBox.style.top =
+      (height > 0 ? that.startY : relativeMousePosition.y) + "px";
   };
 
   selectAreaMouseUp = (e) => {
@@ -80,7 +95,7 @@ class ReturnBoxSelectedDom {
     this.selectedDoms.length = 0;
     targetDoms.forEach((targetDom) => {
       const boxRect = targetDom.getBoundingClientRect();
-      const selectRect = this.selectBox.getBoundingClientRect();
+      const selectRect = that.selectBox.getBoundingClientRect();
       if (
         boxRect.left > selectRect.left &&
         boxRect.right < selectRect.right &&
@@ -113,6 +128,12 @@ class ReturnBoxSelectedDom {
       "pointerdown",
       that.selectAreaMouseDown
     );
+    this.certainReceptionDom.removeEventListener(
+      "pointermove",
+      that.selectAreaMouseMove
+    );
+    document.removeEventListener("pointerup", that.selectAreaMouseUp);
+
     this.certainReceptionDom.removeChild(that.selectBox);
     this.certainReceptionDom = null;
     this.selectBox = null;
@@ -121,11 +142,11 @@ class ReturnBoxSelectedDom {
   };
 
   dispose = () => {
-    this.selectedDoms = null;
     if (this.callFn) {
       this.callFn = null;
     }
     this.cancelBoxSelectedDom();
+    this.selectedDoms = null;
   };
 }
 

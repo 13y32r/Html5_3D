@@ -2405,6 +2405,21 @@ class P_AnimationSystem_GUI_TimeLine {
 
     const animationClip = that.animationClip;
 
+    //重置或初始化动画面板当前选中的属性单元
+    that.curSelAttrCells = [];
+    //重置或初始化动画面板当前选中的关键帧按钮
+    that.curSelKeyBtns = [];
+    //判断关键帧选择器是否已经被创建，如果已经创建，则销毁原有的关键帧选择器
+    if ("keyframeSelector" in that) {
+      that.keyframeSelector.dispose();
+      that.keyframeSelector = null;
+      console.log("that.keyframeSelector已销毁");
+    }
+    that.keyframeSelector = new globalInstances.preloadItems[
+      "ReturnBoxSelectedDom"
+    ](["#box1", "#box2"], that.eventColumnCells_Content.dom, getSelectedDoms);
+    function getSelectedDoms() {}
+
     //这里获取动画剪辑的最大动画时间，并刷新时间轴。
     that.animationClipMaxTime = animationClip.duration;
     that.initFrameBar(that.animationClipMaxTime);

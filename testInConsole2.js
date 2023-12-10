@@ -79,27 +79,40 @@
 // object.myMap.set(mapKeyObject, "world");
 // console.log(object.myMap.get(mapKeyObject));
 
-class FatherClass {
-  constructor(backImage) {
-    this.backImage = backImage;
-  }
+// class FatherClass {
+//   constructor(backImage) {
+//     this.backImage = backImage;
+//   }
 
-  showMyBackImage = () => {
-    console.log(this.backImage);
-  };
-}
+//   showMyBackImage = () => {
+//     console.log(this.backImage);
+//   };
+// }
 
-class ChildClass extends FatherClass {
-  constructor() {
-    super("backImage from child");
-  }
-}
+// class ChildClass extends FatherClass {
+//   constructor() {
+//     super("backImage from child");
+//   }
+// }
 
-let initFatherClass = new FatherClass("backImage from father");
+// let initFatherClass = new FatherClass("backImage from father");
 
-let initChildClass = new ChildClass();
-initChildClass.showMyBackImage();
+// let initChildClass = new ChildClass();
+// initChildClass.showMyBackImage();
 
-console.log(initFatherClass instanceof FatherClass);
-console.log(initFatherClass instanceof ChildClass);
-console.log(initChildClass instanceof FatherClass);
+// console.log(initFatherClass instanceof FatherClass);
+// console.log(initFatherClass instanceof ChildClass);
+// console.log(initChildClass instanceof FatherClass);
+
+let testObject = {
+  name: "testObject",
+  sayHello: function () {
+    console.log("hello");
+  },
+  detectAttribute: function () {
+    console.log("something" in this);
+    console.log("name" in this);
+  },
+};
+
+testObject.detectAttribute();
