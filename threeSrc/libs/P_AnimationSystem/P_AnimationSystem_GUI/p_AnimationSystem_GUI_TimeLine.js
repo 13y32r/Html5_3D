@@ -544,6 +544,11 @@ class AttributeCell extends UIDiv {
       that.setBackgroundColor("#3f3f3f");
     }
 
+    that.dom.addEventListener("contextmenu", function (event) {
+      event.preventDefault();
+      console.log("AttributeCell contextmenu.");
+    });
+
     that.isRoll = null;
     that.paramArray = [];
 
@@ -564,6 +569,10 @@ class AttributeCell extends UIDiv {
 
     let showName;
     that.promptBar = new AttributeCellPromptBar(that);
+    that.promptBar.dom.addEventListener("contextmenu", function (event) {
+      event.preventDefault();
+      console.log("AttributeCellPromptBar contextmenu.");
+    });
 
     that.setValueObj = null;
 
@@ -2409,6 +2418,8 @@ class P_AnimationSystem_GUI_TimeLine {
     that.curSelAttrCells = [];
     //重置或初始化动画面板当前选中的关键帧按钮
     that.curSelKeyBtns = [];
+    //totalKeyframeBtns格式是{"所在的帧":"该帧下唯一的一个TotalKeyframeBtn对象按钮"}，它存储了当前剪辑下所有的TotalKeyframeBtn对象
+    that.totalKeyframeBtns = {};
     //判断关键帧选择器是否已经被创建，如果已经创建，则销毁原有的关键帧选择器
     if ("keyframeSelector" in that) {
       that.keyframeSelector.dispose();
