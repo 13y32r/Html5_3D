@@ -71,7 +71,7 @@ class DownModel {
     // this.editor.addObject([loadObject], [that.editor.scene]);
   }
 
-  stop() {}
+  stop() { }
 }
 
 export { DownModel };

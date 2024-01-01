@@ -88,8 +88,8 @@ class AddResizerHandle {
       clientX < offsetX + that.minLeftMargin
         ? offsetX + that.minLeftMargin
         : clientX > offsetWidth + offsetX - that.maxRightMargin
-        ? offsetWidth + offsetX - that.maxRightMargin
-        : clientX;
+          ? offsetWidth + offsetX - that.maxRightMargin
+          : clientX;
 
     const x = cX - that.rootDom.offsetLeft;
 
@@ -357,6 +357,12 @@ class RollButton extends UIElement {
     that.dom.addEventListener("pointerup", that.triggerFun);
   }
 
+  dispose = () => {
+    let that = this;
+
+    that.dom.removeEventListener("pointerup", that.triggerFun);
+  };
+
   triggerFun = () => {
     let that = this;
     that.isExpand = !that.isExpand;
@@ -409,6 +415,20 @@ class AttributeCellLastButton extends UIDiv {
     });
   }
 
+  dispose = () => {
+    let that = this;
+
+    that.removePopupMenu();
+    that.dom.onpointerover = null;
+    that.dom.onpointerout = null;
+    that.dom.onpointerdown = null;
+
+    that.animationPanel.dom.removeEventListener(
+      "animationPanelControlStateChanged",
+      that.updateAnimationPanelState
+    );
+  };
+
   addPopupMenu = () => {
     let that = this;
 
@@ -449,6 +469,7 @@ class AttributeCellLastButton extends UIDiv {
       "popupMenuOptionDown",
       that.resPopupMenu
     );
+    that.popupMenu.dispose();
     that.popupMenu = null;
   };
 
@@ -547,6 +568,9 @@ class AttributeCell extends UIDiv {
     that.dom.addEventListener("contextmenu", function (event) {
       event.preventDefault();
       console.log("AttributeCell contextmenu.");
+      if (that.fatherCell != null || that.fatherCell != undefined) {
+        console.log(that.fatherCell);
+      }
     });
 
     that.isRoll = null;
@@ -669,6 +693,10 @@ class AttributeCell extends UIDiv {
           );
         }
 
+        for (let i = 0; i < that.paramArray.length; i++) {
+          that.paramArray[i].fatherCell = that;
+        }
+
         that.setValueObj = that.placeholderBeforeTheLastButton;
       } else {
         showName = attName + "." + paramName;
@@ -726,6 +754,37 @@ class AttributeCell extends UIDiv {
     );
   }
 
+  dispose = () => {
+    let that = this;
+
+    if (that.isRoll) {
+      for (let i = 0; i < that.paramArray.length; i++) {
+        that.paramArray[i].dispose();
+        that.paramArray[i] = null;
+      }
+      that.rollButton.dispose();
+      that.rollButton = null;
+    } else {
+      that.rollButton_PlaceHolder = null;
+    }
+
+    that.symbolLogo = null;
+    that.label = null;
+    that.setKeyFrameValueArea = null;
+    that.placeholderBeforeTheLastButton = null;
+    that.lastButton.dispose();
+    that.lastButton = null;
+    that.setValueObj = null;
+    that.dom.onpointerover = null;
+    that.dom.onpointerout = null;
+    that.dom.onpointerdown = null;
+
+    that.animationPanel.dom.removeEventListener(
+      "animationPanelControlStateChanged",
+      that.animationPanelControlStateChanged
+    );
+  };
+
   animationPanelControlStateChanged = (event) => {
     let that = this;
     let state = event.detail.state;
@@ -772,6 +831,7 @@ class AttributeCell extends UIDiv {
 
   elementActive = () => {
     let that = this;
+    that.myActiveState = true;
     that.setBackgroundColor("#3e5f96");
     that.lastBackgroundColor = that.dom.style.backgroundColor;
 
@@ -792,6 +852,7 @@ class AttributeCell extends UIDiv {
 
   elementNoActive = () => {
     let that = this;
+    that.myActiveState = false;
     if (!that.isOdd) {
       that.setBackgroundColor("#3f3f3f");
     } else {
@@ -2308,6 +2369,31 @@ class P_AnimationSystem_GUI_TimeLine {
     );
   };
 
+  //删除AttributeCell元素
+  removeAttributeCell = (attributeName) => {
+    let that = this;
+
+    let cellID = that.objAttributeShowArea.cellsArray.findIndex(
+      (item) => item.attributeName == attributeName
+    );
+
+    let cell = that.objAttributeShowArea.cellsArray[cellID];
+
+    if (cell.fatherCell != null || cell.fatherCell != undefined) {
+      cell.fatherCell.dispose();
+    }
+
+    that.objAttributeShowArea.remove(cell);
+    that.eventUnitRowsScrollArea.remove(cell.promptBar);
+
+    cell.dom.removeEventListener(
+      "attrCellPointerDown",
+      that.allAttributeCellNoActive
+    );
+
+    that.objAttributeShowArea.cellsArray.splice(cellID, 1);
+  };
+
   //属性栏前面那个卷展按钮的触发事件
   attributeCellRollButtonEvent = (event) => {
     let that = this;
@@ -2408,6 +2494,16 @@ class P_AnimationSystem_GUI_TimeLine {
     return attrName;
   };
 
+  getSelectedKeyframeBtns = (event) => {
+    let that = this;
+
+    let selectDoms = event.detail;
+    if (selectDoms.length != 0) {
+      that.curSelKeyBtns = selectDoms.map(item => item.initObject);
+    }
+    console.log("selectDoms:", selectDoms);
+  };
+
   //更新影片剪辑的属性参数
   updateAttributeParam = () => {
     let that = this;
@@ -2422,14 +2518,14 @@ class P_AnimationSystem_GUI_TimeLine {
     that.totalKeyframeBtns = {};
     //判断关键帧选择器是否已经被创建，如果已经创建，则销毁原有的关键帧选择器
     if ("keyframeSelector" in that) {
+      that.eventColumnCells_Content.dom.removeEventListener("SelectedDoms", that.getSelectedKeyframeBtns);
       that.keyframeSelector.dispose();
       that.keyframeSelector = null;
-      console.log("that.keyframeSelector已销毁");
     }
     that.keyframeSelector = new globalInstances.preloadItems[
       "ReturnBoxSelectedDom"
-    ](["#box1", "#box2"], that.eventColumnCells_Content.dom, getSelectedDoms);
-    function getSelectedDoms() {}
+    ](["#box1", "#box2"], that.eventColumnCells_Content.dom);
+    that.eventColumnCells_Content.dom.addEventListener("SelectedDoms", that.getSelectedKeyframeBtns);
 
     //这里获取动画剪辑的最大动画时间，并刷新时间轴。
     that.animationClipMaxTime = animationClip.duration;
@@ -2784,12 +2880,12 @@ class P_AnimationSystem_GUI_TimeLine {
       let offsetWidth = 40 - rightScrollContentScrollLeft;
       areaShowNumber = Math.floor(
         ((rightScrollContainerOffsetWidth - offsetWidth) * that.secondUnit) /
-          that.secondUnitWidth
+        that.secondUnitWidth
       );
     } else {
       areaShowNumber = Math.floor(
         (rightScrollContainerOffsetWidth * that.secondUnit) /
-          that.secondUnitWidth
+        that.secondUnitWidth
       );
     }
 
@@ -2878,12 +2974,12 @@ class P_AnimationSystem_GUI_TimeLine {
         let offsetWidth = 40 - rightScrollContentScrollLeft;
         minuteShowNumber = Math.floor(
           ((rightScrollContainerOffsetWidth - offsetWidth) * that.minuteUnit) /
-            that.minuteUnitWidth
+          that.minuteUnitWidth
         );
       } else {
         minuteShowNumber = Math.floor(
           (rightScrollContainerOffsetWidth * that.minuteUnit) /
-            that.minuteUnitWidth
+          that.minuteUnitWidth
         );
       }
 
@@ -2936,7 +3032,7 @@ class P_AnimationSystem_GUI_TimeLine {
   };
 
   //在时间条上添加关键帧按钮对象
-  addKeyframeBtnToTheTimeBar = (keyframeBtn) => {};
+  addKeyframeBtnToTheTimeBar = (keyframeBtn) => { };
 
   //添加竖向的刻度线到事件竖向元素内容的背景显示区域
   addTickMarksEventColumnCellsContentBackgroundShowArea = (
@@ -3018,6 +3114,7 @@ class KeyframeButton extends UIDiv {
       throw new Error("Cannot instantiate KeyframeButton");
     }
     let that = this;
+    that.dom.initObject = that;
 
     that.delCallFn = delCallFn.bind(that);
 
@@ -3079,7 +3176,7 @@ class KeyframeButton extends UIDiv {
     }
   };
 
-  move = (event) => {};
+  move = (event) => { };
 
   selected = () => {
     let that = this;

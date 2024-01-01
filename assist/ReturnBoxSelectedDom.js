@@ -111,7 +111,7 @@ class ReturnBoxSelectedDom {
     this.selectBox.style.display = "none";
     this.certainReceptionDom.dispatchEvent(that.selectedDomEvent);
     if (this.callFn) {
-      this.callFn();
+      this.callFn(that.selectedDoms);
     }
 
     this.certainReceptionDom.removeEventListener(

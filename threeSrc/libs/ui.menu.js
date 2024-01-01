@@ -1322,14 +1322,16 @@ class PopupMenu extends UIDiv {
         );
         that.options[i].dispose();
       }
+      that.options.length = 0;
+      that.options = null;
     }
 
     globalInstances.deleteDomOutsiderEvent(that.dom);
-    document.body.removeChild(that.dom);
+    if (document.body.contains(that.dom)) {
+      document.body.removeChild(that.dom);
+    }
 
     that.selectedID = null;
-    that.options.length = 0;
-    that.options = null;
   };
 
   setOptions(options) {

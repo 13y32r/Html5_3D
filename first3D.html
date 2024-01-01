@@ -33,6 +33,7 @@
     <!--引入tweenjs.min.js缓动动画代码-->
     <script src="./threeSrc/libs/Tween.js"></script>
     <script src="./threeSrc/libs/html2canvas.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three-csg@1.0.2/dist/three-csg.min.js"></script>
 </head>
 
 <body>
@@ -47,7 +48,7 @@
         }
     </script>
     <!--这里做一个gui的测试区域-->
-    <script>
+    <!-- <script>
         var material;
         var judgeClipInter = true;
         var testObj = {
@@ -75,10 +76,10 @@
         f2.add(testObj, "z").name('打老虎');
         f2.addColor(testObj, "color").name('今晚打老虎');
         f2.open();
-    </script>
+    </script> -->
 
     <!-- <button style="position: absolute;top: 150px;left: 150px;">高大上</button> -->
-    <script type="module">
+    <!-- <script type="module">
         // import { } from "./threeSrc/libs/html2canvas.js";
         import * as THREE from "./threeSrc/three.module.js";
         import { OrbitControls } from "./threeSrc/libs/OrbitControls.js";
@@ -823,10 +824,10 @@
                 document.onmousemove = null;
             }
         }
-    </script>
+    </script> -->
 
     <!-- 补间动画测试 -->
-    <script>
+    <!-- <script>
         (function () {
             let position = { y: 1 };
 
@@ -873,9 +874,80 @@
             // }
             // requestAnimationFrame(animate)
         })()
+    </script> -->
+    <script type="module">
+        import * as THREE from 'three';
+
+        function createWrench() {
+            // 定义扳手的轮廓
+            const shape = new THREE.Shape();
+            shape.moveTo(0, 0);
+            shape.lineTo(0, 20);
+            shape.lineTo(180, 20);
+            shape.lineTo(180, 10);
+            shape.lineTo(200, 10);
+            shape.lineTo(200, -10);
+            shape.lineTo(180, -10);
+            shape.lineTo(180, -20);
+            shape.lineTo(0, -20);
+            shape.lineTo(0, 0);
+
+            // 开口
+            shape.absarc(180, 0, 10, -Math.PI / 4, Math.PI / 4, false);
+
+            // 设置挤压参数
+            const extrudeSettings = {
+                steps: 2,
+                depth: 5,
+                bevelEnabled: false
+            };
+
+            // 创建几何体和材料
+            const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+            const material = new THREE.MeshStandardMaterial({
+                color: 0xaaaaaa,
+                metalness: 0.8,
+                roughness: 0.3
+            });
+
+            return new THREE.Mesh(geometry, material);
+        }
+
+
+        // 创建场景、摄像机和渲染器
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // 添加扳手到场景
+        const wrench = createWrench();
+        scene.add(wrench);
+
+        // 添加一个环境光源
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        // 添加一个定向光源
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(0, 1, 1);
+        scene.add(directionalLight);
+
+        // 设置摄像机位置
+        camera.position.set(0, 0, 100);
+
+        function animate() {
+            requestAnimationFrame(animate);
+            wrench.rotation.x += 0.01;
+            wrench.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+        animate();
+
     </script>
 
-    <img id="aaa" style="left: 20%;top: 20%;height: 30%;width: 30%;position: absolute;" src="" />
+    <!-- <img id="aaa" style="left: 20%;top: 20%;height: 30%;width: 30%;position: absolute;" src="" /> -->
 </body>
 
 </html>
