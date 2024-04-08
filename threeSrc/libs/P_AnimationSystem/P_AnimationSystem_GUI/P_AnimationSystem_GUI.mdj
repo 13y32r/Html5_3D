@@ -6206,7 +6206,7 @@
 									"font": "Arial;13;0",
 									"left": 1216,
 									"top": 192,
-									"width": 217.25341796875,
+									"width": 230.44384765625,
 									"height": 85,
 									"autoResize": true,
 									"text": "这里的状态应该是根据编辑器控制\n对象中选中的物体来决定的，但这\n里只做初始化，在后面的的更新属\n性函数updateAnimatedObject（）\n中会对其属性进行刷新。",
@@ -6226,7 +6226,7 @@
 										"$ref": "AAAAAAGIiwCWROZzWYI="
 									},
 									"lineStyle": 1,
-									"points": "1035:271;1215:248"
+									"points": "1037:271;1215:249"
 								},
 								{
 									"_type": "UMLActionView",

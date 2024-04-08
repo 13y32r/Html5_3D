@@ -1,0 +1,155 @@
+{
+  "type": "float-area",
+  "_widgets": [
+    [
+      {
+        "widget": {
+          "constructionOptions": {
+            "factoryId": "code-editor-opener",
+            "options": {
+              "kind": "navigatable",
+              "uri": "file:///e%3A/Html5_3D/initTest.html",
+              "floatAreaId": "a862ca3b-2ce9-4a2f-9f42-25d3f96c67d1"
+            }
+          },
+          "innerWidgetState": {
+            "cursorState": [
+              {
+                "inSelectionMode": true,
+                "selectionStart": {
+                  "lineNumber": 8,
+                  "column": 4
+                },
+                "position": {
+                  "lineNumber": 8,
+                  "column": 24
+                }
+              }
+            ],
+            "viewState": {
+              "scrollLeft": 0,
+              "firstPosition": {
+                "lineNumber": 1,
+                "column": 1
+              },
+              "firstPositionDeltaTop": 0
+            },
+            "contributionsState": {
+              "editor.contrib.folding": {
+                "lineCount": 48,
+                "provider": "indent",
+                "foldedImports": false
+              },
+              "editor.contrib.wordHighlighter": false
+            }
+          }
+        },
+        "width": 763.5735392689785,
+        "height": 450,
+        "spacing": 0
+      },
+      {
+        "widget": {
+          "constructionOptions": {
+            "factoryId": "code-editor-opener",
+            "options": {
+              "kind": "navigatable",
+              "uri": "file:///e%3A/Html5_3D/main/init.js",
+              "floatAreaId": "a862ca3b-2ce9-4a2f-9f42-25d3f96c67d1"
+            }
+          },
+          "innerWidgetState": {
+            "cursorState": [
+              {
+                "inSelectionMode": false,
+                "selectionStart": {
+                  "lineNumber": 13,
+                  "column": 19
+                },
+                "position": {
+                  "lineNumber": 13,
+                  "column": 19
+                }
+              }
+            ],
+            "viewState": {
+              "scrollLeft": 0,
+              "firstPosition": {
+                "lineNumber": 1,
+                "column": 1
+              },
+              "firstPositionDeltaTop": 0
+            },
+            "contributionsState": {
+              "editor.contrib.folding": {
+                "lineCount": 276,
+                "provider": "syntax",
+                "foldedImports": false
+              },
+              "editor.contrib.wordHighlighter": true
+            }
+          }
+        },
+        "width": 763.5735392689785,
+        "height": 450,
+        "spacing": 0
+      }
+    ],
+    [
+      {
+        "widget": {
+          "constructionOptions": {
+            "factoryId": "code-editor-opener",
+            "options": {
+              "kind": "navigatable",
+              "uri": "file:///e%3A/Html5_3D/threeSrc/editor/EditorState.js",
+              "floatAreaId": "a862ca3b-2ce9-4a2f-9f42-25d3f96c67d1"
+            }
+          },
+          "innerWidgetState": {
+            "cursorState": [
+              {
+                "inSelectionMode": false,
+                "selectionStart": {
+                  "lineNumber": 11,
+                  "column": 7
+                },
+                "position": {
+                  "lineNumber": 11,
+                  "column": 7
+                }
+              }
+            ],
+            "viewState": {
+              "scrollLeft": 16,
+              "firstPosition": {
+                "lineNumber": 11,
+                "column": 1
+              },
+              "firstPositionDeltaTop": 0
+            },
+            "contributionsState": {
+              "editor.contrib.folding": {
+                "collapsedRegions": [],
+                "lineCount": 13,
+                "foldedImports": false
+              },
+              "editor.contrib.wordHighlighter": false
+            }
+          }
+        },
+        "height": 450,
+        "spacing": 0
+      }
+    ]
+  ],
+  "_widths": [
+    763.5735392689785,
+    600
+  ],
+  "_modelData": {
+    "connections": [],
+    "annotations": [],
+    "highlights": []
+  }
+}

@@ -1,0 +1,474 @@
+{
+  "bottomPanel": {
+    "config": {
+      "main": {
+        "type": "tab-area",
+        "widgets": [
+          {
+            "constructionOptions": {
+              "factoryId": "problems"
+            },
+            "innerWidgetState": {}
+          },
+          {
+            "constructionOptions": {
+              "factoryId": "outputView"
+            },
+            "innerWidgetState": {
+              "locked": false
+            }
+          }
+        ],
+        "currentIndex": 0
+      }
+    },
+    "expanded": false
+  },
+  "leftPanel": {
+    "type": "sidepanel",
+    "items": [
+      {
+        "widget": {
+          "constructionOptions": {
+            "factoryId": "explorer-view-container"
+          },
+          "innerWidgetState": {
+            "parts": [
+              {
+                "widget": {
+                  "constructionOptions": {
+                    "factoryId": "files"
+                  },
+                  "innerWidgetState": {
+                    "decorations": {
+                      "/e:/Html5_3D": [
+                        {
+                          "fontData": {
+                            "color": "rgba(255, 148, 0, .5)"
+                          }
+                        }
+                      ],
+                      "/e:/Html5_3D:/e:/Html5_3D/initTest.html": [
+                        {
+                          "fontData": {
+                            "color": "rgba(255, 148, 0, 1)"
+                          }
+                        }
+                      ]
+                    },
+                    "root": {
+                      "id": "WorkspaceNodeId",
+                      "name": "WorkspaceNode",
+                      "children": [
+                        {
+                          "id": "/e:/Html5_3D",
+                          "uri": "file:///e%3A/Html5_3D",
+                          "expanded": true,
+                          "selected": false,
+                          "children": [
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/.codemap",
+                              "uri": "file:///e%3A/Html5_3D/.codemap",
+                              "expanded": false,
+                              "selected": false,
+                              "children": [],
+                              "stat": {
+                                "type": 2
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/.github",
+                              "uri": "file:///e%3A/Html5_3D/.github",
+                              "expanded": false,
+                              "selected": false,
+                              "children": [],
+                              "stat": {
+                                "type": 2
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/.vscode",
+                              "uri": "file:///e%3A/Html5_3D/.vscode",
+                              "expanded": false,
+                              "selected": false,
+                              "children": [],
+                              "stat": {
+                                "type": 2
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/assist",
+                              "uri": "file:///e%3A/Html5_3D/assist",
+                              "expanded": false,
+                              "selected": false,
+                              "children": [],
+                              "stat": {
+                                "type": 2
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/css_file",
+                              "uri": "file:///e%3A/Html5_3D/css_file",
+                              "expanded": false,
+                              "selected": false,
+                              "children": [],
+                              "stat": {
+                                "type": 2
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/main",
+                              "uri": "file:///e%3A/Html5_3D/main",
+                              "expanded": false,
+                              "selected": false,
+                              "children": [],
+                              "stat": {
+                                "type": 2
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/menuGUI",
+                              "uri": "file:///e%3A/Html5_3D/menuGUI",
+                              "expanded": false,
+                              "selected": false,
+                              "children": [],
+                              "stat": {
+                                "type": 2
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/node_modules",
+                              "uri": "file:///e%3A/Html5_3D/node_modules",
+                              "expanded": false,
+                              "selected": false,
+                              "children": [],
+                              "stat": {
+                                "type": 2
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/Resource",
+                              "uri": "file:///e%3A/Html5_3D/Resource",
+                              "expanded": false,
+                              "selected": false,
+                              "children": [],
+                              "stat": {
+                                "type": 2
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/serverTest",
+                              "uri": "file:///e%3A/Html5_3D/serverTest",
+                              "expanded": false,
+                              "selected": false,
+                              "children": [],
+                              "stat": {
+                                "type": 2
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/testWeb",
+                              "uri": "file:///e%3A/Html5_3D/testWeb",
+                              "expanded": false,
+                              "selected": false,
+                              "children": [],
+                              "stat": {
+                                "type": 2
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/threeSrc",
+                              "uri": "file:///e%3A/Html5_3D/threeSrc",
+                              "expanded": false,
+                              "selected": false,
+                              "children": [],
+                              "stat": {
+                                "type": 2
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/uploads",
+                              "uri": "file:///e%3A/Html5_3D/uploads",
+                              "expanded": false,
+                              "selected": false,
+                              "children": [],
+                              "stat": {
+                                "type": 2
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/.gitattributes",
+                              "uri": "file:///e%3A/Html5_3D/.gitattributes",
+                              "selected": false,
+                              "stat": {
+                                "type": 1
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/2DTest.html",
+                              "uri": "file:///e%3A/Html5_3D/2DTest.html",
+                              "selected": false,
+                              "stat": {
+                                "type": 1
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/3D-WEB.html",
+                              "uri": "file:///e%3A/Html5_3D/3D-WEB.html",
+                              "selected": false,
+                              "stat": {
+                                "type": 1
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/意识训练网站.xmind",
+                              "uri": "file:///e%3A/Html5_3D/%E6%84%8F%E8%AF%86%E8%AE%AD%E7%BB%83%E7%BD%91%E7%AB%99.xmind",
+                              "selected": false,
+                              "stat": {
+                                "type": 1
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/createdOnWebEditor.txt",
+                              "uri": "file:///e%3A/Html5_3D/createdOnWebEditor.txt",
+                              "selected": false,
+                              "stat": {
+                                "type": 1
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/first3D.html",
+                              "uri": "file:///e%3A/Html5_3D/first3D.html",
+                              "selected": false,
+                              "stat": {
+                                "type": 1
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/img64Test.html",
+                              "uri": "file:///e%3A/Html5_3D/img64Test.html",
+                              "selected": false,
+                              "stat": {
+                                "type": 1
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/initTest.html",
+                              "uri": "file:///e%3A/Html5_3D/initTest.html",
+                              "selected": true,
+                              "focus": true,
+                              "stat": {
+                                "type": 1
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/JsLoader.js",
+                              "uri": "file:///e%3A/Html5_3D/JsLoader.js",
+                              "selected": false,
+                              "stat": {
+                                "type": 1
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/LICENSE.txt",
+                              "uri": "file:///e%3A/Html5_3D/LICENSE.txt",
+                              "selected": false,
+                              "stat": {
+                                "type": 1
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/package-lock.json",
+                              "uri": "file:///e%3A/Html5_3D/package-lock.json",
+                              "selected": false,
+                              "stat": {
+                                "type": 1
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/package.json",
+                              "uri": "file:///e%3A/Html5_3D/package.json",
+                              "selected": false,
+                              "stat": {
+                                "type": 1
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/README.md",
+                              "uri": "file:///e%3A/Html5_3D/README.md",
+                              "selected": false,
+                              "stat": {
+                                "type": 1
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/test.js",
+                              "uri": "file:///e%3A/Html5_3D/test.js",
+                              "selected": false,
+                              "stat": {
+                                "type": 1
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/testInConsole.js",
+                              "uri": "file:///e%3A/Html5_3D/testInConsole.js",
+                              "selected": false,
+                              "stat": {
+                                "type": 1
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/testInConsole2.js",
+                              "uri": "file:///e%3A/Html5_3D/testInConsole2.js",
+                              "selected": false,
+                              "stat": {
+                                "type": 1
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/web.config",
+                              "uri": "file:///e%3A/Html5_3D/web.config",
+                              "selected": false,
+                              "stat": {
+                                "type": 1
+                              }
+                            },
+                            {
+                              "id": "/e:/Html5_3D:/e:/Html5_3D/Zv9LTHVoBl.txt",
+                              "uri": "file:///e%3A/Html5_3D/Zv9LTHVoBl.txt",
+                              "selected": false,
+                              "stat": {
+                                "type": 1
+                              }
+                            }
+                          ],
+                          "visible": false,
+                          "focus": false,
+                          "stat": {
+                            "type": 2,
+                            "ctime": 1646193888532,
+                            "mtime": 1710393831208,
+                            "size": 0
+                          }
+                        }
+                      ],
+                      "visible": false,
+                      "selected": false
+                    },
+                    "model": {
+                      "selection": {
+                        "selectionStack": [
+                          {
+                            "focus": "/e:/Html5_3D:/e:/Html5_3D/initTest.html",
+                            "node": "/e:/Html5_3D:/e:/Html5_3D/initTest.html",
+                            "type": 1
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "partId": "{\"factoryId\":\"files\"}",
+                "collapsed": false,
+                "hidden": false,
+                "relativeSize": 1
+              },
+              {
+                "widget": {
+                  "constructionOptions": {
+                    "factoryId": "plugin-view",
+                    "options": {
+                      "id": "plugin-view:go.explorer",
+                      "viewId": "go.explorer"
+                    }
+                  },
+                  "innerWidgetState": {
+                    "label": "go",
+                    "widgets": []
+                  }
+                },
+                "partId": "{\"factoryId\":\"plugin-view\",\"options\":{\"id\":\"plugin-view:go.explorer\",\"viewId\":\"go.explorer\"}}",
+                "collapsed": true,
+                "hidden": true
+              },
+              {
+                "widget": {
+                  "constructionOptions": {
+                    "factoryId": "plugin-view",
+                    "options": {
+                      "id": "plugin-view:npm",
+                      "viewId": "npm"
+                    }
+                  },
+                  "innerWidgetState": {
+                    "label": "NPM Scripts",
+                    "widgets": []
+                  }
+                },
+                "partId": "{\"factoryId\":\"plugin-view\",\"options\":{\"id\":\"plugin-view:npm\",\"viewId\":\"npm\"}}",
+                "collapsed": true,
+                "hidden": true
+              }
+            ],
+            "title": {
+              "label": "资源树",
+              "iconClass": "codemap-files-icon",
+              "closeable": true
+            }
+          }
+        },
+        "rank": 100,
+        "expanded": true
+      },
+      {
+        "widget": {
+          "constructionOptions": {
+            "factoryId": "search-in-workspace"
+          },
+          "innerWidgetState": {
+            "matchCaseState": {
+              "className": "match-case",
+              "enabled": true,
+              "title": "Match Case"
+            },
+            "wholeWordState": {
+              "className": "whole-word",
+              "enabled": true,
+              "title": "Match Whole Word"
+            },
+            "regExpState": {
+              "className": "use-regexp",
+              "enabled": false,
+              "title": "Use Regular Expression"
+            },
+            "includeIgnoredState": {
+              "className": "include-ignored fa fa-eye",
+              "enabled": false,
+              "title": "Include Ignored Files"
+            },
+            "showSearchDetails": false,
+            "searchInWorkspaceOptions": {
+              "matchCase": true,
+              "matchWholeWord": true,
+              "useRegExp": false,
+              "includeIgnored": false,
+              "include": [],
+              "exclude": [],
+              "maxResults": 2000
+            },
+            "searchTerm": "",
+            "replaceTerm": "",
+            "showReplaceField": false
+          }
+        },
+        "rank": 200,
+        "expanded": false
+      }
+    ],
+    "size": 150
+  },
+  "rightPanel": {
+    "type": "sidepanel",
+    "items": []
+  }
+}
