@@ -290,6 +290,18 @@ input::-webkit-inner-spin-button {
   opacity: 10%;
 }
 
+.EventUnitRowsScrollArea .AttributeCellPromptBar {
+  position: relative;
+  margin-top: 2px;
+  margin-bottom: 4px;
+  width: calc(100% - 2px);
+  height: 16px;
+  border: solid 1px #fff;
+  background-color: #6e6e6e;
+  border-radius: 2px;
+  opacity: 10%;
+}
+
 .NoObjectTips {
   height: 100%;
   width: var(--rightAreaWidth);

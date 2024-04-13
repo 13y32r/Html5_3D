@@ -552,6 +552,7 @@ class AttributeCell extends UIDiv {
 
     that.floorNumber = 0;
     that.promptBar = null;
+    that.attributeName = attName;
 
     that.myInnerOffsetLeft = 0;
     if (!objectName) {
@@ -596,6 +597,7 @@ class AttributeCell extends UIDiv {
     that.promptBar.dom.addEventListener("contextmenu", function (event) {
       event.preventDefault();
       console.log("AttributeCellPromptBar contextmenu.");
+      console.log("Cell is: " + animationPanel.objAttributeShowArea.cellsArray[that.floorNumber - 1]);
     });
 
     that.setValueObj = null;
@@ -946,6 +948,27 @@ class AttributeCellPromptBar extends UIDiv {
       that.attributeCellObj.promptBar = that;
     }
   };
+}
+
+class AttributeKeyframeBtnTrack extends UIDiv {
+  constructor() {
+    super();
+    let that = this;
+
+    that.setClass("AttributeKeyframeBtnTrack");
+    that.dom.addEventListener("contextmenu", function (event) {
+      event.preventDefault();
+    });
+  }
+
+  dispose = () => {
+    let that = this;
+
+    that.dom.removeEventListener("contextmenu", function (event) {
+      event.preventDefault();
+    });
+  };
+
 }
 
 const UnitType = {
@@ -2093,7 +2116,7 @@ class P_AnimationSystem_GUI_TimeLine {
   updateAnimationClip = (animationClip) => {
     let that = this;
 
-    //显示的所有关键帧按钮对象的集合
+    //totalKeyframeBtns格式是{"所在的帧":"该帧下唯一的一个TotalKeyframeBtn对象按钮"}，它存储了当前剪辑下所有的TotalKeyframeBtn对象
     that.totalKeyframeBtns = {};
 
     that.animationClip = animationClip;
@@ -2276,7 +2299,7 @@ class P_AnimationSystem_GUI_TimeLine {
     const valueType = track.ValueTypeName;
     that.currentClipProps[attrName].valueType = valueType;
     that.currentClipProps[attrName].Keyframes = track.times.map(
-      (item) => item * that.sampleNumber
+      (item) => Math.round(item * that.sampleNumber)
     );
 
     //这里根据valueType的不同，来设置不同来设置currentClipProps属性对象的values数组的维度
@@ -2295,6 +2318,8 @@ class P_AnimationSystem_GUI_TimeLine {
         dimParam = 1;
         break;
     }
+    that.currentClipProps[attrName].dimParam = dimParam;
+
     if (dimParam != 1) {
       for (let i = 0; i < track.values.length; i += dimParam) {
         that.currentClipProps[attrName].values.push(
@@ -2306,9 +2331,30 @@ class P_AnimationSystem_GUI_TimeLine {
     }
   };
 
+  //更新时间刻度上的关键帧按钮
+  updateAttributeKeyframeBtns = (attrName) => {
+    let that = this;
+
+    const cellsArray = that.objAttributeShowArea.cellsArray;
+    const currentAttrProps = that.currentClipProps[attrName];
+    for (let i = 0; i < currentAttrProps.Keyframes.length; i++) {
+      const keyframe = currentAttrProps.Keyframes[i];
+      console.log(keyframe);
+    }
+  };
+
   //将面板的当前剪辑的动画属性对象“currentClipProps”里的所有属性转化为关键帧轨道并添加到当前动画剪辑里
   currentClipPropsToAnimationClip = () => {
     let that = this;
+  };
+
+  //更新AttributeCell元素的楼层号‘FloorNumber’
+  updateAttributeCellFloorNumber = () => {
+    let that = this;
+
+    that.objAttributeShowArea.cellsArray.forEach((item, index) => {
+      item.floorNumber = index + 1;
+    });
   };
 
   //插入AttributeCell元素
@@ -2325,8 +2371,6 @@ class P_AnimationSystem_GUI_TimeLine {
     const objName = that.object.name;
     const attrName = attributeName;
     const valueType = that.currentClipProps[attributeName].valueType;
-
-    console.log("valueType:", valueType);
 
     let isOdd = !(cellID % 2);
 
@@ -2354,6 +2398,9 @@ class P_AnimationSystem_GUI_TimeLine {
       that.objAttributeShowArea.add(cell);
       that.eventUnitRowsScrollArea.add(cell.promptBar);
     }
+
+    that.updateAttributeCellFloorNumber();
+    that.updateAttributeKeyframeBtns(attrName);
 
     //如果创建的新的AttributeCell元素具有下拉卷展按钮，则监听其事件
     if (cell.rollButton) {
@@ -2392,6 +2439,8 @@ class P_AnimationSystem_GUI_TimeLine {
     );
 
     that.objAttributeShowArea.cellsArray.splice(cellID, 1);
+    that.updateAttributeCellFloorNumber();
+    that.updateAttributeKeyframeBtns(attributeName);
   };
 
   //属性栏前面那个卷展按钮的触发事件
@@ -2470,6 +2519,9 @@ class P_AnimationSystem_GUI_TimeLine {
       }
     }
 
+    that.updateAttributeCellFloorNumber();
+    that.updateAttributeKeyframeBtns(cell.attributeName);
+
     that.whileObjAreaScrollHeightChangedAdjustObjColumnCellsTop();
     that.objAreaScrollAddOrDelVerticalScrollBar_AndAdjustObjColumnCellsWidth();
     //这里由于左边的属性列展开后高度发生变化，所以右边的事件列的高度也要随之改变。
@@ -2494,12 +2546,13 @@ class P_AnimationSystem_GUI_TimeLine {
     return attrName;
   };
 
+  //获取框选中的关键帧按钮
   getSelectedKeyframeBtns = (event) => {
     let that = this;
 
     let selectDoms = event.detail;
     if (selectDoms.length != 0) {
-      that.curSelKeyBtns = selectDoms.map(item => item.initObject);
+      that.curSelKeyBtns = selectDoms.map((item) => item.initObject);
     }
     console.log("selectDoms:", selectDoms);
   };
@@ -2514,18 +2567,22 @@ class P_AnimationSystem_GUI_TimeLine {
     that.curSelAttrCells = [];
     //重置或初始化动画面板当前选中的关键帧按钮
     that.curSelKeyBtns = [];
-    //totalKeyframeBtns格式是{"所在的帧":"该帧下唯一的一个TotalKeyframeBtn对象按钮"}，它存储了当前剪辑下所有的TotalKeyframeBtn对象
-    that.totalKeyframeBtns = {};
     //判断关键帧选择器是否已经被创建，如果已经创建，则销毁原有的关键帧选择器
     if ("keyframeSelector" in that) {
-      that.eventColumnCells_Content.dom.removeEventListener("SelectedDoms", that.getSelectedKeyframeBtns);
+      that.eventColumnCells_Content.dom.removeEventListener(
+        "SelectedDoms",
+        that.getSelectedKeyframeBtns
+      );
       that.keyframeSelector.dispose();
       that.keyframeSelector = null;
     }
     that.keyframeSelector = new globalInstances.preloadItems[
       "ReturnBoxSelectedDom"
     ](["#box1", "#box2"], that.eventColumnCells_Content.dom);
-    that.eventColumnCells_Content.dom.addEventListener("SelectedDoms", that.getSelectedKeyframeBtns);
+    that.eventColumnCells_Content.dom.addEventListener(
+      "SelectedDoms",
+      that.getSelectedKeyframeBtns
+    );
 
     //这里获取动画剪辑的最大动画时间，并刷新时间轴。
     that.animationClipMaxTime = animationClip.duration;
@@ -2833,6 +2890,7 @@ class P_AnimationSystem_GUI_TimeLine {
 
     that.timeScaleBar.clear();
     that.labelFrameArray.length = 0;
+
     //这里先清空底部刻度线
     while (that.bottomTickMarkArray.length) {
       let lastId = that.bottomTickMarkArray.length - 1;

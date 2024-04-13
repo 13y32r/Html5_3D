@@ -42,7 +42,7 @@
 
     <script type="module">
         window["GaoDaShang"] = "Hello World!直接访问的全局变量。";
-        alert(GaoDaShang);
+        // alert(GaoDaShang);
         // import { initSignals } from "./threeSrc/libs/signals.dynamic.js";
         // initSignals(window);
         // var Signal = signals.Signal;
@@ -346,6 +346,13 @@
             renderer.render(scene, camera);
         }
     </script>
+
+    <div style="height: 300px; width: 400px;background-color: chocolate; position: absolute;left: 100px;top: 100px;">
+        <div
+            style="height: 100px;width: 80px;background-color: blue;position: relative;left: 400px;margin: 10px;padding: 10px;">
+            Hello World!
+        </div>
+    </div>
 </body>
 
 </html>
