@@ -595,14 +595,8 @@ class AttributeCell extends UIDiv {
 
     let showName;
     that.promptBar = new AttributeCellPromptBar(that);
-    that.promptBar.dom.addEventListener("contextmenu", function (event) {
-      event.preventDefault();
-      console.log("AttributeCellPromptBar contextmenu.");
-      console.log("Cell is: " + animationPanel.objAttributeShowArea.cellsArray[that.floorNumber - 1]);
-    });
 
-    that.keyFrameBtnTrack = new AttributeKeyframeBtnTrack();
-    that.keyFrameBtnTrack.addClass("AttributeKeyframeBtnTrack_NormalArea");
+    that.keyFrameBtnTrack = new AttributeKeyframeBtnTrack(that.promptBar);
 
     that.setValueObj = null;
 
@@ -955,14 +949,22 @@ class AttributeCellPromptBar extends UIDiv {
 }
 
 class AttributeKeyframeBtnTrack extends UIDiv {
-  constructor() {
+  constructor(promptBar) {
     super();
     let that = this;
 
+    that.promptBar = promptBar;
+
     that.setClass("AttributeKeyframeBtnTrack");
+    that.addClass("AttributeKeyframeBtnTrack_NormalArea");
+
     that.dom.addEventListener("contextmenu", function (event) {
       event.preventDefault();
     });
+
+    that.dom.addEventListener("pointerover", promptBar.pointerHover);
+    that.dom.addEventListener("pointerout", promptBar.pointerOut);
+    that.dom.addEventListener("pointerdown", promptBar.elementActive);
   }
 
   dispose = () => {
@@ -971,6 +973,10 @@ class AttributeKeyframeBtnTrack extends UIDiv {
     that.dom.removeEventListener("contextmenu", function (event) {
       event.preventDefault();
     });
+
+    that.dom.removeEventListener("pointerover", that.promptBar.pointerHover);
+    that.dom.removeEventListener("pointerout", that.promptBar.pointerOut);
+    that.dom.removeEventListener("pointerdown", that.promptBar.elementActive);
   };
 
 }
@@ -1228,6 +1234,7 @@ class P_AnimationSystem_GUI_TimeLine {
     that.eventColumnCells_Content = new UIDiv();
     that.eventColumnCells_Content_BackgroundShowArea = new UIDiv();
     that.keyframeBtns_DisplayArea = new UIDiv();
+    that.attributeKeyframeBtnTrack_TotalArea = new UIDiv();
     that.eventUnitRowsScrollArea = new UIDiv();
     that.rightAreaHorizontalScrollBar = new HorizontalScrollBar(
       that.rightScrollContainer.dom,
@@ -1283,6 +1290,8 @@ class P_AnimationSystem_GUI_TimeLine {
       "EventColumnCells_Content_BackgroundShowArea"
     );
     that.keyframeBtns_DisplayArea.setClass("KeyframeBtns_DisplayArea");
+    that.attributeKeyframeBtnTrack_TotalArea.setClass("AttributeKeyframeBtnTrack");
+    that.attributeKeyframeBtnTrack_TotalArea.addClass("AttributeKeyframeBtnTrack_TotalArea");
 
     that.eventUnitRowsScrollArea.setClass("EventUnitRowsScrollArea");
 
@@ -1905,6 +1914,7 @@ class P_AnimationSystem_GUI_TimeLine {
     that.eventColumnCells_Content.add(
       that.eventColumnCells_Content_BackgroundShowArea
     );
+    that.keyframeBtns_DisplayArea.add(that.attributeKeyframeBtnTrack_TotalArea);
     that.eventColumnCells_Content.add(that.keyframeBtns_DisplayArea);
     that.eventColumnCells_Content.add(that.eventUnitRowsScrollArea);
     that.eventColumnCells_Container.add(that.eventColumnCells_Content);
@@ -2400,10 +2410,15 @@ class P_AnimationSystem_GUI_TimeLine {
         cell.promptBar.dom,
         that.eventUnitRowsScrollArea.dom.children[cellID]
       );
+      that.keyframeBtns_DisplayArea.dom.insertBefore(
+        cell.keyFrameBtnTrack.dom,
+        that.keyframeBtns_DisplayArea.dom.children[cellID + 1]
+      )
     } else {
       that.objAttributeShowArea.cellsArray.push(cell);
       that.objAttributeShowArea.add(cell);
       that.eventUnitRowsScrollArea.add(cell.promptBar);
+      that.keyframeBtns_DisplayArea.add(cell.keyFrameBtnTrack);
     }
 
     that.updateAttributeCellFloorNumber();
@@ -2439,6 +2454,8 @@ class P_AnimationSystem_GUI_TimeLine {
 
     that.objAttributeShowArea.remove(cell);
     that.eventUnitRowsScrollArea.remove(cell.promptBar);
+    that.keyframeBtns_DisplayArea.remove(cell.keyFrameBtnTrack);
+    cell.keyFrameBtnTrack.dispose();
 
     cell.dom.removeEventListener(
       "attrCellPointerDown",
@@ -2466,14 +2483,17 @@ class P_AnimationSystem_GUI_TimeLine {
       for (let i = 0; i < paramsLength; i++) {
         let followingDomLeft;
         let followingDomRight;
+        let followingDomRightKeyframeBtnArea;
         if (that.objAttributeShowArea.cellsArray[cellID + 1 + i]) {
           followingDomLeft =
             that.objAttributeShowArea.cellsArray[cellID + 1 + i].dom;
           followingDomRight =
             that.eventUnitRowsScrollArea.dom.children[cellID + 1 + i];
+          followingDomRightKeyframeBtnArea = that.keyframeBtns_DisplayArea.dom.children[cellID + 2 + i];
         } else {
           followingDomLeft = null;
           followingDomRight = null;
+          followingDomRightKeyframeBtnArea = null;
         }
 
         that.objAttributeShowArea.dom.insertBefore(
@@ -2484,6 +2504,11 @@ class P_AnimationSystem_GUI_TimeLine {
           cell.paramArray[i].promptBar.dom,
           followingDomRight
         );
+        that.keyframeBtns_DisplayArea.dom.insertBefore(
+          cell.paramArray[i].keyFrameBtnTrack.dom,
+          followingDomRightKeyframeBtnArea
+        );
+
         that.objAttributeShowArea.cellsArray.splice(
           cellID + 1 + i,
           0,
@@ -2500,6 +2525,7 @@ class P_AnimationSystem_GUI_TimeLine {
       for (let i = 0; i < paramsLength; i++) {
         that.objAttributeShowArea.remove(cell.paramArray[i]);
         that.eventUnitRowsScrollArea.remove(cell.paramArray[i].promptBar);
+        that.keyframeBtns_DisplayArea.remove(cell.paramArray[i].keyFrameBtnTrack);
         cell.paramArray[i].dom.removeEventListener(
           "attrCellPointerDown",
           that.allAttributeCellNoActive
@@ -2601,6 +2627,9 @@ class P_AnimationSystem_GUI_TimeLine {
     that.objAttributeShowArea.cellsArray.length = 0;
     that.objAttributeShowArea.clear();
     that.eventUnitRowsScrollArea.clear();
+    that.keyframeBtns_DisplayArea.clear();
+
+    that.keyframeBtns_DisplayArea.add(that.attributeKeyframeBtnTrack_TotalArea);
 
     for (let j = 0; j < animationClip.tracks.length; j++) {
       that.addTrackToCurrentClipProps(animationClip.tracks[j]);
