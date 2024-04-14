@@ -552,6 +552,7 @@ class AttributeCell extends UIDiv {
 
     that.floorNumber = 0;
     that.promptBar = null;
+    that.keyFrameBtnTrack = null;
     that.attributeName = attName;
 
     that.myInnerOffsetLeft = 0;
@@ -599,6 +600,9 @@ class AttributeCell extends UIDiv {
       console.log("AttributeCellPromptBar contextmenu.");
       console.log("Cell is: " + animationPanel.objAttributeShowArea.cellsArray[that.floorNumber - 1]);
     });
+
+    that.keyFrameBtnTrack = new AttributeKeyframeBtnTrack();
+    that.keyFrameBtnTrack.addClass("AttributeKeyframeBtnTrack_NormalArea");
 
     that.setValueObj = null;
 
@@ -1223,6 +1227,7 @@ class P_AnimationSystem_GUI_TimeLine {
     that.eventColumnCells_Container = new UIDiv();
     that.eventColumnCells_Content = new UIDiv();
     that.eventColumnCells_Content_BackgroundShowArea = new UIDiv();
+    that.keyframeBtns_DisplayArea = new UIDiv();
     that.eventUnitRowsScrollArea = new UIDiv();
     that.rightAreaHorizontalScrollBar = new HorizontalScrollBar(
       that.rightScrollContainer.dom,
@@ -1277,6 +1282,7 @@ class P_AnimationSystem_GUI_TimeLine {
     that.eventColumnCells_Content_BackgroundShowArea.setClass(
       "EventColumnCells_Content_BackgroundShowArea"
     );
+    that.keyframeBtns_DisplayArea.setClass("KeyframeBtns_DisplayArea");
 
     that.eventUnitRowsScrollArea.setClass("EventUnitRowsScrollArea");
 
@@ -1899,6 +1905,7 @@ class P_AnimationSystem_GUI_TimeLine {
     that.eventColumnCells_Content.add(
       that.eventColumnCells_Content_BackgroundShowArea
     );
+    that.eventColumnCells_Content.add(that.keyframeBtns_DisplayArea);
     that.eventColumnCells_Content.add(that.eventUnitRowsScrollArea);
     that.eventColumnCells_Container.add(that.eventColumnCells_Content);
     that.rightScrollContent.add(that.eventColumnCells_Container);
