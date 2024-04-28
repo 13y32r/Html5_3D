@@ -99,6 +99,7 @@ class ReturnBoxSelectedDom {
     targetDoms.forEach((targetDom) => {
       const boxRect = targetDom.getBoundingClientRect();
       const selectRect = that.selectBox.getBoundingClientRect();
+
       if (
         boxRect.left > selectRect.left &&
         boxRect.right < selectRect.right &&

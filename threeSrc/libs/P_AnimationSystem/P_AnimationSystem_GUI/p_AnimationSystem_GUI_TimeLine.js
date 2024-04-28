@@ -1971,8 +1971,8 @@ class P_AnimationSystem_GUI_TimeLine {
       that.eventColumnCells_Content_BackgroundShowArea
     );
     that.keyframeBtns_DisplayArea.add(that.attributeKeyframeBtnTrack_TotalArea);
-    that.eventColumnCells_Content.add(that.keyframeBtns_DisplayArea);
     that.eventColumnCells_Content.add(that.eventUnitRowsScrollArea);
+    that.eventColumnCells_Content.add(that.keyframeBtns_DisplayArea);
     that.eventColumnCells_Container.add(that.eventColumnCells_Content);
     that.rightScrollContent.add(that.eventColumnCells_Container);
     that.rightScrollContent.add(that.promptLine);
