@@ -223,9 +223,7 @@ input::-webkit-inner-spin-button {
   color: #a7a7a7;
 }
 
-.AddAttributePopupMenu
-  .AddAttributePopupMenu_Option
-  .AddAttributePopupMenu_Option_SymbolLogo {
+.AddAttributePopupMenu .AddAttributePopupMenu_Option .AddAttributePopupMenu_Option_SymbolLogo {
   height: 100%;
   width: 14px;
   background-position: center;
@@ -293,8 +291,10 @@ input::-webkit-inner-spin-button {
 .KeyframeBtns_DisplayArea .AttributeKeyframeBtnTrack {
   position: relative;
   width: 100%;
-  align-items: center; /* 垂直居中 */
-  display: flex; /* 使用 Flexbox 布局 */
+  align-items: center;
+  /* 垂直居中 */
+  display: flex;
+  /* 使用 Flexbox 布局 */
   z-index: 5;
 }
 
@@ -400,9 +400,7 @@ input::-webkit-inner-spin-button {
   flex-direction: column;
 }
 
-.RightScrollContent
-  .EventColumnCells_Content
-  .EventColumnCells_Content_BackgroundShowArea {
+.RightScrollContent .EventColumnCells_Content .EventColumnCells_Content_BackgroundShowArea {
   width: 100%;
   height: 100%;
   position: absolute;
@@ -492,7 +490,7 @@ input::-webkit-inner-spin-button {
 }
 
 .KeyframeButton {
-  position: relative;
+  position: absolute;
   width: 13px;
   height: 13px;
   background-repeat: no-repeat;

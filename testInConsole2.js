@@ -104,15 +104,7 @@
 // console.log(initFatherClass instanceof ChildClass);
 // console.log(initChildClass instanceof FatherClass);
 
-let testObject = {
-  name: "testObject",
-  sayHello: function () {
-    console.log("hello");
-  },
-  detectAttribute: function () {
-    console.log("something" in this);
-    console.log("name" in this);
-  },
-};
-
-testObject.detectAttribute();
+const testArray = [];
+testArray.push([1,2,3]);
+testArray.push([4,5,6]);
+console.log(testArray[0]);

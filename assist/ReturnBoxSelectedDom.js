@@ -92,6 +92,9 @@ class ReturnBoxSelectedDom {
     const targetDoms = this.certainReceptionDom.querySelectorAll(
       that.selectTypeString
     );
+
+    console.log("targetDoms:", targetDoms);
+
     this.selectedDoms.length = 0;
     targetDoms.forEach((targetDom) => {
       const boxRect = targetDom.getBoundingClientRect();
